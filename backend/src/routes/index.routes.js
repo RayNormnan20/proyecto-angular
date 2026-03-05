@@ -1,0 +1,19 @@
+const express = require('express');
+const router = express.Router();
+const authRoutes = require('../modules/auth/auth.routes');
+const userRoutes = require('../modules/users/user.routes');
+const roleRoutes = require('../modules/roles/role.routes');
+const permissionRoutes = require('../modules/permissions/permission.routes');
+
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
+router.use('/roles', roleRoutes);
+router.use('/permissions', permissionRoutes);
+
+// Ejemplo de ruta protegida para verificar el token
+const verifyToken = require('../middlewares/auth.middleware');
+router.get('/protected', verifyToken, (req, res) => {
+  res.json({ message: 'Acceso autorizado', user: req.user });
+});
+
+module.exports = router;

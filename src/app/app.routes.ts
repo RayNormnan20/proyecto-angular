@@ -20,6 +20,7 @@ import { BrandFormComponent } from './features/brands/pages/brand-form/brand-for
 import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
 import { HomeComponent } from './features/public/pages/home/home.component';
 import { ProductDetailComponent } from './features/public/pages/product-detail/product-detail.component';
+import { ProfileComponent } from './features/public/pages/profile/profile.component';
 
 export const routes: Routes = [
   // Rutas Públicas
@@ -29,7 +30,8 @@ export const routes: Routes = [
     children: [
       { path: '', component: HomeComponent },
       { path: 'products', component: HomeComponent }, // Alias
-      { path: 'product/:id', component: ProductDetailComponent }
+      { path: 'product/:id', component: ProductDetailComponent },
+      { path: 'profile', component: ProfileComponent }
     ]
   },
   

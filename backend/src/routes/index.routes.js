@@ -4,11 +4,17 @@ const authRoutes = require('../modules/auth/auth.routes');
 const userRoutes = require('../modules/users/user.routes');
 const roleRoutes = require('../modules/roles/role.routes');
 const permissionRoutes = require('../modules/permissions/permission.routes');
+const categoryRoutes = require('../modules/categories/category.routes');
+const brandRoutes = require('../modules/brands/brand.routes');
+const productRoutes = require('../modules/products/product.routes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
 router.use('/permissions', permissionRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/brands', brandRoutes);
+router.use('/products', productRoutes);
 
 // Ejemplo de ruta protegida para verificar el token
 const verifyToken = require('../middlewares/auth.middleware');

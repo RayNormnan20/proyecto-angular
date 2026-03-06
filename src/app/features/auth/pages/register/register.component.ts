@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../services/auth-api.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -89,6 +89,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authApi = inject(AuthApiService);
+  private router = inject(Router);
 
   registerForm = this.fb.group({
     nombre: ['', Validators.required],
@@ -111,7 +112,7 @@ export class RegisterComponent {
           this.isLoading = false;
           this.successMessage = 'Registro exitoso. Redirigiendo al login...';
           setTimeout(() => {
-             // Redirigir o similar
+             this.router.navigate(['/auth/login']);
           }, 2000);
         },
         error: (err) => {

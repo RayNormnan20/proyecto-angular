@@ -10,11 +10,24 @@ const register = async (userData) => {
 
   const hashedPassword = await hashPassword(userData.password);
 
-  // Asignar rol por defecto 'trabajador' si no se especifica
+  // Asignar rol por defecto 'usuario' si no se especifica
   let roleId = userData.rol_id;
   if (!roleId) {
-     const role = await Role.findOne({ where: { nombre: 'trabajador' } });
-     if (role) roleId = role.id_rol;
+     // Buscar rol 'usuario'
+     let role = await Role.findOne({ where: { nombre: 'usuario' } });
+     
+     // Si no existe 'usuario', intentar con 'cliente'
+     if (!role) {
+        role = await Role.findOne({ where: { nombre: 'cliente' } });
+     }
+
+     if (role) {
+        roleId = role.id_rol;
+     } else {
+        // Fallback final: Si no hay roles de usuario/cliente, lanzar error o asignar el rol con ID más alto (menos privilegios usualmente)
+        // Por seguridad, NO asignar 'trabajador' ni 'admin'
+        throw new Error('Error interno: No se pudo asignar un rol al usuario. Contacte al administrador.');
+     }
   }
 
   const user = await User.create({

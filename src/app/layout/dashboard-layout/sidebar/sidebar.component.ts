@@ -52,26 +52,10 @@ import { AuthService } from '../../../core/services/auth.service';
              <p class="text-xs text-gray-400 truncate">{{ authService.currentUser()?.role || 'Rol' }}</p>
            </div>
         </div>
-        
-        <!-- Search Bar Placeholder -->
-        <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </span>
-            <input type="text" class="w-full bg-[#252830] text-sm text-gray-300 rounded-md py-2 pl-10 pr-4 focus:outline-none focus:ring-1 focus:ring-gray-500 placeholder-gray-600" placeholder="Búsqueda rápida...">
-        </div>
       </div>
 
       <nav class="flex-1 overflow-y-auto px-4 pb-4 space-y-1">
         
-        <div class="pt-4 pb-1">
-            <p class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Principal
-            </p>
-        </div>
-
         <a 
             routerLink="/dashboard" 
             routerLinkActive="bg-[#252830] text-white border-l-4 border-orange-500" 
@@ -82,35 +66,124 @@ import { AuthService } from '../../../core/services/auth.service';
             <span class="text-lg mr-3 w-6 text-center">🏠</span> 
             <span class="font-medium text-sm">Inicio</span>
         </a>
-        
-        <ng-container *ngIf="authService.hasPermission('VER_USUARIOS') || authService.hasPermission('VER_ROLES')">
-            <div class="pt-6 pb-1">
-                <p class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Administración
-                </p>
-            </div>
 
-            <a 
-                *ngIf="authService.hasPermission('VER_USUARIOS')"
-                routerLink="/dashboard/users" 
-                routerLinkActive="bg-[#252830] text-white border-l-4 border-orange-500" 
-                (click)="close.emit()"
-                class="flex items-center px-4 py-3 text-gray-400 hover:bg-[#252830] hover:text-white transition-all duration-200 group rounded-r-md"
+        <!-- Módulo de Productos (Desplegable) -->
+        <ng-container *ngIf="authService.hasPermission('VER_PRODUCTOS') || authService.hasPermission('VER_CATEGORIAS') || authService.hasPermission('VER_MARCAS')">
+
+            <!-- Botón Padre -->
+            <button 
+                (click)="toggleProductsMenu()"
+                class="w-full flex items-center justify-between px-4 py-3 text-gray-400 hover:bg-[#252830] hover:text-white transition-all duration-200 group rounded-r-md focus:outline-none"
+                [class.text-white]="isProductsMenuOpen"
+                [class.bg-[#252830]]="isProductsMenuOpen"
             >
-                <span class="text-lg mr-3 w-6 text-center">👥</span> 
-                <span class="font-medium text-sm">Usuarios</span>
-            </a>
-            
-            <a 
-                *ngIf="authService.hasPermission('VER_ROLES')"
-                routerLink="/dashboard/roles" 
-                routerLinkActive="bg-[#252830] text-white border-l-4 border-orange-500" 
-                (click)="close.emit()"
-                class="flex items-center px-4 py-3 text-gray-400 hover:bg-[#252830] hover:text-white transition-all duration-200 group rounded-r-md"
+                <div class="flex items-center">
+                    <span class="text-lg mr-3 w-6 text-center">📦</span> 
+                    <span class="font-medium text-sm">Productos</span>
+                </div>
+                <svg 
+                    class="w-4 h-4 transition-transform duration-200" 
+                    [class.rotate-180]="isProductsMenuOpen"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            <!-- Submenú -->
+            <div 
+                *ngIf="isProductsMenuOpen" 
+                class="bg-[#15171e] overflow-hidden transition-all duration-300"
             >
-                <span class="text-lg mr-3 w-6 text-center">🛡️</span> 
-                <span class="font-medium text-sm">Roles</span>
-            </a>
+                <a 
+                    *ngIf="authService.hasPermission('VER_PRODUCTOS')"
+                    routerLink="/dashboard/products" 
+                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    (click)="close.emit()"
+                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
+                >
+                    Listado
+                </a>
+
+                <a 
+                    *ngIf="authService.hasPermission('VER_CATEGORIAS')"
+                    routerLink="/dashboard/categories" 
+                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    (click)="close.emit()"
+                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
+                >
+                    Categorías
+                </a>
+
+                <a 
+                    *ngIf="authService.hasPermission('VER_MARCAS')"
+                    routerLink="/dashboard/brands" 
+                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    (click)="close.emit()"
+                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
+                >
+                    Marcas
+                </a>
+            </div>
+        </ng-container>
+
+        <a 
+            routerLink="/" 
+            target="_blank"
+            class="flex items-center px-4 py-3 text-gray-400 hover:bg-[#252830] hover:text-white transition-all duration-200 group rounded-r-md"
+        >
+            <span class="text-lg mr-3 w-6 text-center">🌐</span> 
+            <span class="font-medium text-sm">Ver Tienda</span>
+        </a>
+        
+        <!-- Módulo de Administración (Desplegable) -->
+        <ng-container *ngIf="authService.hasPermission('VER_USUARIOS') || authService.hasPermission('VER_ROLES')">
+
+            <!-- Botón Padre -->
+            <button 
+                (click)="toggleAdminMenu()"
+                class="w-full flex items-center justify-between px-4 py-3 text-gray-400 hover:bg-[#252830] hover:text-white transition-all duration-200 group rounded-r-md focus:outline-none"
+                [class.text-white]="isAdminMenuOpen"
+                [class.bg-[#252830]]="isAdminMenuOpen"
+            >
+                <div class="flex items-center">
+                    <span class="text-lg mr-3 w-6 text-center">⚙️</span> 
+                    <span class="font-medium text-sm">Administración</span>
+                </div>
+                <svg 
+                    class="w-4 h-4 transition-transform duration-200" 
+                    [class.rotate-180]="isAdminMenuOpen"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            <!-- Submenú -->
+            <div 
+                *ngIf="isAdminMenuOpen" 
+                class="bg-[#15171e] overflow-hidden transition-all duration-300"
+            >
+                <a 
+                    *ngIf="authService.hasPermission('VER_USUARIOS')"
+                    routerLink="/dashboard/users" 
+                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    (click)="close.emit()"
+                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
+                >
+                    Usuarios
+                </a>
+                
+                <a 
+                    *ngIf="authService.hasPermission('VER_ROLES')"
+                    routerLink="/dashboard/roles" 
+                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    (click)="close.emit()"
+                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
+                >
+                    Roles y Permisos
+                </a>
+            </div>
         </ng-container>
       </nav>
     </div>
@@ -120,4 +193,15 @@ export class SidebarComponent {
   @Input() isOpen = false;
   @Output() close = new EventEmitter<void>();
   authService = inject(AuthService);
+  
+  isProductsMenuOpen = false;
+  isAdminMenuOpen = false;
+
+  toggleProductsMenu() {
+    this.isProductsMenuOpen = !this.isProductsMenuOpen;
+  }
+
+  toggleAdminMenu() {
+    this.isAdminMenuOpen = !this.isAdminMenuOpen;
+  }
 }

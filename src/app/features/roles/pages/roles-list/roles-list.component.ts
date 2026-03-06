@@ -214,6 +214,9 @@ export class RolesListComponent implements OnInit {
       // Normalize group names
       if (groupName.includes('USUARIO')) groupName = 'USUARIOS';
       if (groupName.includes('ROL')) groupName = 'ROLES';
+      if (groupName.includes('PRODUCTO')) groupName = 'PRODUCTOS';
+      if (groupName.includes('CATEGORIA')) groupName = 'CATEGORÍAS';
+      if (groupName.includes('MARCA')) groupName = 'MARCAS';
       
       if (!groups[groupName]) {
         groups[groupName] = [];

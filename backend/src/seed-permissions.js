@@ -12,6 +12,15 @@ const seedPermissions = async () => {
 
     await sequelize.sync({ alter: true }); // Ensure tables exist and match models
 
+    // 0. Ensure Roles Exist
+    const roles = ['admin', 'trabajador', 'supervisor', 'usuario'];
+    for (const roleName of roles) {
+        await Role.findOrCreate({
+            where: { nombre: roleName },
+            defaults: { nombre: roleName, descripcion: `Rol de ${roleName}` }
+        });
+    }
+
     // 1. Create permissions
     const permissions = [
       { nombre: 'VER_USUARIOS', descripcion: 'Puede ver la lista de usuarios' },
@@ -22,6 +31,21 @@ const seedPermissions = async () => {
       { nombre: 'CREAR_ROL', descripcion: 'Puede crear nuevos roles' },
       { nombre: 'EDITAR_ROL', descripcion: 'Puede editar roles existentes' },
       { nombre: 'ELIMINAR_ROL', descripcion: 'Puede eliminar roles' },
+      // Productos
+      { nombre: 'VER_PRODUCTOS', descripcion: 'Puede ver la lista de productos' },
+      { nombre: 'CREAR_PRODUCTO', descripcion: 'Puede crear nuevos productos' },
+      { nombre: 'EDITAR_PRODUCTO', descripcion: 'Puede editar productos existentes' },
+      { nombre: 'ELIMINAR_PRODUCTO', descripcion: 'Puede eliminar productos' },
+      // Categorías
+      { nombre: 'VER_CATEGORIAS', descripcion: 'Puede ver la lista de categorías' },
+      { nombre: 'CREAR_CATEGORIA', descripcion: 'Puede crear nuevas categorías' },
+      { nombre: 'EDITAR_CATEGORIA', descripcion: 'Puede editar categorías existentes' },
+      { nombre: 'ELIMINAR_CATEGORIA', descripcion: 'Puede eliminar categorías' },
+      // Marcas
+      { nombre: 'VER_MARCAS', descripcion: 'Puede ver la lista de marcas' },
+      { nombre: 'CREAR_MARCA', descripcion: 'Puede crear nuevas marcas' },
+      { nombre: 'EDITAR_MARCA', descripcion: 'Puede editar marcas existentes' },
+      { nombre: 'ELIMINAR_MARCA', descripcion: 'Puede eliminar marcas' },
     ];
 
     for (const perm of permissions) {
@@ -44,7 +68,7 @@ const seedPermissions = async () => {
     if (workerRole) {
         const readPermissions = await Permission.findAll({
             where: {
-                nombre: ['VER_USUARIOS', 'VER_ROLES']
+                nombre: ['VER_USUARIOS', 'VER_ROLES', 'VER_PRODUCTOS', 'VER_CATEGORIAS', 'VER_MARCAS']
             }
         });
         await workerRole.setPermissions(readPermissions);
@@ -56,7 +80,12 @@ const seedPermissions = async () => {
      if (supervisorRole) {
          const supervisorPermissions = await Permission.findAll({
              where: {
-                 nombre: ['VER_USUARIOS', 'VER_ROLES', 'EDITAR_USUARIO', 'EDITAR_ROL', 'CREAR_USUARIO', 'CREAR_ROL']
+                 nombre: [
+                    'VER_USUARIOS', 'VER_ROLES', 'EDITAR_USUARIO', 'EDITAR_ROL', 'CREAR_USUARIO', 'CREAR_ROL',
+                    'VER_PRODUCTOS', 'CREAR_PRODUCTO', 'EDITAR_PRODUCTO',
+                    'VER_CATEGORIAS', 'CREAR_CATEGORIA', 'EDITAR_CATEGORIA',
+                    'VER_MARCAS', 'CREAR_MARCA', 'EDITAR_MARCA'
+                ]
              }
          });
          await supervisorRole.setPermissions(supervisorPermissions);

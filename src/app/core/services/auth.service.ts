@@ -39,7 +39,15 @@ export class AuthService {
     this.tokenService.setTokens(response.accessToken, response.refreshToken);
     this.tokenService.setUser(response.user);
     this.currentUser.set(response.user);
-    this.router.navigate(['/dashboard']);
+    
+    // Redirección basada en rol
+    const userRole = response.user.role?.toLowerCase() || 'user';
+    
+    if (['usuario', 'cliente', 'user'].includes(userRole)) {
+      this.router.navigate(['/']); // Ir a Home
+    } else {
+      this.router.navigate(['/dashboard']); // Ir a Dashboard (admin, trabajador, etc.)
+    }
   }
 
   logout() {

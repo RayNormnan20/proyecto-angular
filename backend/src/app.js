@@ -6,10 +6,14 @@ const routes = require('./routes/index.routes');
 const { connectDB } = require('./config/database');
 const { User, Role, Permission } = require('./modules/associations');
 
+const path = require('path');
+
 const app = express();
 
 // Middlewares Globales
-app.use(helmet()); // Seguridad HTTP headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+})); // Seguridad HTTP headers
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -17,6 +21,7 @@ app.use(cors({
 }));
 app.use(morgan('dev')); // Logging
 app.use(express.json()); // Parse JSON body
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // Rutas
 app.use('/api', routes);

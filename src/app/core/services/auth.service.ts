@@ -30,6 +30,9 @@ export class AuthService {
       },
       error: (err) => {
         console.error('Error refreshing profile:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.logout();
+        }
       }
     });
   }

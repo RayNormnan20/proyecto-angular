@@ -38,7 +38,7 @@ import { Component } from '@angular/core';
 
     <div class="mt-8 bg-white rounded-lg shadow-md p-6">
       <h3 class="text-xl font-bold text-gray-800 mb-4">Actividad Reciente</h3>
-      <div class="overflow-x-auto">
+      <div class="hidden md:block overflow-x-auto">
         <table class="min-w-full leading-normal">
           <thead>
             <tr>
@@ -81,6 +81,25 @@ import { Component } from '@angular/core';
             <!-- Más filas -->
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile View (Cards) -->
+      <div class="md:hidden space-y-4">
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <p class="font-bold text-gray-900">Juan Pérez</p>
+              <p class="text-sm text-gray-600">Admin</p>
+            </div>
+            <span class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight text-xs">
+              <span aria-hidden class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
+              <span class="relative">Activo</span>
+            </span>
+          </div>
+          <div class="text-sm text-gray-500">
+            Hace 2 horas
+          </div>
+        </div>
       </div>
     </div>
   `

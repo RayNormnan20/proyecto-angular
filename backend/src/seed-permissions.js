@@ -46,6 +46,17 @@ const seedPermissions = async () => {
       { nombre: 'CREAR_MARCA', descripcion: 'Puede crear nuevas marcas' },
       { nombre: 'EDITAR_MARCA', descripcion: 'Puede editar marcas existentes' },
       { nombre: 'ELIMINAR_MARCA', descripcion: 'Puede eliminar marcas' },
+      // Pedidos
+      { nombre: 'VER_PEDIDOS', descripcion: 'Puede ver la lista de pedidos' },
+      { nombre: 'GESTIONAR_PEDIDOS', descripcion: 'Puede cambiar estado de pedidos' },
+      // Configuración
+      { nombre: 'VER_CONFIGURACION', descripcion: 'Puede ver configuraciones del sistema' },
+      { nombre: 'GESTIONAR_CONFIGURACION', descripcion: 'Puede modificar configuraciones' },
+      // Envíos
+      { nombre: 'VER_ENVIOS', descripcion: 'Puede ver la lista de costos de envío' },
+      { nombre: 'CREAR_ENVIO', descripcion: 'Puede agregar nuevos costos de envío' },
+      { nombre: 'EDITAR_ENVIO', descripcion: 'Puede editar costos de envío' },
+      { nombre: 'ELIMINAR_ENVIO', descripcion: 'Puede eliminar costos de envío' },
     ];
 
     for (const perm of permissions) {
@@ -68,7 +79,7 @@ const seedPermissions = async () => {
     if (workerRole) {
         const readPermissions = await Permission.findAll({
             where: {
-                nombre: ['VER_USUARIOS', 'VER_ROLES', 'VER_PRODUCTOS', 'VER_CATEGORIAS', 'VER_MARCAS']
+                nombre: ['VER_USUARIOS', 'VER_ROLES', 'VER_PRODUCTOS', 'VER_CATEGORIAS', 'VER_MARCAS', 'VER_PEDIDOS']
             }
         });
         await workerRole.setPermissions(readPermissions);
@@ -84,7 +95,9 @@ const seedPermissions = async () => {
                     'VER_USUARIOS', 'VER_ROLES', 'EDITAR_USUARIO', 'EDITAR_ROL', 'CREAR_USUARIO', 'CREAR_ROL',
                     'VER_PRODUCTOS', 'CREAR_PRODUCTO', 'EDITAR_PRODUCTO',
                     'VER_CATEGORIAS', 'CREAR_CATEGORIA', 'EDITAR_CATEGORIA',
-                    'VER_MARCAS', 'CREAR_MARCA', 'EDITAR_MARCA'
+                    'VER_MARCAS', 'CREAR_MARCA', 'EDITAR_MARCA',
+                    'VER_PEDIDOS', 'GESTIONAR_PEDIDOS',
+                    'VER_CONFIGURACION'
                 ]
              }
          });

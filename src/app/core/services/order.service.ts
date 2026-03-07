@@ -1,0 +1,64 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { Observable } from 'rxjs';
+
+export interface Order {
+  id_orden: number;
+  usuario_id: number;
+  fecha: string;
+  total: string;
+  estado: 'pendiente' | 'pagado' | 'enviado' | 'entregado' | 'cancelado';
+  metodo_pago: 'yape' | 'transferencia';
+  direccion_envio: string;
+  notas?: string;
+  codigo_operacion?: string;
+  items?: OrderItem[];
+  user?: {
+    id_usuario: number;
+    nombre: string;
+    email: string;
+  };
+}
+
+export interface OrderItem {
+  id_detalle: number;
+  orden_id: number;
+  producto_id: number;
+  cantidad: number;
+  precio_unitario: string;
+  subtotal: string;
+  product?: any;
+}
+
+export interface CreateOrderDto {
+  items: { id_producto: number; cantidad: number }[];
+  metodo_pago: 'yape' | 'transferencia';
+  direccion_envio: string;
+  notas?: string;
+  codigo_operacion?: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class OrderService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/orders`;
+
+  createOrder(orderData: CreateOrderDto): Observable<Order> {
+    return this.http.post<Order>(this.apiUrl, orderData);
+  }
+
+  getOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(this.apiUrl);
+  }
+
+  getOrderById(id: number): Observable<Order> {
+    return this.http.get<Order>(`${this.apiUrl}/${id}`);
+  }
+
+  updateOrderStatus(id: number, estado: string): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/${id}/status`, { estado });
+  }
+}

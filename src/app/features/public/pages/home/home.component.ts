@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { ProductsService } from '../../../products/services/products.service';
 import { Product, Category } from '../../../products/models/product.model';
 import { CategoriesService } from '../../../products/services/categories.service';
+import { CartService } from '../../../../core/services/cart.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -534,17 +535,23 @@ import { FormsModule } from '@angular/forms';
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
     }
 
     .product-price {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 26px;
+      font-size: 22px;
       font-weight: 600;
       color: var(--ink);
       line-height: 1;
     }
 
-    .product-arrow {
+    .product-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .product-btn {
       width: 36px;
       height: 36px;
       border: 1px solid rgba(0,0,0,0.12);
@@ -555,11 +562,25 @@ import { FormsModule } from '@angular/forms';
       transition: all 0.25s;
       color: var(--ink);
       text-decoration: none;
+      background: transparent;
+      cursor: pointer;
     }
 
-    .product-arrow:hover {
+    .product-btn:hover {
       background: var(--ink);
       border-color: var(--ink);
+      color: white;
+    }
+
+    .product-add-btn {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--ink);
+    }
+    
+    .product-add-btn:hover {
+      background: var(--gold-dark);
+      border-color: var(--gold-dark);
       color: white;
     }
 
@@ -904,11 +925,23 @@ import { FormsModule } from '@angular/forms';
               <p class="product-desc">{{ product.descripcion }}</p>
               <div class="product-footer">
                 <span class="product-price">S/. {{ product.precio }}</span>
-                <a [routerLink]="['/product', product.id_producto]" class="product-arrow">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                  </svg>
-                </a>
+                <div class="product-actions">
+                  <button 
+                    (click)="addToCart(product, $event)" 
+                    class="product-btn product-add-btn"
+                    title="Agregar al carrito"
+                    [disabled]="product.stock === 0"
+                  >
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                  </button>
+                  <a [routerLink]="['/product', product.id_producto]" class="product-btn" title="Ver detalles">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -979,6 +1012,7 @@ import { FormsModule } from '@angular/forms';
 export class HomeComponent implements OnInit {
   private productsService = inject(ProductsService);
   private categoriesService = inject(CategoriesService);
+  private cartService = inject(CartService);
 
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
@@ -1027,5 +1061,13 @@ export class HomeComponent implements OnInit {
       return `${this.apiUrl}${product.images[0].url}`;
     }
     return 'assets/placeholder.png';
+  }
+
+  addToCart(product: Product, event: Event) {
+    event.stopPropagation(); // Prevenir navegación al detalle
+    if (product.stock > 0) {
+      this.cartService.addToCart(product);
+      // Opcional: Mostrar feedback visual (toast, animación, etc.)
+    }
   }
 }

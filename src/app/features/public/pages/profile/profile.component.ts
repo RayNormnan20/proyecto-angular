@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth.service';
+import { OrderService, Order } from '../../../../core/services/order.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -26,12 +27,6 @@ import { RouterLink } from '@angular/router';
                    <div class="w-full h-full rounded-full bg-blue-100 flex items-center justify-center text-4xl font-bold text-blue-600 border-4 border-white">
                      {{ (currentUser()?.nombre || 'U').charAt(0).toUpperCase() }}
                    </div>
-                   <button class="absolute bottom-0 right-0 bg-gray-100 p-2 rounded-full border-2 border-white text-gray-600 hover:text-blue-600 transition-colors" title="Cambiar foto">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                   </button>
                 </div>
                 
                 <h2 class="text-xl font-bold text-gray-800">{{ currentUser()?.nombre }}</h2>
@@ -49,86 +44,14 @@ import { RouterLink } from '@angular/router';
                     </svg>
                     Información Personal
                   </a>
-                  <a class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md font-medium transition-colors cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                    Mis Pedidos
-                    <span class="ml-auto bg-gray-200 text-gray-600 py-0.5 px-2 rounded-full text-xs">0</span>
-                  </a>
-                  <a class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md font-medium transition-colors cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    Seguridad
-                  </a>
-                  <a class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md font-medium transition-colors cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    Configuración
-                  </a>
                 </nav>
               </div>
-            </div>
-            
-            <div class="mt-6 bg-blue-50 border border-blue-100 rounded-lg p-4">
-               <h3 class="text-sm font-semibold text-blue-800 mb-2">¿Necesitas ayuda?</h3>
-               <p class="text-xs text-blue-600 mb-3">Si tienes problemas con tu cuenta, contacta a soporte.</p>
-               <button class="text-xs font-bold text-blue-700 hover:text-blue-900 underline">Contactar Soporte</button>
             </div>
           </div>
 
           <!-- Main Area: Details -->
           <div class="w-full md:w-2/3 lg:w-3/4">
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-              <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
-                <h3 class="text-xl font-bold text-gray-800">Información de Perfil</h3>
-                <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                  Editar Perfil
-                </button>
-              </div>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                <div>
-                  <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Nombre Completo</label>
-                  <div class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-2">{{ currentUser()?.nombre }}</div>
-                </div>
-                
-                <div>
-                  <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Correo Electrónico</label>
-                  <div class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-2">{{ currentUser()?.email }}</div>
-                </div>
-                
-                <div>
-                  <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Rol de Usuario</label>
-                  <div class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-2 capitalize">{{ currentUser()?.role }}</div>
-                </div>
-                
-                <div>
-                  <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Fecha de Registro</label>
-                  <div class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-2">
-                    {{ (currentUser()?.createdAt || today) | date:'longDate' }}
-                  </div>
-                </div>
-
-                <div>
-                   <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Teléfono</label>
-                   <div class="text-gray-500 italic text-lg border-b border-gray-100 pb-2">No registrado</div>
-                </div>
-                
-                <div>
-                   <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Ubicación</label>
-                   <div class="text-gray-500 italic text-lg border-b border-gray-100 pb-2">No registrada</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Activity / Stats Placeholder -->
+            <!-- Stats -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center">
                   <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
@@ -137,7 +60,7 @@ import { RouterLink } from '@angular/router';
                      </svg>
                   </div>
                   <div>
-                     <div class="text-2xl font-bold text-gray-800">0</div>
+                     <div class="text-2xl font-bold text-gray-800">{{ activeOrdersCount() }}</div>
                      <div class="text-xs text-gray-500 uppercase font-medium">Pedidos Activos</div>
                   </div>
                </div>
@@ -166,6 +89,88 @@ import { RouterLink } from '@angular/router';
                   </div>
                </div>
             </div>
+
+            <!-- Profile Info -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+              <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                <h3 class="text-xl font-bold text-gray-800">Información de Perfil</h3>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div>
+                  <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Nombre Completo</label>
+                  <div class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-2">{{ currentUser()?.nombre }}</div>
+                </div>
+                
+                <div>
+                  <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Correo Electrónico</label>
+                  <div class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-2">{{ currentUser()?.email }}</div>
+                </div>
+                
+                <div>
+                  <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Rol de Usuario</label>
+                  <div class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-2 capitalize">{{ currentUser()?.role }}</div>
+                </div>
+                
+                <div>
+                  <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Fecha de Registro</label>
+                  <div class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-2">
+                    {{ (currentUser()?.createdAt || today) | date:'longDate' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Orders History -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+              <h3 class="text-xl font-bold text-gray-800 mb-6 pb-4 border-b border-gray-100">Historial de Pedidos</h3>
+              
+              <div *ngIf="orders().length === 0" class="text-center py-8 text-gray-500">
+                No tienes pedidos registrados.
+                <div class="mt-4">
+                  <a routerLink="/products" class="text-blue-600 hover:underline">Ir a comprar</a>
+                </div>
+              </div>
+
+              <div *ngIf="orders().length > 0" class="space-y-6">
+                <div *ngFor="let order of orders()" class="border border-gray-200 rounded-lg overflow-hidden">
+                  <div class="bg-gray-50 px-4 py-3 flex justify-between items-center border-b border-gray-200">
+                    <div>
+                      <span class="font-medium text-gray-900">Pedido #{{ order.id_orden }}</span>
+                      <span class="text-gray-500 text-sm ml-2">{{ order.fecha | date:'short' }}</span>
+                    </div>
+                    <div>
+                       <span [ngClass]="{
+                        'bg-yellow-100 text-yellow-800': order.estado === 'pendiente',
+                        'bg-green-100 text-green-800': order.estado === 'pagado' || order.estado === 'entregado',
+                        'bg-blue-100 text-blue-800': order.estado === 'enviado',
+                        'bg-red-100 text-red-800': order.estado === 'cancelado'
+                      }" class="px-3 py-1 text-xs font-semibold rounded-full capitalize">
+                        {{ order.estado }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="p-4">
+                    <div class="flex justify-between items-center mb-2">
+                      <div class="text-sm text-gray-600">
+                        <span class="font-medium">Método de Pago:</span> <span class="capitalize">{{ order.metodo_pago }}</span>
+                      </div>
+                      <div class="text-lg font-bold text-gray-900">
+                        Total: S/ {{ order.total }}
+                      </div>
+                    </div>
+                    <!-- Order Items Preview -->
+                    <div class="space-y-2 mt-3">
+                      <div *ngFor="let item of order.items" class="flex justify-between text-sm">
+                        <span class="text-gray-600">{{ item.cantidad }}x {{ item.product?.nombre || 'Producto' }}</span>
+                        <span class="text-gray-900">S/ {{ item.subtotal }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -174,6 +179,27 @@ import { RouterLink } from '@angular/router';
 })
 export class ProfileComponent {
   private authService = inject(AuthService);
+  private orderService = inject(OrderService);
+  
   currentUser = this.authService.currentUser;
   today = new Date();
+  orders = signal<Order[]>([]);
+  
+  activeOrdersCount = signal(0);
+
+  constructor() {
+    this.loadOrders();
+  }
+
+  loadOrders() {
+    this.orderService.getOrders().subscribe({
+      next: (data) => {
+        this.orders.set(data);
+        this.activeOrdersCount.set(
+          data.filter(o => ['pendiente', 'pagado', 'enviado'].includes(o.estado)).length
+        );
+      },
+      error: (err) => console.error('Error loading orders', err)
+    });
+  }
 }

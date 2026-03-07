@@ -11,18 +11,19 @@ import { RolesService, Role } from '../../../roles/services/roles.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="container mx-auto">
-      <div class="flex justify-between items-center mb-6">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
-          <h2 class="text-3xl font-bold text-gray-800">Lista de Usuarios</h2>
-          <p class="text-gray-600 mt-1">Gestiona los usuarios registrados en el sistema</p>
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Lista de Usuarios</h2>
+          <p class="text-gray-600 mt-1 text-sm md:text-base">Gestiona los usuarios registrados en el sistema</p>
         </div>
-        <button *ngIf="canCreate()" (click)="openCreateModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center transition duration-200 transform hover:scale-105">
+        <button *ngIf="canCreate()" (click)="openCreateModal()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center justify-center transition duration-200 transform hover:scale-105">
           <span class="text-xl mr-2">+</span> Nuevo Usuario
         </button>
       </div>
 
-      <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+      <!-- Desktop View (Table) -->
+      <div class="hidden md:block bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
         <div class="overflow-x-auto">
           <table class="min-w-full leading-normal">
             <thead>
@@ -94,6 +95,60 @@ import { RolesService, Role } from '../../../roles/services/roles.service';
             No se encontraron usuarios.
         </div>
       </div>
+
+      <!-- Mobile View (Cards) -->
+      <div class="md:hidden space-y-4">
+        <div *ngFor="let user of users" class="bg-white p-4 rounded-xl shadow-md border border-gray-100">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <div class="shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold">
+                {{ user.nombre.charAt(0) | uppercase }}
+              </div>
+              <div class="ml-3">
+                <div class="text-sm font-bold text-gray-900">{{ user.nombre }}</div>
+                <div class="text-xs text-gray-500">{{ user.email }}</div>
+              </div>
+            </div>
+            <span 
+              class="px-2 py-1 text-xs font-semibold rounded-full"
+              [ngClass]="{
+                'text-green-900 bg-green-200': user.estado === 'activo',
+                'text-red-900 bg-red-200': user.estado === 'suspendido' || user.estado === 'inactivo'
+              }"
+            >
+              {{ user.estado | titlecase }}
+            </span>
+          </div>
+          
+          <div class="flex justify-between items-center text-sm text-gray-600 mb-4 border-t border-gray-100 pt-3">
+            <div>
+              <span class="block text-xs text-gray-400 uppercase">Rol</span>
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mt-1">
+                {{ user.role?.nombre || 'Sin Rol' }}
+              </span>
+            </div>
+            <div class="text-right">
+              <span class="block text-xs text-gray-400 uppercase">Registro</span>
+              <span class="font-medium">{{ user.created_at | date:'shortDate' }}</span>
+            </div>
+          </div>
+
+          <div *ngIf="canEdit() || canDelete()" class="flex justify-end space-x-3 border-t border-gray-100 pt-3">
+            <button *ngIf="canEdit()" (click)="editUser(user)" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              Editar
+            </button>
+            <button *ngIf="canDelete()" (click)="deleteUser(user)" class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              Eliminar
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="users.length === 0" class="p-6 text-center text-gray-500 bg-white rounded-xl shadow-md">
+            No se encontraron usuarios.
+        </div>
+      </div>
     </div>
 
     <!-- Edit User Modal -->
@@ -103,7 +158,7 @@ import { RolesService, Role } from '../../../roles/services/roles.service';
         <div class="fixed inset-0 transition-opacity" style="background-color: rgba(0, 0, 0, 0.5);" aria-hidden="true" (click)="closeModal()"></div>
 
         <!-- Modal panel -->
-        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-lg">
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div class="sm:flex sm:items-start">
               <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">

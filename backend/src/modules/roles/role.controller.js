@@ -8,6 +8,7 @@ exports.getAllRoles = async (req, res) => {
       include: [
         {
           model: User,
+          as: 'users',
           attributes: ['id_usuario'] // Just to count
         },
         {
@@ -23,7 +24,7 @@ exports.getAllRoles = async (req, res) => {
       id_rol: role.id_rol,
       nombre: role.nombre,
       descripcion: role.descripcion,
-      usersCount: role.Users ? role.Users.length : 0,
+      usersCount: role.users ? role.users.length : 0,
       active: true, // Assuming roles are active by default for now
       permissions: role.permissions || []
     }));

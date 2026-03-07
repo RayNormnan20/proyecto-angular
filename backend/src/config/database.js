@@ -29,8 +29,14 @@ const connectDB = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Conexión a la base de datos MySQL establecida correctamente.');
+    
     // Sincronizar modelos (en producción usar migraciones)
-    // await sequelize.sync({ alter: true }); 
+    await sequelize.sync({ alter: true }); 
+    console.log('✅ Modelos sincronizados con la base de datos.');
+
+    // Sembrar configuraciones
+    const seedSettings = require('../modules/settings/setting.seed');
+    await seedSettings();
   } catch (error) {
     console.error('❌ Error al conectar con la base de datos:', error);
     process.exit(1);

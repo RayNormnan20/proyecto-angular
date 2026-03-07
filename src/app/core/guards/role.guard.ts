@@ -20,7 +20,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Si no tiene permiso, redirigir al dashboard o mostrar error
-  alert('Acceso denegado: No tienes permisos suficientes.');
-  return router.createUrlTree(['/dashboard']);
+  // Si no tiene permiso, redirigir al home o mostrar error
+  // alert('Acceso denegado: No tienes permisos suficientes.');
+  return router.createUrlTree(['/']);
 };

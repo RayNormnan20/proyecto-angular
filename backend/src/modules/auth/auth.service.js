@@ -72,6 +72,7 @@ const login = async (email, password) => {
 
   const payload = { 
     id: user.id_usuario, 
+    nombre: user.nombre,
     email: user.email, 
     role: user.role ? user.role.nombre : 'user',
     permissions: permissions
@@ -99,6 +100,7 @@ const refreshToken = async (token) => {
 
   const payload = { 
     id: user.id_usuario, 
+    nombre: user.nombre,
     email: user.email, 
     role: user.role ? user.role.nombre : 'user' 
   };

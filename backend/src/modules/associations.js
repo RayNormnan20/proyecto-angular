@@ -5,9 +5,11 @@ const Product = require('./products/product.model');
 const Category = require('./categories/category.model');
 const Brand = require('./brands/brand.model');
 const ProductImage = require('./products/product-image.model');
+const Order = require('./orders/order.model');
+const OrderItem = require('./orders/order-item.model');
+const Setting = require('./settings/setting.model');
 
 // Role-Permission associations (Many-to-Many)
-// Verificar si ya existen en los modelos antes de definir
 if (!Role.associations.permissions) {
   Role.belongsToMany(Permission, { 
     through: 'role_permissions', 
@@ -26,8 +28,9 @@ if (!Permission.associations.roles) {
   });
 }
 
-// User-Role associations ya estan definidas en user.model.js
-// No las redefinimos aqui para evitar errores
+// User-Role associations
+User.belongsTo(Role, { foreignKey: 'rol_id', as: 'role' });
+Role.hasMany(User, { foreignKey: 'rol_id', as: 'users' });
 
 // Product Associations
 Product.belongsTo(Category, { foreignKey: 'categoria_id', as: 'category' });
@@ -39,6 +42,16 @@ Brand.hasMany(Product, { foreignKey: 'marca_id', as: 'products' });
 Product.hasMany(ProductImage, { foreignKey: 'producto_id', as: 'images' });
 ProductImage.belongsTo(Product, { foreignKey: 'producto_id', as: 'product' });
 
+// Order Associations
+Order.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
+User.hasMany(Order, { foreignKey: 'usuario_id', as: 'orders' });
+
+Order.hasMany(OrderItem, { foreignKey: 'orden_id', as: 'items' });
+OrderItem.belongsTo(Order, { foreignKey: 'orden_id', as: 'order' });
+
+OrderItem.belongsTo(Product, { foreignKey: 'producto_id', as: 'product' });
+Product.hasMany(OrderItem, { foreignKey: 'producto_id', as: 'order_items' });
+
 module.exports = { 
   User, 
   Role, 
@@ -46,5 +59,8 @@ module.exports = {
   Product,
   Category,
   Brand,
-  ProductImage
+  ProductImage,
+  Order,
+  OrderItem,
+  Setting
 };

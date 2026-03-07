@@ -2,6 +2,9 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { CartService } from '../../core/services/cart.service';
+import { environment } from '../../../environments/environment';
+import { Product } from '../../features/products/models/product.model';
 
 @Component({
   selector: 'app-public-layout',
@@ -21,7 +24,17 @@ import { AuthService } from '../../core/services/auth.service';
               </div>
             </div>
             
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-6">
+              <!-- Carrito de Compras -->
+              <a routerLink="/cart" class="text-gray-700 hover:text-blue-600 relative p-2 flex items-center group" title="Ver Carrito y Pagar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span *ngIf="cartService.cartCount() > 0" class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transform translate-x-1 -translate-y-1">
+                  {{ cartService.cartCount() }}
+                </span>
+              </a>
+
               <ng-container *ngIf="authService.currentUser() as user; else loginButtons">
                 <div class="flex items-center gap-3 relative group cursor-pointer">
                   <span class="text-gray-700 text-sm font-medium">Hola, {{ user.nombre }}</span>
@@ -77,6 +90,7 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class PublicLayoutComponent {
   authService = inject(AuthService);
+  cartService = inject(CartService);
 
   logout() {
     this.authService.logout();

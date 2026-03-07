@@ -13,15 +13,15 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
     <div class="container mx-auto p-4">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1 class="text-2xl font-bold text-gray-800">Gestión de Productos</h1>
-        <button (click)="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button (click)="openModal()" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center justify-center">
           + Nuevo Producto
         </button>
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white p-4 rounded shadow mb-6 flex gap-4">
+      <div class="bg-white p-4 rounded shadow mb-6 flex flex-col md:flex-row gap-4">
         <input 
           type="text" 
           placeholder="Buscar producto..." 
@@ -29,11 +29,11 @@ import { FormsModule } from '@angular/forms';
           [(ngModel)]="searchTerm"
           (keyup.enter)="loadProducts()"
         >
-        <button (click)="loadProducts()" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Buscar</button>
+        <button (click)="loadProducts()" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 w-full md:w-auto">Buscar</button>
       </div>
 
-      <!-- Tabla -->
-      <div class="bg-white rounded shadow overflow-x-auto">
+      <!-- Desktop View (Table) -->
+      <div class="hidden md:block bg-white rounded shadow overflow-x-auto">
         <table class="min-w-full">
           <thead class="bg-gray-50">
             <tr>
@@ -59,7 +59,7 @@ import { FormsModule } from '@angular/forms';
                 <div class="text-sm text-gray-500">{{ product.codigo_sku }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                \${{ product.precio }}
+                S/. {{ product.precio }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {{ product.stock }}
@@ -80,6 +80,43 @@ import { FormsModule } from '@angular/forms';
           </tbody>
         </table>
       </div>
+
+      <!-- Mobile View (Cards) -->
+      <div class="md:hidden space-y-4">
+        <div *ngFor="let product of products()" class="bg-white p-4 rounded-lg shadow border border-gray-100">
+          <div class="flex gap-4 mb-4">
+            <img 
+              [src]="getProductImage(product)" 
+              class="h-20 w-20 rounded-lg object-cover bg-gray-100" 
+              alt="Product"
+            >
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-start">
+                <h3 class="text-sm font-bold text-gray-900 truncate pr-2">{{ product.nombre }}</h3>
+                <span [class]="getStatusClass(product.estado) + ' text-xs px-2 py-0.5'">
+                  {{ product.estado }}
+                </span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">SKU: {{ product.codigo_sku }}</p>
+              <p class="text-lg font-bold text-gray-900 mt-2">S/. {{ product.precio }}</p>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+             <div class="text-sm text-gray-600">
+               Stock: <span class="font-medium text-gray-900">{{ product.stock }}</span>
+             </div>
+             <div class="flex space-x-3">
+               <button (click)="openModal(product)" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Editar</button>
+               <button (click)="deleteProduct(product.id_producto!)" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
+             </div>
+          </div>
+        </div>
+        
+        <div *ngIf="products().length === 0" class="text-center py-8 text-gray-500 bg-white rounded-lg shadow">
+          No hay productos encontrados.
+        </div>
+      </div>
     </div>
 
     <!-- Modal -->
@@ -89,7 +126,7 @@ import { FormsModule } from '@angular/forms';
         <div class="fixed inset-0 transition-opacity" style="background-color: rgba(0, 0, 0, 0.5);" aria-hidden="true" (click)="closeModal()"></div>
 
         <!-- Modal panel -->
-        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
+        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-2xl">
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div class="sm:flex sm:items-start">
               <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">

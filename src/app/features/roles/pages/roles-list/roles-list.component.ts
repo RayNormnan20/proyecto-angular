@@ -9,18 +9,20 @@ import { AuthService } from '../../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="container mx-auto">
-      <div class="flex justify-between items-center mb-6">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Header Responsivo -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <h2 class="text-3xl font-bold text-gray-800">Gestión de Roles</h2>
           <p class="text-gray-600 mt-1">Administra los roles y permisos del sistema</p>
         </div>
-        <button *ngIf="canCreate()" (click)="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center transition duration-200 transform hover:scale-105">
+        <button *ngIf="canCreate()" (click)="openCreateModal()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center justify-center transition duration-200 transform hover:scale-105">
           <span class="text-xl mr-2">+</span> Nuevo Rol
         </button>
       </div>
 
-      <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+      <!-- Desktop View (Table) -->
+      <div class="hidden md:block bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
         <div class="overflow-x-auto">
           <table class="min-w-full leading-normal">
             <thead>
@@ -88,6 +90,47 @@ import { AuthService } from '../../../../core/services/auth.service';
             No se encontraron roles.
         </div>
       </div>
+
+      <!-- Mobile View (Cards) -->
+      <div class="md:hidden space-y-4">
+        <div *ngFor="let role of roles" class="bg-white p-4 rounded-xl shadow-md border border-gray-100">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold">
+                {{ role.nombre.charAt(0) | uppercase }}
+              </div>
+              <div class="ml-3">
+                <div class="text-sm font-bold text-gray-900">{{ role.nombre }}</div>
+                <div class="text-xs text-gray-500">{{ role.usersCount }} usuarios asignados</div>
+              </div>
+            </div>
+            <span 
+              class="px-2 py-1 text-xs font-semibold rounded-full"
+              [ngClass]="role.active ? 'text-green-900 bg-green-200' : 'text-red-900 bg-red-200'"
+            >
+              {{ role.active ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+
+          <div class="mb-4">
+            <p class="text-sm text-gray-600 line-clamp-3">{{ role.descripcion || 'Sin descripción' }}</p>
+          </div>
+
+          <div *ngIf="canEdit() || canDelete()" class="flex justify-end space-x-3 pt-3 border-t border-gray-100">
+            <button *ngIf="canEdit()" (click)="editRole(role)" class="flex-1 bg-indigo-50 text-indigo-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-100 transition-colors text-center">
+              Editar
+            </button>
+            <button *ngIf="canDelete()" (click)="deleteRole(role)" class="flex-1 bg-red-50 text-red-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-red-100 transition-colors text-center">
+              Eliminar
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State Mobile -->
+        <div *ngIf="roles.length === 0" class="bg-white p-8 rounded-lg shadow text-center">
+          <p class="text-gray-500">No se encontraron roles.</p>
+        </div>
+      </div>
     </div>
 
     <!-- Edit Role Modal -->
@@ -97,7 +140,7 @@ import { AuthService } from '../../../../core/services/auth.service';
         <div class="fixed inset-0 transition-opacity" style="background-color: rgba(0, 0, 0, 0.5);" aria-hidden="true" (click)="closeModal()"></div>
 
         <!-- Modal panel -->
-        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl">
+        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-3xl">
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div class="sm:flex sm:items-start">
               <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
@@ -217,6 +260,7 @@ export class RolesListComponent implements OnInit {
       if (groupName.includes('PRODUCTO')) groupName = 'PRODUCTOS';
       if (groupName.includes('CATEGORIA')) groupName = 'CATEGORÍAS';
       if (groupName.includes('MARCA')) groupName = 'MARCAS';
+      if (groupName.includes('ENVIO')) groupName = 'ENVÍOS';
       
       if (!groups[groupName]) {
         groups[groupName] = [];

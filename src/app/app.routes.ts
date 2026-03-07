@@ -4,6 +4,7 @@ import { RegisterComponent } from './features/auth/pages/register/register.compo
 import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-layout.component';
 import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home/dashboard-home.component';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 import { UsersListComponent } from './features/users/pages/users-list/users-list.component';
 import { RolesListComponent } from './features/roles/pages/roles-list/roles-list.component';
@@ -15,12 +16,17 @@ import { CategoryListComponent } from './features/categories/pages/category-list
 import { CategoryFormComponent } from './features/categories/pages/category-form/category-form.component';
 import { BrandListComponent } from './features/brands/pages/brand-list/brand-list.component';
 import { BrandFormComponent } from './features/brands/pages/brand-form/brand-form.component';
+import { OrdersListComponent } from './features/dashboard/pages/orders-list/orders-list.component';
+import { PaymentSettingsComponent } from './features/dashboard/pages/payment-settings/payment-settings.component';
+import { ShippingSettingsComponent } from './features/dashboard/pages/shipping-settings/shipping-settings.component';
 
 // Público
 import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
 import { HomeComponent } from './features/public/pages/home/home.component';
 import { ProductDetailComponent } from './features/public/pages/product-detail/product-detail.component';
 import { ProfileComponent } from './features/public/pages/profile/profile.component';
+import { CartComponent } from './features/public/pages/cart/cart.component';
+import { CheckoutComponent } from './features/public/pages/checkout/checkout.component';
 
 export const routes: Routes = [
   // Rutas Públicas
@@ -31,6 +37,8 @@ export const routes: Routes = [
       { path: '', component: HomeComponent },
       { path: 'products', component: HomeComponent }, // Alias
       { path: 'product/:id', component: ProductDetailComponent },
+      { path: 'cart', component: CartComponent },
+      { path: 'checkout', component: CheckoutComponent },
       { path: 'profile', component: ProfileComponent }
     ]
   },
@@ -49,7 +57,8 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardLayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin', 'trabajador', 'supervisor'] },
     children: [
       { path: '', component: DashboardHomeComponent },
       { path: 'users', component: UsersListComponent },
@@ -59,7 +68,13 @@ export const routes: Routes = [
       // Categorías
       { path: 'categories', component: CategoryListComponent },
       // Marcas
-      { path: 'brands', component: BrandListComponent }
+      { path: 'brands', component: BrandListComponent },
+      // Pedidos
+      { path: 'orders', component: OrdersListComponent },
+      // Configuración Pagos
+      { path: 'payment-settings', component: PaymentSettingsComponent },
+      // Configuración Envíos
+      { path: 'shipping-settings', component: ShippingSettingsComponent }
     ]
   },
   

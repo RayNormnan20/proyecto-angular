@@ -10,14 +10,19 @@ import { Brand } from '../../../products/models/product.model';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="container mx-auto px-4 py-8">
-      <div class="flex justify-between items-center mb-6">
+      <!-- Header Responsivo -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Gestión de Marcas</h1>
-        <button (click)="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+        <button (click)="openModal()" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
           Nueva Marca
         </button>
       </div>
 
-      <div class="bg-white rounded-lg shadow overflow-hidden">
+      <!-- Desktop View (Table) -->
+      <div class="hidden md:block bg-white rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -51,6 +56,39 @@ import { Brand } from '../../../products/models/product.model';
           </table>
         </div>
       </div>
+
+      <!-- Mobile View (Cards) -->
+      <div class="md:hidden space-y-4">
+        <div *ngFor="let brand of brands()" class="bg-white p-4 rounded-lg shadow border border-gray-100">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900">{{ brand.nombre }}</h3>
+              <p class="text-xs text-gray-500">ID: #{{ brand.id_marca }}</p>
+            </div>
+            <span [class]="brand.estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2 py-1 text-xs font-semibold rounded-full">
+              {{ brand.estado | titlecase }}
+            </span>
+          </div>
+          
+          <div class="mb-4">
+            <p class="text-sm text-gray-600 line-clamp-2">{{ brand.descripcion || 'Sin descripción' }}</p>
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-3 border-t border-gray-100">
+            <button (click)="openModal(brand)" class="flex-1 bg-indigo-50 text-indigo-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-100 transition-colors">
+              Editar
+            </button>
+            <button (click)="deleteBrand(brand)" class="flex-1 bg-red-50 text-red-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-red-100 transition-colors">
+              Eliminar
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State Mobile -->
+        <div *ngIf="brands().length === 0" class="bg-white p-8 rounded-lg shadow text-center">
+          <p class="text-gray-500">No hay marcas registradas.</p>
+        </div>
+      </div>
     </div>
 
     <!-- Modal -->
@@ -60,7 +98,7 @@ import { Brand } from '../../../products/models/product.model';
         <div class="fixed inset-0 transition-opacity" style="background-color: rgba(0, 0, 0, 0.5);" aria-hidden="true" (click)="closeModal()"></div>
 
         <!-- Modal panel -->
-        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-lg">
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div class="sm:flex sm:items-start">
               <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">

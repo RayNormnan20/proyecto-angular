@@ -22,6 +22,7 @@ export interface Category {
   descripcion?: string;
   estado: 'activo' | 'inactivo';
   imagen?: string;
+  productos_count?: number;
 }
 
 export interface Brand {

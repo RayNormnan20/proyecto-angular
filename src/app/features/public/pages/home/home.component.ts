@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild, ElementRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProductsService } from '../../../products/services/products.service';
@@ -32,7 +32,7 @@ import { FormsModule } from '@angular/forms';
               <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
                 <h1 class="text-4xl md:text-6xl text-white font-bold mb-3 uppercase animate-fade-in-down">{{ slide.title }}</h1>
                 <p class="text-white text-lg mb-4 mx-auto max-w-lg animate-bounce-in">{{ slide.desc }}</p>
-                <a [routerLink]="slide.link" class="inline-block px-6 py-2 border-2 border-white text-white font-medium hover:bg-white hover:text-gray-900 transition-colors uppercase tracking-wider animate-fade-in-up">Comprar Ahora</a>
+                <a (click)="filterByCategory(null, $event)" class="inline-block px-6 py-2 border-2 border-white text-white font-medium hover:bg-white hover:text-gray-900 transition-colors uppercase tracking-wider animate-fade-in-up cursor-pointer">Comprar Ahora</a>
               </div>
             </div>
 
@@ -64,7 +64,7 @@ import { FormsModule } from '@angular/forms';
             <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
               <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
               <h3 class="text-white text-2xl font-bold mb-3">Oferta Especial</h3>
-              <a routerLink="/products" class="inline-block px-4 py-2 bg-[#FFD333] text-gray-900 text-sm font-bold uppercase hover:bg-yellow-400 transition-colors">Comprar</a>
+              <a (click)="filterByCategory(null, $event)" class="inline-block px-4 py-2 bg-[#FFD333] text-gray-900 text-sm font-bold uppercase hover:bg-yellow-400 transition-colors cursor-pointer">Comprar</a>
             </div>
           </div>
           <div class="relative h-[200px] bg-gray-200 overflow-hidden group flex-1">
@@ -73,7 +73,7 @@ import { FormsModule } from '@angular/forms';
             <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
               <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
               <h3 class="text-white text-2xl font-bold mb-3">Oferta Especial</h3>
-              <a routerLink="/products" class="inline-block px-4 py-2 bg-[#FFD333] text-gray-900 text-sm font-bold uppercase hover:bg-yellow-400 transition-colors">Comprar</a>
+              <a (click)="filterByCategory(null, $event)" class="inline-block px-4 py-2 bg-[#FFD333] text-gray-900 text-sm font-bold uppercase hover:bg-yellow-400 transition-colors cursor-pointer">Comprar</a>
             </div>
           </div>
         </div>
@@ -82,51 +82,79 @@ import { FormsModule } from '@angular/forms';
 
     <!-- FEATURES -->
     <div class="container mx-auto px-4 py-10">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        <div class="flex items-center p-6 bg-white shadow-sm border border-gray-100">
-          <svg class="w-10 h-10 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-          <h5 class="font-bold text-gray-800 m-0">Calidad Garantizada</h5>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+        <div class="flex flex-col md:flex-row items-center justify-center md:justify-start p-3 md:p-6 bg-white shadow-sm border border-gray-100 text-center md:text-left h-full">
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-yellow-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          <h5 class="font-bold text-gray-800 m-0 text-sm md:text-base leading-tight">Calidad Garantizada</h5>
         </div>
-        <div class="flex items-center p-6 bg-white shadow-sm border border-gray-100">
-          <svg class="w-10 h-10 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
-          <h5 class="font-bold text-gray-800 m-0">Envío Gratis</h5>
+        <div class="flex flex-col md:flex-row items-center justify-center md:justify-start p-3 md:p-6 bg-white shadow-sm border border-gray-100 text-center md:text-left h-full">
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-yellow-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+          <h5 class="font-bold text-gray-800 m-0 text-sm md:text-base leading-tight">Envío Gratis</h5>
         </div>
-        <div class="flex items-center p-6 bg-white shadow-sm border border-gray-100">
-          <svg class="w-10 h-10 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-          <h5 class="font-bold text-gray-800 m-0">Devolución 14 días</h5>
+        <div class="flex flex-col md:flex-row items-center justify-center md:justify-start p-3 md:p-6 bg-white shadow-sm border border-gray-100 text-center md:text-left h-full">
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-yellow-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+          <h5 class="font-bold text-gray-800 m-0 text-sm md:text-base leading-tight">Devolución 14 días</h5>
         </div>
-        <div class="flex items-center p-6 bg-white shadow-sm border border-gray-100">
-          <svg class="w-10 h-10 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          <h5 class="font-bold text-gray-800 m-0">Soporte 24/7</h5>
+        <div class="flex flex-col md:flex-row items-center justify-center md:justify-start p-3 md:p-6 bg-white shadow-sm border border-gray-100 text-center md:text-left h-full">
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-yellow-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <h5 class="font-bold text-gray-800 m-0 text-sm md:text-base leading-tight">Soporte 24/7</h5>
         </div>
       </div>
     </div>
 
     <!-- CATEGORIES -->
-    <div class="container mx-auto px-4 py-5">
+    <div class="container mx-auto px-4 py-5 relative group hidden md:block">
       <div class="relative mb-8 text-center">
         <h2 class="text-3xl font-bold uppercase text-gray-800 inline-block px-4 bg-[#FAF8F4] relative z-10">Categorías</h2>
         <div class="absolute top-1/2 left-0 w-full h-[1px] bg-gray-300 -z-0"></div>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <div *ngFor="let cat of categories()" class="group cursor-pointer" (click)="filterByCategory(cat.id_categoria!)">
-          <div class="flex items-center bg-white mb-4 transition-all duration-300 hover:shadow-md" [class.bg-yellow-50]="selectedCategoryId() === cat.id_categoria">
-            <div class="w-[100px] h-[100px] overflow-hidden relative">
-               <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                    [src]="getCategoryImage(cat)" 
-                    [alt]="cat.nombre"
-                    onerror="this.onerror=null;this.src='assets/img/cat-placeholder.jpg'">
-            </div>
-            <div class="flex-1 pl-3">
-                <h6 class="text-base font-semibold text-gray-800 m-0 group-hover:text-[#C9A84C] transition-colors">{{cat.nombre}}</h6>
-                <small class="text-gray-500">Ver Productos</small>
+      
+      <!-- Carousel Container -->
+      <div class="relative px-8">
+        <!-- Left Button -->
+        <button (click)="scrollCategories(-1)" 
+                class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center text-gray-600 hover:bg-yellow-400 hover:text-white transition-colors border border-gray-100 opacity-0 group-hover:opacity-100">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <!-- Scrollable Area -->
+        <div #categoryScroll 
+             class="flex overflow-x-auto gap-4 md:gap-6 pb-4 snap-x scroll-smooth hide-scrollbar"
+             style="scrollbar-width: none; -ms-overflow-style: none;">
+          
+          <div *ngFor="let cat of categories()" 
+               class="flex-shrink-0 w-[140px] md:w-[200px] snap-start cursor-pointer" 
+               (click)="filterByCategory(cat.id_categoria!, $event)">
+            
+            <div class="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100 h-full group/cat" 
+                 [class.ring-2]="productsService.selectedCategoryId() === cat.id_categoria"
+                 [class.ring-yellow-400]="productsService.selectedCategoryId() === cat.id_categoria">
+              
+              <div class="w-[100px] h-[100px] md:w-[150px] md:h-[150px] overflow-hidden rounded-full bg-gray-100 mb-3 border-4 border-transparent group-hover/cat:border-yellow-100 transition-colors">
+                 <img class="w-full h-full object-cover transition-transform duration-500 group-hover/cat:scale-110" 
+                      [src]="getCategoryImage(cat)" 
+                      [alt]="cat.nombre"
+                      onerror="this.onerror=null;this.src='assets/img/cat-placeholder.jpg'">
+              </div>
+              
+              <div class="text-center w-full">
+                  <h6 class="text-sm md:text-base font-bold text-gray-800 m-0 truncate group-hover/cat:text-[#C9A84C] transition-colors">{{cat.nombre}}</h6>
+                  <small class="text-xs text-gray-500 block mt-1">{{ cat.productos_count || 'Ver' }} Productos</small>
+              </div>
             </div>
           </div>
+
         </div>
+
+        <!-- Right Button -->
+        <button (click)="scrollCategories(1)" 
+                class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center text-gray-600 hover:bg-yellow-400 hover:text-white transition-colors border border-gray-100 opacity-0 group-hover:opacity-100">
+          <i class="fas fa-chevron-right"></i>
+        </button>
       </div>
     </div>
 
-    <ng-container *ngIf="!selectedCategoryId()">
+    <ng-container *ngIf="!productsService.selectedCategoryId()">
       <!-- FEATURED PRODUCTS -->
       <div class="container mx-auto px-4 py-10">
         <div class="relative mb-8 text-center">
@@ -191,7 +219,7 @@ import { FormsModule } from '@angular/forms';
             <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
               <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
               <h3 class="text-white text-3xl font-bold mb-3">Oferta Especial</h3>
-              <a routerLink="/products" class="inline-block px-6 py-2 bg-[#FFD333] text-gray-900 font-bold uppercase hover:bg-yellow-400 transition-colors">Comprar Ahora</a>
+              <a (click)="filterByCategory(null, $event)" class="inline-block px-6 py-2 bg-[#FFD333] text-gray-900 font-bold uppercase hover:bg-yellow-400 transition-colors cursor-pointer">Comprar Ahora</a>
             </div>
           </div>
           <div class="relative h-[300px] bg-gray-200 overflow-hidden group">
@@ -200,7 +228,7 @@ import { FormsModule } from '@angular/forms';
             <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
               <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
               <h3 class="text-white text-3xl font-bold mb-3">Oferta Especial</h3>
-              <a routerLink="/products" class="inline-block px-6 py-2 bg-[#FFD333] text-gray-900 font-bold uppercase hover:bg-yellow-400 transition-colors">Comprar Ahora</a>
+              <a (click)="filterByCategory(null, $event)" class="inline-block px-6 py-2 bg-[#FFD333] text-gray-900 font-bold uppercase hover:bg-yellow-400 transition-colors cursor-pointer">Comprar Ahora</a>
             </div>
           </div>
         </div>
@@ -281,7 +309,7 @@ import { FormsModule } from '@angular/forms';
     </ng-container>
 
     <!-- FILTERED PRODUCTS LIST -->
-    <div *ngIf="selectedCategoryId()" class="container mx-auto px-4 py-10">
+    <div *ngIf="productsService.selectedCategoryId()" class="container mx-auto px-4 py-10">
         <!-- Header for Filtered List -->
         <div class="relative mb-8 text-center" id="filtered-products-title">
             <h2 class="text-3xl font-bold uppercase text-gray-800 inline-block px-4 bg-[#FAF8F4] relative z-10">
@@ -390,7 +418,7 @@ import { FormsModule } from '@angular/forms';
             </div>
             <h3 class="text-2xl font-serif text-gray-800 mb-2">Sin resultados</h3>
             <p class="text-gray-500 max-w-xs mb-6">No encontramos productos en esta categoría.</p>
-            <button class="border border-yellow-600 text-yellow-700 px-6 py-2 uppercase text-xs font-bold tracking-wider hover:bg-yellow-600 hover:text-white transition-colors" (click)="filterByCategory(null)">
+            <button class="border border-yellow-600 text-yellow-700 px-6 py-2 uppercase text-xs font-bold tracking-wider hover:bg-yellow-600 hover:text-white transition-colors" (click)="filterByCategory(null, $event)">
             Ver todos los productos
             </button>
         </div>
@@ -400,7 +428,7 @@ import { FormsModule } from '@angular/forms';
   `
 })
 export class HomeComponent implements OnInit {
-  private productsService = inject(ProductsService);
+  public productsService = inject(ProductsService);
   private categoriesService = inject(CategoriesService);
   private cartService = inject(CartService);
   private favoriteService = inject(FavoriteService);
@@ -434,7 +462,16 @@ export class HomeComponent implements OnInit {
   featuredProducts = signal<Product[]>([]);
   recentProducts = signal<Product[]>([]);
   categories = signal<Category[]>([]);
-  selectedCategoryId = signal<number | null>(null);
+  // selectedCategoryId = signal<number | null>(null); // Removed local signal
+  
+  @ViewChild('categoryScroll') categoryScroll!: ElementRef;
+
+  scrollCategories(direction: number) {
+    const container = this.categoryScroll.nativeElement;
+    const scrollAmount = 300;
+    container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+  }
+
   favorites = signal<Set<number>>(new Set());
   searchTerm: string = '';
   
@@ -456,6 +493,23 @@ export class HomeComponent implements OnInit {
     { name: 'Vendor 8', img: 'assets/img/vendor-8.jpg' },
   ]);
   
+  constructor() {
+    effect(() => {
+      const catId = this.productsService.selectedCategoryId();
+      this.loadProducts();
+      
+      if (catId) {
+        // Scroll to filtered products
+        setTimeout(() => {
+          const element = document.getElementById('filtered-products-title');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      }
+    });
+  }
+
   ngOnInit() {
     this.loadCategories();
     this.loadFeaturedProducts();
@@ -566,8 +620,8 @@ export class HomeComponent implements OnInit {
       page: this.currentPage()
     };
     
-    if (this.selectedCategoryId()) {
-      params.category = this.selectedCategoryId();
+    if (this.productsService.selectedCategoryId()) {
+      params.category = this.productsService.selectedCategoryId();
     }
     
     this.productsService.getAll(params).subscribe({
@@ -594,11 +648,18 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  filterByCategory(categoryId: number | null) {
-    this.selectedCategoryId.set(categoryId);
+  filterByCategory(categoryId: number | null, event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const prevId = this.productsService.selectedCategoryId();
+    this.productsService.selectedCategoryId.set(categoryId);
     this.searchTerm = '';
     this.currentPage.set(1);
-    if (categoryId) {
+    
+    // If category didn't change, effect won't run, so we must load manually
+    if (prevId === categoryId) {
       this.loadProducts();
     }
   }

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { Product } from '../models/product.model';
@@ -10,6 +10,9 @@ import { Observable } from 'rxjs';
 export class ProductsService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/products`;
+  
+  // State for category filtering
+  selectedCategoryId = signal<number | null>(null);
 
   getAll(params: any = {}): Observable<any> {
     let httpParams = new HttpParams();

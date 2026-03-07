@@ -1,104 +1,112 @@
 <div class="p-4 md:p-6">
-  <h1 class="text-2xl font-bold text-gray-800 mb-6">Configuración de Pagos</h1>
-
-  <div [formGroup]="settingsForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-    <!-- Yape Configuration -->
-    <div class="bg-white p-4 md:p-6 rounded-lg shadow">
-      <h2 class="text-lg font-semibold mb-4 border-b pb-2">Configuración Yape</h2>
-      
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Código QR</label>
-        <div class="flex items-start gap-6">
-          <!-- QR Preview -->
-          <div class="flex-shrink-0">
-            <div class="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center relative overflow-hidden group hover:bg-gray-100 transition-colors">
-              <img *ngIf="qrUrl()" [src]="qrUrl()" alt="QR Yape" class="w-full h-full object-contain">
-              <div *ngIf="!qrUrl()" class="text-center p-2">
-                <svg class="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                <span class="text-[10px] text-gray-500 block mt-1">Sin QR</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Actions -->
-          <div class="flex-grow pt-2">
-            <p class="text-sm text-gray-600 mb-3">Sube el código QR de tu cuenta Yape o Plin para que los clientes puedan escanearlo.</p>
-            
-            <label class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
-              <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              <span>{{ qrUrl() ? 'Cambiar Imagen' : 'Subir Imagen' }}</span>
-              <input type="file" (change)="onFileSelected($event)" accept="image/*" class="sr-only">
-            </label>
-            <p class="text-xs text-gray-500 mt-2">Formatos: PNG, JPG, GIF (Max 5MB)</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="space-y-4">
-        <div>
-          <label for="yape_nombre" class="block text-sm font-medium text-gray-700">Nombre del Titular (Yape)</label>
-          <input type="text" id="yape_nombre" formControlName="yape_nombre" 
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-        </div>
-      </div>
-    </div>
-
-    <!-- Bank Transfer Configuration -->
-    <div class="bg-white p-4 md:p-6 rounded-lg shadow">
-      <h2 class="text-lg font-semibold mb-4 border-b pb-2">Configuración Transferencia Bancaria</h2>
-      
-      <div class="space-y-4">
-        <div>
-          <label for="transfer_banco" class="block text-sm font-medium text-gray-700">Nombre del Banco</label>
-          <input type="text" id="transfer_banco" formControlName="transfer_banco" 
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-            placeholder="Ej. BCP, Interbank">
-        </div>
-        
-        <div>
-          <label for="transfer_numero" class="block text-sm font-medium text-gray-700">Número de Cuenta</label>
-          <input type="text" id="transfer_numero" formControlName="transfer_numero" 
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-        </div>
-
-        <div>
-          <label for="transfer_cci" class="block text-sm font-medium text-gray-700">CCI (Código de Cuenta Interbancario)</label>
-          <input type="text" id="transfer_cci" formControlName="transfer_cci" 
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-        </div>
-
-        <div>
-          <label for="transfer_titular" class="block text-sm font-medium text-gray-700">Titular de la Cuenta</label>
-          <input type="text" id="transfer_titular" formControlName="transfer_titular" 
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
-        </div>
-      </div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Métodos de Pago</h1>
+    
+    <!-- Toast Message -->
+    <div *ngIf="message()" 
+      [class.bg-green-100]="message()?.type === 'success'" 
+      [class.text-green-800]="message()?.type === 'success'" 
+      [class.bg-red-100]="message()?.type === 'error'" 
+      [class.text-red-800]="message()?.type === 'error'" 
+      class="px-4 py-2 rounded-md text-sm font-medium animate-fade-in shadow-sm">
+      {{ message()?.text }}
     </div>
   </div>
 
-  <div class="mt-6 flex flex-col md:flex-row justify-between md:justify-end items-stretch md:items-center gap-4 bg-white p-4 rounded-lg shadow sticky bottom-4 z-10 border border-gray-100">
-    <div *ngIf="message()" 
-      [class.bg-green-100]="!message().includes('Error')" 
-      [class.text-green-800]="!message().includes('Error')" 
-      [class.bg-red-100]="message().includes('Error')" 
-      [class.text-red-800]="message().includes('Error')" 
-      class="px-4 py-2 rounded-md text-sm font-medium animate-fade-in flex items-center justify-center md:justify-start order-2 md:order-1">
-      <span *ngIf="!message().includes('Error')" class="mr-2">✓</span>
-      <span *ngIf="message().includes('Error')" class="mr-2">⚠</span>
-      {{ message() }}
-    </div>
+  <div class="grid grid-cols-1 gap-6">
+    <div *ngFor="let method of paymentMethods()" 
+         [class.opacity-60]="!method.activo" 
+         [class.grayscale]="!method.activo"
+         class="bg-white rounded-lg shadow border border-gray-100 overflow-hidden transition-all duration-300">
+      <!-- Header with Toggle -->
+      <div class="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <h2 class="text-lg font-semibold text-gray-800">{{ method.nombre }}</h2>
+          <span *ngIf="method.activo" class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">Activo</span>
+          <span *ngIf="!method.activo" class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">Inactivo</span>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer" title="{{ method.activo ? 'Desactivar' : 'Activar' }}">
+          <input type="checkbox" [checked]="method.activo" (change)="toggleActive(method)" class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+        </label>
+      </div>
 
-    <button (click)="saveSettings()" [disabled]="isSaving()" 
-      class="order-1 md:order-2 w-full md:w-auto flex items-center justify-center px-6 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
-      <svg *ngIf="isSaving()" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      {{ isSaving() ? 'Guardando...' : 'Guardar Cambios' }}
-    </button>
+      <div class="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left Column: Instructions & Config -->
+        <div class="space-y-4">
+           <!-- Require Proof Toggle (Only for Yape/Transfer) -->
+           <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md" *ngIf="!isCash(method)">
+             <div>
+               <span class="text-sm font-medium text-gray-700 block">Comprobante de Pago</span>
+               <span class="text-xs text-gray-500">Solicitar código de operación al cliente</span>
+             </div>
+             <label class="relative inline-flex items-center cursor-pointer">
+               <input type="checkbox" [checked]="method.requiere_comprobante" (change)="toggleRequireProof(method)" class="sr-only peer">
+               <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+             </label>
+           </div>
+
+           <div>
+             <label class="block text-sm font-medium text-gray-700 mb-1">Descripción (Corta)</label>
+             <input type="text" [(ngModel)]="method.descripcion" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
+              [placeholder]="isYape(method) ? 'Ej: Escanea el QR o usa el número' : 'Ej: Transferencia directa a nuestra cuenta BCP'">
+           </div>
+
+           <div>
+             <label class="block text-sm font-medium text-gray-700 mb-1">
+                <span *ngIf="isYape(method)">Número y Titular (Yape/Plin)</span>
+                <span *ngIf="isTransfer(method)">Datos Bancarios (Banco, Cuenta, CCI, Titular)</span>
+                <span *ngIf="isCash(method)">Mensaje para el cliente</span>
+                <span *ngIf="!isYape(method) && !isTransfer(method) && !isCash(method)">Instrucciones de Pago</span>
+             </label>
+             <textarea [(ngModel)]="method.instrucciones" rows="4" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
+              [placeholder]="isYape(method) ? 'Número: 999 999 999\nTitular: Mi Empresa SAC' : (isTransfer(method) ? 'Banco: BCP\nCuenta: 191-...\nCCI: 002-...\nTitular: Mi Empresa SAC' : 'Ten el monto exacto por favor.')"></textarea>
+             <p class="text-xs text-gray-500 mt-1">Esta información se mostrará al cliente al finalizar la compra.</p>
+           </div>
+
+           <button (click)="saveInstructions(method)" [disabled]="isProcessing() === method.id_metodo_pago" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50">
+             <span *ngIf="isProcessing() === method.id_metodo_pago" class="animate-spin mr-2">⟳</span>
+             Guardar Cambios
+           </button>
+        </div>
+
+        <!-- Right Column: Image (Only for Yape or if image exists) -->
+        <div *ngIf="isYape(method) || method.imagen_url">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            <span *ngIf="isYape(method)">Código QR</span>
+            <span *ngIf="!isYape(method)">Imagen / Logo</span>
+          </label>
+          <div class="border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 p-4 flex flex-col items-center justify-center min-h-[200px] relative group hover:bg-gray-100 transition-colors">
+            
+            <img *ngIf="method.imagen_url" [src]="getImageUrl(method.imagen_url)" class="max-h-48 object-contain mb-3">
+            
+            <div *ngIf="!method.imagen_url" class="text-center p-4">
+              <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <p class="mt-1 text-sm text-gray-500">Sin imagen</p>
+            </div>
+
+            <label class="cursor-pointer bg-white border border-gray-300 rounded-md py-2 px-4 inline-flex items-center justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm mt-2">
+              <span>{{ method.imagen_url ? 'Cambiar Imagen' : 'Subir Imagen' }}</span>
+              <input type="file" (change)="onFileSelected($event, method)" accept="image/*" class="sr-only">
+            </label>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">Formatos: PNG, JPG, JPEG. Se recomienda formato cuadrado para QRs.</p>
+        </div>
+        
+        <!-- Placeholder for Layout Balance when no image -->
+        <div *ngIf="!isYape(method) && !method.imagen_url" class="hidden md:flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-100 rounded-lg bg-gray-50">
+            <div class="text-center p-6">
+                <p class="text-sm">No se requiere imagen para este método.</p>
+                <!-- Optional: Button to enable image if they really want it -->
+                 <label class="mt-2 text-xs text-blue-500 cursor-pointer hover:underline">
+                    <span>¿Agregar imagen?</span>
+                    <input type="file" (change)="onFileSelected($event, method)" accept="image/*" class="sr-only">
+                 </label>
+            </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

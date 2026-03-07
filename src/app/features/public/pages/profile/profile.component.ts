@@ -153,7 +153,7 @@ import { RouterLink } from '@angular/router';
                   <div class="p-4">
                     <div class="flex justify-between items-center mb-2">
                       <div class="text-sm text-gray-600">
-                        <span class="font-medium">Método de Pago:</span> <span class="capitalize">{{ order.metodo_pago }}</span>
+                        <span class="font-medium">Método de Pago:</span> <span class="capitalize">{{ order.paymentMethod?.nombre || 'Desconocido' }}</span>
                       </div>
                       <div class="text-lg font-bold text-gray-900">
                         Total: S/ {{ order.total }}

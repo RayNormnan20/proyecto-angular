@@ -29,10 +29,20 @@ const Order = sequelize.define('Order', {
     type: DataTypes.ENUM('pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'),
     defaultValue: 'pendiente'
   },
+  metodo_pago_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'metodos_pago',
+      key: 'id_metodo_pago'
+    }
+  },
+  /* Deprecated in favor of metodo_pago_id
   metodo_pago: {
     type: DataTypes.ENUM('yape', 'transferencia'),
     allowNull: false
   },
+  */
   codigo_operacion: {
     type: DataTypes.STRING,
     allowNull: true,

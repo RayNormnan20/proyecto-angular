@@ -9,7 +9,12 @@ export interface Order {
   fecha: string;
   total: string;
   estado: 'pendiente' | 'pagado' | 'enviado' | 'entregado' | 'cancelado';
-  metodo_pago: 'yape' | 'transferencia';
+  metodo_pago_id: number;
+  paymentMethod?: {
+    id_metodo_pago: number;
+    nombre: string;
+    imagen_url?: string;
+  };
   direccion_envio: string;
   notas?: string;
   codigo_operacion?: string;
@@ -33,7 +38,7 @@ export interface OrderItem {
 
 export interface CreateOrderDto {
   items: { id_producto: number; cantidad: number }[];
-  metodo_pago: 'yape' | 'transferencia';
+  metodo_pago_id: number;
   direccion_envio: string;
   notas?: string;
   codigo_operacion?: string;

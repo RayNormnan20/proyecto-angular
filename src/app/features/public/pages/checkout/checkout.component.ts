@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../../../core/services/cart.service';
 import { OrderService } from '../../../../core/services/order.service';
+import { PaymentMethodService, PaymentMethod } from '../../../../core/services/payment-method.service';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -192,92 +193,69 @@ import { environment } from '../../../../../environments/environment';
                 </div>
                 
                 <div class="p-6 space-y-4">
-                  <!-- Accordion Style Payment Methods -->
+                  <!-- Dynamic Payment Methods -->
                   <div class="space-y-3">
-                    
-                    <!-- Yape Option -->
-                    <div class="border rounded-xl overflow-hidden" 
-                         [class.border-blue-500]="paymentMethod === 'yape'"
-                         [class.border-gray-200]="paymentMethod !== 'yape'">
-                      <label class="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-gray-50 transition-colors">
-                        <div class="flex items-center">
-                          <input type="radio" formControlName="metodo_pago" value="yape" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" (change)="onPaymentMethodChange('yape')">
-                          <span class="ml-3 font-bold text-gray-900">Yape / Plin</span>
-                        </div>
-                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 17h.01M8 11h16M12 17h.01M12 17h.01" />
-                          </svg>
-                        </div>
-                      </label>
+                    <div *ngFor="let method of paymentMethods()" class="border rounded-xl overflow-hidden"
+                         [class.border-blue-500]="selectedPaymentMethod()?.id_metodo_pago === method.id_metodo_pago"
+                         [class.border-gray-200]="selectedPaymentMethod()?.id_metodo_pago !== method.id_metodo_pago">
                       
-                      <!-- Yape Details (Collapsible) -->
-                      <div *ngIf="paymentMethod === 'yape'" class="p-4 bg-blue-50 border-t border-blue-100 animate-fade-in">
-                        <div class="flex flex-col sm:flex-row items-center gap-6">
-                          <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 flex-shrink-0">
-                            <div class="w-32 h-32 flex items-center justify-center relative overflow-hidden bg-white">
-                               <img *ngIf="getQrUrl()" [src]="getQrUrl()" alt="QR Yape" class="w-full h-full object-contain">
-                               <div *ngIf="!getQrUrl()" class="text-center p-2">
-                                 <span class="block text-gray-400 text-xs mb-1">QR no configurado</span>
-                               </div>
-                            </div>
-                          </div>
-                          <div class="text-center sm:text-left flex-grow">
-                            <p class="text-gray-600 text-sm mb-1">Nombre: <span class="font-semibold text-gray-900">{{ settings()?.['yape_nombre'] || 'Mi Tienda S.A.C.' }}</span></p>
-                            <p class="text-gray-600 text-sm">Número: <span class="font-semibold text-gray-900">{{ settings()?.['yape_numero'] || '999 999 999' }}</span></p>
-                            <div class="mt-2 text-xs text-blue-600 bg-white px-2 py-1 rounded border border-blue-100 inline-block">
-                              Escanea y guarda el comprobante
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Transferencia Option -->
-                    <div class="border rounded-xl overflow-hidden" 
-                         [class.border-blue-500]="paymentMethod === 'transferencia'"
-                         [class.border-gray-200]="paymentMethod !== 'transferencia'">
                       <label class="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-gray-50 transition-colors">
                         <div class="flex items-center">
-                          <input type="radio" formControlName="metodo_pago" value="transferencia" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" (change)="onPaymentMethodChange('transferencia')">
-                          <span class="ml-3 font-bold text-gray-900">Transferencia Bancaria</span>
+                          <input type="radio" 
+                                 name="paymentMethod"
+                                 [checked]="selectedPaymentMethod()?.id_metodo_pago === method.id_metodo_pago"
+                                 (change)="selectPaymentMethod(method)"
+                                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                          <span class="ml-3 font-bold text-gray-900">{{ method.nombre }}</span>
                         </div>
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                          </svg>
+                        <!-- Icon based on method image or name -->
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden bg-gray-50 border border-gray-100"
+                             [ngClass]="{'p-0': method.imagen_url, 'p-2': !method.imagen_url}">
+                             
+                             <img *ngIf="method.imagen_url" [src]="getPaymentMethodImage(method)" [alt]="method.nombre" class="w-full h-full object-cover">
+                             
+                             <ng-container *ngIf="!method.imagen_url">
+                               <!-- Yape Icon -->
+                               <svg *ngIf="method.nombre.toLowerCase().includes('yape')" xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 17h.01M8 11h16M12 17h.01M12 17h.01" />
+                               </svg>
+                               
+                               <!-- Transfer Icon -->
+                               <svg *ngIf="method.nombre.toLowerCase().includes('transferencia')" xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                               </svg>
+
+                               <!-- Cash/Other Icon -->
+                               <svg *ngIf="!method.nombre.toLowerCase().includes('yape') && !method.nombre.toLowerCase().includes('transferencia')" xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a1 1 0 11-2 0 1 1 0 012 0z" />
+                               </svg>
+                             </ng-container>
                         </div>
                       </label>
 
-                      <!-- Transferencia Details (Collapsible) -->
-                      <div *ngIf="paymentMethod === 'transferencia'" class="p-4 bg-green-50 border-t border-green-100 animate-fade-in">
+                      <!-- Method Details (Collapsible) -->
+                      <div *ngIf="selectedPaymentMethod()?.id_metodo_pago === method.id_metodo_pago" class="p-4 bg-gray-50 border-t border-gray-100 animate-fade-in">
                         <div class="space-y-3">
-                          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div class="bg-white p-3 rounded border border-gray-200">
-                              <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">Banco</p>
-                              <p class="font-bold text-gray-900">{{ settings()?.['transfer_banco'] || 'BCP' }}</p>
-                            </div>
-                            <div class="bg-white p-3 rounded border border-gray-200">
-                              <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">Titular</p>
-                              <p class="font-bold text-gray-900 text-sm truncate">{{ settings()?.['transfer_titular'] || 'Mi Tienda S.A.C.' }}</p>
-                            </div>
-                          </div>
-                          <div class="bg-white p-3 rounded border border-gray-200">
-                            <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">Número de Cuenta</p>
-                            <p class="font-mono font-bold text-gray-900 tracking-wide">{{ settings()?.['transfer_numero'] || '191-12345678-0-01' }}</p>
-                          </div>
-                          <div class="bg-white p-3 rounded border border-gray-200">
-                            <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">CCI</p>
-                            <p class="font-mono font-bold text-gray-900 tracking-wide">{{ settings()?.['transfer_cci'] || '002-191-12345678-0-01' }}</p>
-                          </div>
+                           <p class="text-gray-600 text-sm">{{ method.descripcion }}</p>
+                           
+                           <!-- Instructions -->
+                           <div *ngIf="method.instrucciones" class="bg-white p-3 rounded border border-gray-200 text-sm text-gray-700 whitespace-pre-line">
+                             {{ method.instrucciones }}
+                           </div>
+
+                           <!-- QR/Image for Payment Method -->
+                           <div *ngIf="method.imagen_url" class="mt-4 flex justify-center">
+                              <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
+                                <img [src]="getPaymentMethodImage(method)" [alt]="method.nombre" class="w-48 h-48 object-contain">
+                              </div>
+                           </div>
                         </div>
                       </div>
                     </div>
-
                   </div>
 
                   <!-- Transaction Code Input -->
-                  <div class="mt-6 pt-6 border-t border-gray-200">
+                  <div class="mt-6 pt-6 border-t border-gray-200" *ngIf="selectedPaymentMethod()?.requiere_comprobante">
                     <label for="operation-code" class="block text-sm font-medium text-gray-900 mb-2">
                       Código de Operación / Nro. de Pedido
                       <span class="text-red-500">*</span>
@@ -367,6 +345,7 @@ import { environment } from '../../../../../environments/environment';
 export class CheckoutComponent implements OnInit {
   cartService = inject(CartService);
   orderService = inject(OrderService);
+  paymentMethodService = inject(PaymentMethodService);
   authService = inject(AuthService);
   settingsService = inject(SettingsService);
   router = inject(Router);
@@ -374,6 +353,9 @@ export class CheckoutComponent implements OnInit {
 
   isProcessing = signal(false);
   settings = signal<Settings | null>(null);
+  
+  paymentMethods = signal<PaymentMethod[]>([]);
+  selectedPaymentMethod = signal<PaymentMethod | null>(null);
   
   // Shipping logic
   shippingCosts = signal<{district: string, cost: number}[]>([]);
@@ -387,12 +369,14 @@ export class CheckoutComponent implements OnInit {
     metodo_entrega: ['', Validators.required],
     distrito: [''],
     direccion_envio: [''],
-    metodo_pago: ['yape', Validators.required],
-    codigo_operacion: ['', [Validators.required, Validators.minLength(4)]],
+    metodo_pago_id: [null, Validators.required],
+    codigo_operacion: [''], // Removed required initially
     notas: ['']
   });
 
   ngOnInit() {
+    this.loadPaymentMethods();
+
     // Check authentication first
     if (!this.authService.currentUser()) {
       // Save current URL for redirect after login
@@ -433,6 +417,15 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
+  loadPaymentMethods() {
+    this.paymentMethodService.getAll().subscribe({
+      next: (methods) => {
+        this.paymentMethods.set(methods.filter(m => m.activo));
+      },
+      error: (err) => console.error('Error loading payment methods', err)
+    });
+  }
+
   updateValidators(method: string) {
     const addressControl = this.checkoutForm.get('direccion_envio');
     const districtControl = this.checkoutForm.get('distrito');
@@ -460,12 +453,17 @@ export class CheckoutComponent implements OnInit {
     this.currentShippingCost.set(district ? Number(district.cost) : 0);
   }
 
-  get paymentMethod() {
-    return this.checkoutForm.get('metodo_pago')?.value;
-  }
+  selectPaymentMethod(method: PaymentMethod) {
+    this.checkoutForm.patchValue({ metodo_pago_id: method.id_metodo_pago });
+    this.selectedPaymentMethod.set(method);
 
-  onPaymentMethodChange(method: string) {
-    this.checkoutForm.patchValue({ metodo_pago: method });
+    const codeControl = this.checkoutForm.get('codigo_operacion');
+    if (method.requiere_comprobante) {
+      codeControl?.setValidators([Validators.required, Validators.minLength(4)]);
+    } else {
+      codeControl?.clearValidators();
+    }
+    codeControl?.updateValueAndValidity();
   }
 
   isFieldInvalid(field: string): boolean {
@@ -476,13 +474,15 @@ export class CheckoutComponent implements OnInit {
   // Base64 SVG Placeholder
   private readonly PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNmM2Y0ZjYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iIzk0YTMiOCIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGR5PSIuM2VtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NoSBJbWFnZTwvdGV4dD48L3N2Zz4=';
 
-  getQrUrl(): string {
-    const qrPath = this.settings()?.['yape_qr'];
-    if (qrPath) {
-      // Remove '/api' from the end of apiUrl if present to get the base URL
+  getPaymentMethodImage(method: PaymentMethod): string {
+    if (method.imagen_url) {
+      // If it's a full URL (http/https), return it as is
+      if (method.imagen_url.startsWith('http')) {
+        return method.imagen_url;
+      }
+      // Otherwise assume it's relative to API/static
       const baseUrl = environment.apiUrl.replace(/\/api$/, '');
-      // Ensure the image URL starts with a slash if needed
-      const imageUrl = qrPath.startsWith('/') ? qrPath : `/${qrPath}`;
+      const imageUrl = method.imagen_url.startsWith('/') ? method.imagen_url : `/${method.imagen_url}`;
       return `${baseUrl}${imageUrl}`;
     }
     return '';
@@ -514,12 +514,21 @@ export class CheckoutComponent implements OnInit {
     this.isProcessing.set(true);
 
     // Prepare order data with current costs
+    let shippingAddress = this.checkoutForm.value.direccion_envio || '';
+    if (this.checkoutForm.value.metodo_entrega === 'delivery') {
+      const district = this.checkoutForm.value.distrito;
+      if (district) {
+        shippingAddress = `${district}, ${shippingAddress}`;
+      }
+    }
+
     const orderData = {
       items: this.cartService.cartItems().map(item => ({
         id_producto: item.product.id_producto,
         cantidad: item.quantity
       })),
       ...this.checkoutForm.value,
+      direccion_envio: shippingAddress,
       costo_envio: this.currentShippingCost(), // Send shipping cost to backend if needed
       total: this.totalToPay()
     };

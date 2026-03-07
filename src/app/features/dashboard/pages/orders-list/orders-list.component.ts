@@ -47,7 +47,7 @@ import { OrderService, Order } from '../../../../core/services/order.service';
                     S/ {{ order.total }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
-                    {{ order.metodo_pago }}
+                    {{ order.paymentMethod?.nombre || 'Desconocido' }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span [ngClass]="{
@@ -137,7 +137,7 @@ import { OrderService, Order } from '../../../../core/services/order.service';
             </div>
             <div>
               <span class="text-gray-500 text-xs uppercase">Pago</span>
-              <p class="capitalize">{{ order.metodo_pago }}</p>
+              <p class="capitalize">{{ order.paymentMethod?.nombre || 'Desconocido' }}</p>
             </div>
           </div>
 

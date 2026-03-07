@@ -1,94 +1,120 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { SettingsService } from '../../../../core/services/settings.service';
+import { FormsModule } from '@angular/forms';
+import { PaymentMethodService, PaymentMethod } from '../../../../core/services/payment-method.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-payment-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './payment-settings.component.html'
 })
 export class PaymentSettingsComponent {
-  private fb = inject(FormBuilder);
-  private settingsService = inject(SettingsService);
+  private paymentMethodService = inject(PaymentMethodService);
   
-  settingsForm = this.fb.group({
-    yape_nombre: [''],
-    yape_numero: [''],
-    transfer_banco: [''],
-    transfer_numero: [''],
-    transfer_cci: [''],
-    transfer_titular: ['']
-  });
+  paymentMethods = signal<PaymentMethod[]>([]);
+  isProcessing = signal<number | null>(null); // Stores ID of method being processed
+  message = signal<{text: string, type: 'success' | 'error'} | null>(null);
 
-  qrUrl = signal<string | null>(null);
-  isSaving = signal(false);
-  message = signal('');
-  
   constructor() {
-    this.loadSettings();
+    this.loadPaymentMethods();
   }
 
-  loadSettings() {
-    this.settingsService.getSettings().subscribe({
-      next: (settings) => {
-        this.settingsForm.patchValue(settings);
-        if (settings['yape_qr']) {
-          this.qrUrl.set(this.getImageUrl(settings['yape_qr']));
-        }
+  loadPaymentMethods() {
+    this.paymentMethodService.getAll(true).subscribe({
+      next: (methods) => {
+        // Sort by id or name
+        this.paymentMethods.set(methods.sort((a, b) => a.id_metodo_pago - b.id_metodo_pago));
       },
-      error: (err) => console.error('Error loading settings', err)
+      error: (err) => console.error('Error loading payment methods', err)
     });
   }
 
-  getImageUrl(path: string): string {
+  getImageUrl(path: string | undefined): string {
     if (!path) return '';
     if (path.startsWith('http')) return path;
-    return `${environment.apiUrl.replace('/api', '')}${path}`;
+    // Remove /api from end of apiUrl if present
+    const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+    // Ensure path starts with /
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${baseUrl}${normalizedPath}`;
   }
 
-  onFileSelected(event: Event) {
+  toggleActive(method: PaymentMethod) {
+    this.updateMethod(method.id_metodo_pago, { activo: !method.activo });
+  }
+
+  toggleRequireProof(method: PaymentMethod) {
+    this.updateMethod(method.id_metodo_pago, { requiere_comprobante: !method.requiere_comprobante });
+  }
+
+  saveInstructions(method: PaymentMethod) {
+    this.updateMethod(method.id_metodo_pago, { 
+      instrucciones: method.instrucciones,
+      descripcion: method.descripcion // Also save description if edited
+    });
+  }
+
+  updateMethod(id: number, data: Partial<PaymentMethod>) {
+    this.isProcessing.set(id);
+    this.paymentMethodService.update(id, data).subscribe({
+      next: (updatedMethod) => {
+        this.paymentMethods.update(methods => 
+          methods.map(m => m.id_metodo_pago === id ? { ...m, ...updatedMethod } : m)
+        );
+        this.showMessage('Actualizado correctamente', 'success');
+        this.isProcessing.set(null);
+      },
+      error: (err) => {
+        console.error('Error updating method', err);
+        this.showMessage('Error al actualizar', 'error');
+        this.isProcessing.set(null);
+      }
+    });
+  }
+
+  onFileSelected(event: Event, method: PaymentMethod) {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       const file = input.files[0];
-      this.uploadQr(file);
+      this.uploadImage(method.id_metodo_pago, file);
     }
   }
 
-  uploadQr(file: File) {
-    this.isSaving.set(true);
-    this.settingsService.uploadQr(file).subscribe({
+  uploadImage(id: number, file: File) {
+    this.isProcessing.set(id);
+    this.paymentMethodService.uploadImage(id, file).subscribe({
       next: (res) => {
-        this.qrUrl.set(this.getImageUrl(res.url));
-        this.message.set('QR actualizado correctamente');
-        this.isSaving.set(false);
-        setTimeout(() => this.message.set(''), 3000);
+        this.paymentMethods.update(methods => 
+          methods.map(m => m.id_metodo_pago === id ? { ...m, imagen_url: res.url } : m)
+        );
+        this.showMessage('Imagen actualizada', 'success');
+        this.isProcessing.set(null);
       },
       error: (err) => {
-        console.error('Error uploading QR', err);
-        this.message.set('Error al subir QR');
-        this.isSaving.set(false);
+        console.error('Error uploading image', err);
+        this.showMessage('Error al subir imagen', 'error');
+        this.isProcessing.set(null);
       }
     });
   }
 
-  saveSettings() {
-    this.isSaving.set(true);
-    const formData: any = { ...this.settingsForm.value };
-    
-    this.settingsService.updateSettings(formData).subscribe({
-      next: () => {
-        this.message.set('Configuración guardada correctamente');
-        this.isSaving.set(false);
-        setTimeout(() => this.message.set(''), 3000);
-      },
-      error: (err) => {
-        console.error('Error saving settings', err);
-        this.message.set('Error al guardar configuración');
-        this.isSaving.set(false);
-      }
-    });
+  showMessage(text: string, type: 'success' | 'error') {
+    this.message.set({ text, type });
+    setTimeout(() => this.message.set(null), 3000);
+  }
+
+  // Helpers for UI logic
+  isYape(method: PaymentMethod): boolean {
+    return method.nombre.toLowerCase().includes('yape') || method.nombre.toLowerCase().includes('plin');
+  }
+
+  isTransfer(method: PaymentMethod): boolean {
+    return method.nombre.toLowerCase().includes('transferencia');
+  }
+
+  isCash(method: PaymentMethod): boolean {
+    return method.nombre.toLowerCase().includes('contra entrega') || method.nombre.toLowerCase().includes('efectivo');
   }
 }

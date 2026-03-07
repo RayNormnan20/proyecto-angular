@@ -11,6 +11,7 @@ const Setting = require('./settings/setting.model');
 const Session = require('./auth/session.model');
 const AccessLog = require('./auth/access-log.model');
 const Favorite = require('./favorites/favorite.model');
+const PaymentMethod = require('./payment-methods/payment-method.model');
 
 // Role-Permission associations (Many-to-Many)
 if (!Role.associations.permissions) {
@@ -48,6 +49,9 @@ ProductImage.belongsTo(Product, { foreignKey: 'producto_id', as: 'product' });
 // Order Associations
 Order.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
 User.hasMany(Order, { foreignKey: 'usuario_id', as: 'orders' });
+
+Order.belongsTo(PaymentMethod, { foreignKey: 'metodo_pago_id', as: 'paymentMethod' });
+PaymentMethod.hasMany(Order, { foreignKey: 'metodo_pago_id', as: 'orders' });
 
 Order.hasMany(OrderItem, { foreignKey: 'orden_id', as: 'items' });
 OrderItem.belongsTo(Order, { foreignKey: 'orden_id', as: 'order' });
@@ -91,5 +95,6 @@ module.exports = {
   Setting,
   Session,
   AccessLog,
-  Favorite
+  Favorite,
+  PaymentMethod
 };

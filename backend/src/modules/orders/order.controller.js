@@ -1,14 +1,24 @@
 const { sequelize } = require('../../config/database');
-const { Order, OrderItem, Product, User, ProductImage } = require('../associations');
+const { Order, OrderItem, Product, User, ProductImage, PaymentMethod } = require('../associations');
 
 const createOrder = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { items, metodo_pago, direccion_envio, notas, codigo_operacion } = req.body;
+    const { items, metodo_pago_id, direccion_envio, notas, codigo_operacion } = req.body;
     const userId = req.user.id; // From auth middleware
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'El carrito está vacío' });
+    }
+
+    // Validar método de pago
+    if (!metodo_pago_id) {
+      return res.status(400).json({ message: 'Debe seleccionar un método de pago' });
+    }
+    
+    const paymentMethod = await PaymentMethod.findByPk(metodo_pago_id);
+    if (!paymentMethod || !paymentMethod.activo) {
+      return res.status(400).json({ message: 'Método de pago inválido o inactivo' });
     }
 
     let total = 0;
@@ -49,7 +59,7 @@ const createOrder = async (req, res) => {
       usuario_id: userId,
       total: total,
       estado: 'pendiente',
-      metodo_pago: metodo_pago,
+      metodo_pago_id: metodo_pago_id,
       direccion_envio: direccion_envio,
       notas: notas,
       codigo_operacion: codigo_operacion
@@ -103,6 +113,7 @@ const getOrders = async (req, res) => {
           as: 'user',
           attributes: ['id_usuario', 'nombre', 'email']
         },
+        { model: PaymentMethod, as: 'paymentMethod' },
         {
           model: OrderItem,
           as: 'items',
@@ -138,6 +149,7 @@ const getOrderById = async (req, res) => {
           as: 'user',
           attributes: ['id_usuario', 'nombre', 'email']
         },
+        { model: PaymentMethod, as: 'paymentMethod' },
         {
           model: OrderItem,
           as: 'items',

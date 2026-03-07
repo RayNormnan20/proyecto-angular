@@ -18,10 +18,10 @@ import { Category } from '../../features/products/models/product.model';
       <div class="hidden lg:block bg-gray-100 py-2 px-4">
         <div class="container mx-auto flex justify-between items-center">
           <div class="flex gap-4 text-sm text-gray-600">
-            <a routerLink="/" class="hover:text-yellow-500 transition-colors">Sobre Nosotros</a>
+            <a routerLink="/about" class="hover:text-yellow-500 transition-colors">Sobre Nosotros</a>
             <a routerLink="/contact" class="hover:text-yellow-500 transition-colors">Contacto</a>
-            <a routerLink="/" class="hover:text-yellow-500 transition-colors">Ayuda</a>
-            <a routerLink="/" class="hover:text-yellow-500 transition-colors">FAQs</a>
+            <a routerLink="/help" class="hover:text-yellow-500 transition-colors">Ayuda</a>
+            <a routerLink="/faq" class="hover:text-yellow-500 transition-colors">FAQs</a>
           </div>
           <div class="flex gap-4 text-sm text-gray-600">
             <ng-container *ngIf="authService.currentUser() as user; else authLinks">
@@ -84,7 +84,7 @@ import { Category } from '../../features/products/models/product.model';
           <!-- Customer Service -->
           <div class="hidden lg:block lg:w-1/3 text-right">
             <p class="m-0 text-gray-500 text-sm">Servicio al Cliente</p>
-            <h5 class="m-0 font-bold text-gray-800 text-xl">+51 999 999 999</h5>
+            <h5 class="m-0 font-bold text-gray-800 text-xl">+51 962281036</h5>
           </div>
         </div>
       </div>
@@ -182,9 +182,9 @@ import { Category } from '../../features/products/models/product.model';
                     <div class="flex flex-col space-y-2">
                         <a routerLink="/" class="text-gray-400 hover:text-white hover:underline transition-colors no-underline flex items-center"><i class="fas fa-angle-right mr-2"></i>Inicio</a>
                         <a routerLink="/products" class="text-gray-400 hover:text-white hover:underline transition-colors no-underline flex items-center"><i class="fas fa-angle-right mr-2"></i>Nuestra Tienda</a>
-                        <a routerLink="/cart" class="text-gray-400 hover:text-white hover:underline transition-colors no-underline flex items-center"><i class="fas fa-angle-right mr-2"></i>Carrito de Compras</a>
-                        <a routerLink="/checkout" class="text-gray-400 hover:text-white hover:underline transition-colors no-underline flex items-center"><i class="fas fa-angle-right mr-2"></i>Finalizar Compra</a>
+                        <a routerLink="/about" class="text-gray-400 hover:text-white hover:underline transition-colors no-underline flex items-center"><i class="fas fa-angle-right mr-2"></i>Sobre Nosotros</a>
                         <a routerLink="/contact" class="text-gray-400 hover:text-white hover:underline transition-colors no-underline flex items-center"><i class="fas fa-angle-right mr-2"></i>Contáctanos</a>
+                        <a routerLink="/help" class="text-gray-400 hover:text-white hover:underline transition-colors no-underline flex items-center"><i class="fas fa-angle-right mr-2"></i>Ayuda</a>
                     </div>
                 </div>
                 <div class="mb-5">
@@ -209,7 +209,7 @@ import { Category } from '../../features/products/models/product.model';
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="text-center md:text-left mb-4 md:mb-0">
                         <p class="text-gray-400 m-0">
-                            &copy; <a class="text-yellow-500 hover:underline no-underline" href="#">MultiShop</a>. Todos los derechos reservados.
+                            &copy; <a class="text-yellow-500 hover:underline no-underline" href="#">NovaVam3D</a>. Todos los derechos reservados.
                         </p>
                     </div>
                     <div class="text-center md:text-right">

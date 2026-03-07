@@ -1,0 +1,26 @@
+<div class="container mx-auto px-4 py-10">
+    <div class="relative mb-8 text-center">
+        <h2 class="text-3xl font-bold uppercase text-gray-800 inline-block px-4 bg-[#FAF8F4] relative z-10">Preguntas Frecuentes</h2>
+        <div class="absolute top-1/2 left-0 w-full h-[1px] bg-gray-300 -z-0"></div>
+    </div>
+
+    <div class="max-w-3xl mx-auto">
+        <div class="space-y-4">
+            <div *ngFor="let item of faqs; let i = index" class="border border-gray-200 rounded-lg overflow-hidden">
+                <button (click)="toggleFaq(i)" class="w-full flex justify-between items-center p-4 bg-white hover:bg-gray-50 transition-colors focus:outline-none">
+                    <span class="font-bold text-gray-800 text-left">{{ item.question }}</span>
+                    <span class="text-gray-500 transform transition-transform duration-300" [class.rotate-180]="item.isOpen">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </button>
+                <div class="bg-gray-50 px-4 transition-all duration-300 overflow-hidden" 
+                     [class.max-h-0]="!item.isOpen" 
+                     [class.max-h-40]="item.isOpen" 
+                     [class.py-0]="!item.isOpen"
+                     [class.py-4]="item.isOpen">
+                    <p class="text-gray-600">{{ item.answer }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

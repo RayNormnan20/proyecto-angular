@@ -28,6 +28,10 @@ import { ProfileComponent } from './features/public/pages/profile/profile.compon
 import { CartComponent } from './features/public/pages/cart/cart.component';
 import { CheckoutComponent } from './features/public/pages/checkout/checkout.component';
 import { FavoritesComponent } from './features/public/pages/favorites/favorites.component';
+import { AboutComponent } from './features/public/pages/about/about';
+import { ContactComponent } from './features/public/pages/contact/contact';
+import { HelpComponent } from './features/public/pages/help/help';
+import { FaqComponent } from './features/public/pages/faq/faq';
 
 export const routes: Routes = [
   // Rutas Públicas
@@ -41,7 +45,11 @@ export const routes: Routes = [
       { path: 'cart', component: CartComponent },
       { path: 'checkout', component: CheckoutComponent },
       { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
-      { path: 'profile', component: ProfileComponent }
+      { path: 'profile', component: ProfileComponent },
+      { path: 'about', component: AboutComponent },
+      { path: 'contact', component: ContactComponent },
+      { path: 'help', component: HelpComponent },
+      { path: 'faq', component: FaqComponent }
     ]
   },
   

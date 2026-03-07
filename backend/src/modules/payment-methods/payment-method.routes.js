@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const controller = require('./payment-method.controller');
 const authenticateToken = require('../../middlewares/auth.middleware');
-const upload = require('../../middlewares/upload.middleware');
+const upload = require('../../middlewares/upload.middleware')('payments');
 
 // Public routes (users need to see payment methods)
 router.get('/', controller.getAll);

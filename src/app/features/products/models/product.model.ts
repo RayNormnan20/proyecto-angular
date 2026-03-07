@@ -21,6 +21,7 @@ export interface Category {
   nombre: string;
   descripcion?: string;
   estado: 'activo' | 'inactivo';
+  imagen?: string;
 }
 
 export interface Brand {

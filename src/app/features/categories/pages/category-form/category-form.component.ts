@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CategoriesService } from '../../../products/services/categories.service';
 import { Category } from '../../../products/models/product.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-category-form',
@@ -39,6 +40,26 @@ import { Category } from '../../../products/models/product.model';
                 rows="3"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               ></textarea>
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+              <div class="flex items-center space-x-4">
+                <div class="shrink-0" *ngIf="imagePreview">
+                  <img [src]="imagePreview" class="h-16 w-16 object-cover rounded-md border border-gray-300">
+                </div>
+                <label class="block">
+                  <span class="sr-only">Elegir imagen</span>
+                  <input type="file" (change)="onFileSelected($event)" accept="image/*"
+                    class="block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-blue-50 file:text-blue-700
+                      hover:file:bg-blue-100
+                    "/>
+                </label>
+              </div>
             </div>
 
             <div class="mb-6">
@@ -86,6 +107,22 @@ export class CategoryFormComponent implements OnInit {
     estado: ['activo', [Validators.required]]
   });
 
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
+
+  onFileSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      this.selectedFile = file;
+      // Crear preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -105,9 +142,13 @@ export class CategoryFormComponent implements OnInit {
           descripcion: category.descripcion,
           estado: category.estado
         });
+        if (category.imagen) {
+          const baseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+          this.imagePreview = `${baseUrl}${category.imagen}`;
+        }
       },
       error: (err) => {
-        console.error('Error loading category', err);
+        console.error(err);
         this.router.navigate(['/dashboard/categories']);
       }
     });
@@ -117,28 +158,31 @@ export class CategoryFormComponent implements OnInit {
     if (this.categoryForm.invalid) return;
 
     this.isSubmitting.set(true);
-    const categoryData = this.categoryForm.value as Category;
+    
+    const formData = new FormData();
+    Object.keys(this.categoryForm.controls).forEach(key => {
+      const control = this.categoryForm.get(key);
+      if (control?.value) {
+        formData.append(key, control.value);
+      }
+    });
 
-    if (this.isEditing() && this.categoryId) {
-      this.categoriesService.update(this.categoryId, categoryData).subscribe({
-        next: () => {
-          this.router.navigate(['/dashboard/categories']);
-        },
-        error: (err) => {
-          console.error('Error updating category', err);
-          this.isSubmitting.set(false);
-        }
-      });
-    } else {
-      this.categoriesService.create(categoryData).subscribe({
-        next: () => {
-          this.router.navigate(['/dashboard/categories']);
-        },
-        error: (err) => {
-          console.error('Error creating category', err);
-          this.isSubmitting.set(false);
-        }
-      });
+    if (this.selectedFile) {
+      formData.append('image', this.selectedFile);
     }
+
+    const request = this.isEditing() && this.categoryId
+      ? this.categoriesService.update(this.categoryId, formData)
+      : this.categoriesService.create(formData);
+
+    request.subscribe({
+      next: () => {
+        this.router.navigate(['/dashboard/categories']);
+      },
+      error: (err) => {
+        console.error(err);
+        this.isSubmitting.set(false);
+      }
+    });
   }
 }

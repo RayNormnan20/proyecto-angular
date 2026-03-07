@@ -3,7 +3,9 @@ const Category = require('./category.model');
 // Obtener todas las categorías
 exports.getAll = async (req, res) => {
   try {
-    const categories = await Category.findAll();
+    const categories = await Category.findAll({
+      order: [['id_categoria', 'ASC']]
+    });
     res.json(categories);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener categorías', error: error.message });
@@ -24,7 +26,19 @@ exports.getById = async (req, res) => {
 // Crear categoría
 exports.create = async (req, res) => {
   try {
-    const category = await Category.create(req.body);
+    const categoryData = {
+      ...req.body
+    };
+
+    console.log('Creating category with data:', req.body);
+    console.log('File:', req.file);
+
+    if (req.file) {
+      // Guardar ruta relativa
+      categoryData.imagen = `/uploads/categories/${req.file.filename}`;
+    }
+
+    const category = await Category.create(categoryData);
     res.status(201).json(category);
   } catch (error) {
     res.status(500).json({ message: 'Error al crear categoría', error: error.message });
@@ -37,7 +51,19 @@ exports.update = async (req, res) => {
     const category = await Category.findByPk(req.params.id);
     if (!category) return res.status(404).json({ message: 'Categoría no encontrada' });
     
-    await category.update(req.body);
+    const categoryData = {
+      ...req.body
+    };
+
+    console.log('Updating category:', req.params.id);
+    console.log('Update data:', req.body);
+    console.log('File:', req.file);
+
+    if (req.file) {
+      categoryData.imagen = `/uploads/categories/${req.file.filename}`;
+    }
+
+    await category.update(categoryData);
     res.json(category);
   } catch (error) {
     res.status(500).json({ message: 'Error al actualizar categoría', error: error.message });

@@ -34,8 +34,7 @@ export class PaymentSettingsComponent {
   getImageUrl(path: string | undefined): string {
     if (!path) return '';
     if (path.startsWith('http')) return path;
-    // Remove /api from end of apiUrl if present
-    const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+    const baseUrl = environment.imageBaseUrl || 'http://localhost:3000';
     // Ensure path starts with /
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     return `${baseUrl}${normalizedPath}`;

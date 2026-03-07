@@ -6,6 +6,7 @@ import { CategoriesService } from '../../services/categories.service';
 import { BrandsService } from '../../services/brands.service';
 import { Product, Category, Brand, ProductImage } from '../../models/product.model';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-product-list',
@@ -52,6 +53,7 @@ import { FormsModule } from '@angular/forms';
                   [src]="getProductImage(product)" 
                   class="h-10 w-10 rounded-full object-cover" 
                   alt="Product"
+                  onerror="this.onerror=null;this.src='assets/img/placeholder.png'"
                 >
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
@@ -89,6 +91,7 @@ import { FormsModule } from '@angular/forms';
               [src]="getProductImage(product)" 
               class="h-20 w-20 rounded-lg object-cover bg-gray-100" 
               alt="Product"
+              onerror="this.onerror=null;this.src='assets/img/placeholder.png'"
             >
             <div class="flex-1 min-w-0">
               <div class="flex justify-between items-start">
@@ -264,7 +267,8 @@ export class ProductListComponent implements OnInit {
   brands = signal<Brand[]>([]);
   
   searchTerm = '';
-  apiUrl = 'http://localhost:3000'; // Ajustar según environment
+  apiUrl = environment.apiUrl;
+  imageBaseUrl = environment.imageBaseUrl || 'http://localhost:3000';
 
   // Modal & Form State
   isModalOpen = false;
@@ -307,7 +311,7 @@ export class ProductListComponent implements OnInit {
 
   getProductImage(product: Product): string {
     if (product.images && product.images.length > 0) {
-      return `${this.apiUrl}${product.images[0].url}`;
+      return `${this.imageBaseUrl}${product.images[0].url}`;
     }
     return 'assets/placeholder.png'; // Asegurarse de tener un placeholder
   }

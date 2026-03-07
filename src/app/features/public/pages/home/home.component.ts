@@ -7,1018 +7,396 @@ import { CategoriesService } from '../../../products/services/categories.service
 import { CartService } from '../../../../core/services/cart.service';
 import { FavoriteService } from '../../../favorites/services/favorite.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { environment } from '../../../../../environments/environment';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
-  styles: [`
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
-
-    :host {
-      --gold: #C9A84C;
-      --gold-light: #E8C97A;
-      --gold-dark: #9A7A30;
-      --ink: #0D0D0F;
-      --ink-soft: #1A1A1F;
-      --ink-muted: #2E2E38;
-      --ivory: #FAF8F4;
-      --ivory-warm: #F2EFE8;
-      --smoke: #8A8A95;
-      --smoke-light: #B8B8C0;
-      display: block;
-      font-family: 'DM Sans', sans-serif;
-      background: var(--ivory);
-      color: var(--ink);
-    }
-
-    /* HERO */
-    .hero {
-      position: relative;
-      min-height: 92vh;
-      background: var(--ink);
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .hero-noise {
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .hero-gradient {
-      position: absolute;
-      inset: 0;
-      background: 
-        radial-gradient(ellipse 80% 60% at 70% 50%, rgba(201,168,76,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 80% at 10% 20%, rgba(201,168,76,0.05) 0%, transparent 50%);
-    }
-
-    .hero-lines {
-      position: absolute;
-      inset: 0;
-      background-image: 
-        linear-gradient(rgba(201,168,76,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(201,168,76,0.06) 1px, transparent 1px);
-      background-size: 80px 80px;
-      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%);
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 48px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-    }
-
-    .hero-eyebrow {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 28px;
-      animation: fadeUp 0.8s ease both;
-    }
-
-    .eyebrow-line {
-      width: 40px;
-      height: 1px;
-      background: var(--gold);
-    }
-
-    .eyebrow-text {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--gold);
-    }
-
-    .hero-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(52px, 6vw, 88px);
-      font-weight: 300;
-      line-height: 1.05;
-      color: var(--ivory);
-      margin-bottom: 24px;
-      animation: fadeUp 0.8s 0.1s ease both;
-    }
-
-    .hero-title em {
-      font-style: italic;
-      color: var(--gold-light);
-    }
-
-    .hero-subtitle {
-      font-size: 16px;
-      font-weight: 300;
-      color: var(--smoke-light);
-      line-height: 1.7;
-      max-width: 420px;
-      margin-bottom: 48px;
-      animation: fadeUp 0.8s 0.2s ease both;
-    }
-
-    .search-wrapper {
-      animation: fadeUp 0.8s 0.3s ease both;
-    }
-
-    .search-label {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--smoke);
-      margin-bottom: 12px;
-    }
-
-    .search-box {
-      display: flex;
-      border: 1px solid rgba(201,168,76,0.3);
-      border-radius: 2px;
-      overflow: hidden;
-      background: rgba(255,255,255,0.04);
-      transition: border-color 0.3s;
-    }
-
-    .search-box:focus-within {
-      border-color: rgba(201,168,76,0.7);
-    }
-
-    .search-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      padding: 16px 20px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      color: var(--ivory);
-      font-weight: 300;
-    }
-
-    .search-input::placeholder {
-      color: var(--smoke);
-    }
-
-    .search-btn {
-      background: var(--gold);
-      border: none;
-      padding: 16px 24px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ink);
-      transition: background 0.2s;
-    }
-
-    .search-btn:hover {
-      background: var(--gold-light);
-    }
-
-    .hero-visual {
-      position: relative;
-      height: 500px;
-      animation: fadeIn 1.2s 0.3s ease both;
-    }
-
-    .hero-card-stack {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hero-card {
-      position: absolute;
-      width: 260px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(201,168,76,0.15);
-      border-radius: 4px;
-      padding: 24px;
-      backdrop-filter: blur(10px);
-    }
-
-    .hero-card:nth-child(1) { transform: rotate(-8deg) translate(-60px, 20px); }
-    .hero-card:nth-child(2) { transform: rotate(-2deg) translate(0, -10px); z-index: 2; background: rgba(255,255,255,0.06); border-color: rgba(201,168,76,0.3); }
-    .hero-card:nth-child(3) { transform: rotate(6deg) translate(55px, 25px); }
-
-    .hero-card-img {
-      width: 100%;
-      height: 140px;
-      background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
-      border-radius: 2px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hero-card-tag {
-      font-size: 10px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 6px;
-    }
-
-    .hero-card-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 20px;
-      font-weight: 500;
-      color: var(--ivory);
-      margin-bottom: 4px;
-    }
-
-    .hero-card-price {
-      font-size: 13px;
-      color: var(--smoke-light);
-    }
-
-    .hero-stats {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      display: flex;
-      gap: 32px;
-      animation: fadeUp 0.8s 0.5s ease both;
-    }
-
-    .stat-item {
-      text-align: right;
-    }
-
-    .stat-num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 36px;
-      font-weight: 600;
-      color: var(--gold);
-      line-height: 1;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: var(--smoke);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-
-    /* FILTER STRIP */
-    .filter-strip {
-      position: sticky;
-      top: 64px;
-      z-index: 40;
-      background: rgba(250,248,244,0.95);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-    }
-
-    .filter-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 48px;
-      display: flex;
-      align-items: center;
-      gap: 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .filter-inner::-webkit-scrollbar { display: none; }
-
-    .filter-label {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--smoke);
-      white-space: nowrap;
-      padding: 20px 24px 20px 0;
-      border-right: 1px solid rgba(0,0,0,0.08);
-      margin-right: 24px;
-      flex-shrink: 0;
-    }
-
-    .filter-btn {
-      background: none;
-      border: none;
-      padding: 20px 20px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 400;
-      color: var(--smoke);
-      cursor: pointer;
-      white-space: nowrap;
-      position: relative;
-      transition: color 0.2s;
-      flex-shrink: 0;
-    }
-
-    .filter-btn::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 20px;
-      right: 20px;
-      height: 2px;
-      background: var(--gold);
-      transform: scaleX(0);
-      transition: transform 0.2s;
-    }
-
-    .filter-btn:hover { color: var(--ink); }
-
-    .filter-btn.active {
-      color: var(--ink);
-      font-weight: 500;
-    }
-
-    .filter-btn.active::after {
-      transform: scaleX(1);
-    }
-
-    /* PRODUCT SECTION */
-    .products-section {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 72px 48px;
-      min-height: 60vh;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 48px;
-    }
-
-    .section-title-wrap {}
-
-    .section-eyebrow {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 8px;
-    }
-
-    .section-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 40px;
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.1;
-    }
-
-    .product-count {
-      font-size: 13px;
-      color: var(--smoke);
-    }
-
-    /* PRODUCT GRID */
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 2px;
-    }
-
-    .product-card {
-      background: white;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      group: true;
-    }
-
-    .product-card-inner {
-      display: block;
-      text-decoration: none;
-      color: inherit;
-      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-
-    .product-card:hover .product-card-inner {
-      transform: translateY(-4px);
-    }
-
-    .product-image-wrap {
-      position: relative;
-      aspect-ratio: 3/4;
-      background: var(--ivory-warm);
-      overflow: hidden;
-    }
-
-    .product-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-
-    .product-card:hover .product-image {
-      transform: scale(1.06);
-    }
-
-    .product-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(13,13,15,0.5) 0%, transparent 50%);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .product-card:hover .product-overlay {
-      opacity: 1;
-    }
-
-    .product-badge {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 5px 10px;
-      border-radius: 1px;
-    }
-
-    .badge-sold-out {
-      background: var(--ink);
-      color: var(--ivory);
-    }
-
-    .badge-last {
-      background: #B5451B;
-      color: white;
-    }
-
-    .product-quick-view {
-      position: absolute;
-      bottom: 16px;
-      right: 16px;
-      width: 40px;
-      height: 40px;
-      background: var(--ivory);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: all 0.3s;
-    }
-
-    .product-card:hover .product-quick-view {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .product-info {
-      padding: 20px 20px 24px;
-      border-top: 1px solid rgba(0,0,0,0.04);
-    }
-
-    .product-category {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--gold-dark);
-      margin-bottom: 6px;
-    }
-
-    .product-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 20px;
-      font-weight: 500;
-      color: var(--ink);
-      line-height: 1.2;
-      margin-bottom: 6px;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .product-desc {
-      font-size: 12px;
-      color: var(--smoke);
-      line-height: 1.6;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      margin-bottom: 16px;
-      min-height: 38px;
-    }
-
-    .product-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .product-price {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--ink);
-      line-height: 1;
-    }
-
-    .product-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .product-btn {
-      width: 36px;
-      height: 36px;
-      border: 1px solid rgba(0,0,0,0.12);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.25s;
-      color: var(--ink);
-      text-decoration: none;
-      background: transparent;
-      cursor: pointer;
-    }
-
-    .product-btn:hover {
-      background: var(--ink);
-      border-color: var(--ink);
-      color: white;
-    }
-
-    .product-add-btn {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: var(--ink);
-    }
-    
-    .product-add-btn:hover {
-      background: var(--gold-dark);
-      border-color: var(--gold-dark);
-      color: white;
-    }
-
-    /* EMPTY STATE */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 96px 24px;
-      text-align: center;
-    }
-
-    .empty-icon {
-      width: 72px;
-      height: 72px;
-      border: 1px solid rgba(201,168,76,0.3);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-      color: var(--gold);
-    }
-
-    .empty-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 28px;
-      font-weight: 400;
-      color: var(--ink);
-      margin-bottom: 10px;
-    }
-
-    .empty-text {
-      font-size: 14px;
-      color: var(--smoke);
-      max-width: 320px;
-      line-height: 1.6;
-      margin-bottom: 28px;
-    }
-
-    .empty-btn {
-      background: none;
-      border: 1px solid var(--gold);
-      padding: 11px 28px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--gold-dark);
-      cursor: pointer;
-      transition: all 0.2s;
-      border-radius: 1px;
-    }
-
-    .empty-btn:hover {
-      background: var(--gold);
-      color: var(--ink);
-    }
-
-    /* FOOTER */
-    .site-footer {
-      background: var(--ink-soft);
-      color: rgba(250,248,244,0.5);
-      padding: 72px 0 40px;
-    }
-
-    .footer-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 48px;
-    }
-
-    .footer-top {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr 1fr;
-      gap: 48px;
-      margin-bottom: 64px;
-      padding-bottom: 64px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .footer-brand-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 28px;
-      font-weight: 400;
-      color: var(--ivory);
-      margin-bottom: 16px;
-    }
-
-    .footer-brand-desc {
-      font-size: 13px;
-      line-height: 1.7;
-      max-width: 260px;
-    }
-
-    .footer-heading {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--ivory);
-      margin-bottom: 20px;
-    }
-
-    .footer-links {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .footer-link {
-      font-size: 13px;
-      color: rgba(250,248,244,0.5);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer-link:hover {
-      color: var(--ivory);
-    }
-
-    .footer-contact-item {
-      font-size: 13px;
-      line-height: 1.8;
-    }
-
-    .footer-gold-line {
-      display: block;
-      width: 32px;
-      height: 1px;
-      background: var(--gold);
-      margin-bottom: 20px;
-    }
-
-    .footer-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-copy {
-      font-size: 12px;
-    }
-
-    .footer-gold-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--gold);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .gold-dot {
-      width: 4px;
-      height: 4px;
-      background: var(--gold);
-      border-radius: 50%;
-    }
-
-    /* ANIMATIONS */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @media (max-width: 1024px) {
-      .hero-content { grid-template-columns: 1fr; padding: 0 32px; }
-      .hero-visual { display: none; }
-      .product-grid { grid-template-columns: repeat(3, 1fr); }
-      .footer-top { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 768px) {
-      .hero { min-height: 80vh; }
-      .products-section { padding: 48px 24px; }
-      .product-grid { grid-template-columns: repeat(2, 1fr); }
-      .filter-inner { padding: 0 24px; }
-      .footer-top { grid-template-columns: 1fr; gap: 32px; }
-      .footer-inner { padding: 0 24px; }
-    }
-  `],
+  styles: [],
   template: `
-    <!-- HERO -->
-    <section class="hero">
-      <div class="hero-noise"></div>
-      <div class="hero-gradient"></div>
-      <div class="hero-lines"></div>
+    <!-- CAROUSEL & OFFERS -->
+    <div class="container mx-auto px-4 mb-8 pt-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Carousel -->
+        <div class="lg:col-span-2">
+          <div class="relative w-full h-[430px] bg-gray-200 overflow-hidden group">
+            <!-- Slides -->
+            <div *ngFor="let slide of slides(); let i = index" 
+                 class="absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out"
+                 [class.opacity-0]="currentSlide() !== i"
+                 [class.opacity-100]="currentSlide() === i">
+              <img [src]="slide.img" class="w-full h-full object-cover" 
+                   onerror="this.onerror=null;this.src='assets/img/carousel-1.jpg'">
+              <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
+                <h1 class="text-4xl md:text-6xl text-white font-bold mb-3 uppercase animate-fade-in-down">{{ slide.title }}</h1>
+                <p class="text-white text-lg mb-4 mx-auto max-w-lg animate-bounce-in">{{ slide.desc }}</p>
+                <a [routerLink]="slide.link" class="inline-block px-6 py-2 border-2 border-white text-white font-medium hover:bg-white hover:text-gray-900 transition-colors uppercase tracking-wider animate-fade-in-up">Comprar Ahora</a>
+              </div>
+            </div>
 
-      <div class="hero-content">
-        <div>
-          <div class="hero-eyebrow">
-            <span class="eyebrow-line"></span>
-            <span class="eyebrow-text">Colección Exclusiva 2026</span>
-          </div>
+            <!-- Controls -->
+            <button (click)="prevSlide()" class="absolute top-1/2 left-4 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-transparent border border-white text-white hover:bg-white hover:text-gray-900 transition-colors z-10">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button (click)="nextSlide()" class="absolute top-1/2 right-4 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-transparent border border-white text-white hover:bg-white hover:text-gray-900 transition-colors z-10">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
 
-          <h1 class="hero-title">
-            Productos<br>
-            de <em>Calidad</em><br>
-            Superior
-          </h1>
-
-          <p class="hero-subtitle">
-            Descubre nuestra curaduría de productos seleccionados con criterio y elegancia. Cada pieza, pensada para quienes exigen lo mejor.
-          </p>
-
-          <div class="search-wrapper">
-            <div class="search-label">Buscar en catálogo</div>
-            <div class="search-box">
-              <input
-                type="text"
-                placeholder="Nombre del producto, categoría..."
-                class="search-input"
-                [(ngModel)]="searchTerm"
-                (keyup.enter)="loadProducts()"
-              >
-              <button class="search-btn" (click)="loadProducts()">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                Buscar
+            <!-- Indicators -->
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+              <button *ngFor="let slide of slides(); let i = index" 
+                      (click)="currentSlide.set(i)"
+                      class="w-3 h-3 rounded-full transition-colors"
+                      [class.bg-[#FFD333]]="currentSlide() === i"
+                      [class.bg-white]="currentSlide() !== i">
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Hero Visual -->
-        <div class="hero-visual">
-          <div class="hero-card-stack">
-            <div class="hero-card">
-              <div class="hero-card-img">
-                <svg width="40" height="40" fill="none" stroke="rgba(201,168,76,0.5)" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                </svg>
-              </div>
-              <div class="hero-card-tag">Electrónica</div>
-              <div class="hero-card-name">Gadget Pro X</div>
-              <div class="hero-card-price">$299.00</div>
-            </div>
-            <div class="hero-card">
-              <div class="hero-card-img">
-                <svg width="40" height="40" fill="none" stroke="rgba(201,168,76,0.7)" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                </svg>
-              </div>
-              <div class="hero-card-tag">Destacado</div>
-              <div class="hero-card-name">Premium Select</div>
-              <div class="hero-card-price">$459.00</div>
-            </div>
-            <div class="hero-card">
-              <div class="hero-card-img">
-                <svg width="40" height="40" fill="none" stroke="rgba(201,168,76,0.4)" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
-                </svg>
-              </div>
-              <div class="hero-card-tag">Oferta</div>
-              <div class="hero-card-name">Essential Pack</div>
-              <div class="hero-card-price">$129.00</div>
+        <!-- Special Offers -->
+        <div class="lg:col-span-1 flex flex-col gap-8 h-full">
+          <div class="relative h-[200px] bg-gray-200 overflow-hidden group flex-1">
+            <img src="assets/img/offer-1.jpg" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                 onerror="this.onerror=null;this.src='assets/img/offer-1.jpg'">
+            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
+              <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
+              <h3 class="text-white text-2xl font-bold mb-3">Oferta Especial</h3>
+              <a routerLink="/products" class="inline-block px-4 py-2 bg-[#FFD333] text-gray-900 text-sm font-bold uppercase hover:bg-yellow-400 transition-colors">Comprar</a>
             </div>
           </div>
-
-          <div class="hero-stats">
-            <div class="stat-item">
-              <div class="stat-num">500+</div>
-              <div class="stat-label">Productos</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-num">98%</div>
-              <div class="stat-label">Satisfacción</div>
+          <div class="relative h-[200px] bg-gray-200 overflow-hidden group flex-1">
+            <img src="assets/img/offer-2.jpg" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                 onerror="this.onerror=null;this.src='assets/img/offer-2.jpg'">
+            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
+              <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
+              <h3 class="text-white text-2xl font-bold mb-3">Oferta Especial</h3>
+              <a routerLink="/products" class="inline-block px-4 py-2 bg-[#FFD333] text-gray-900 text-sm font-bold uppercase hover:bg-yellow-400 transition-colors">Comprar</a>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- FILTER STRIP -->
-    <div class="filter-strip">
-      <div class="filter-inner">
-        <span class="filter-label">Categorías</span>
-        <button
-          class="filter-btn"
-          [class.active]="!selectedCategoryId()"
-          (click)="filterByCategory(null)"
-        >Todos</button>
-        <button
-          *ngFor="let cat of categories()"
-          class="filter-btn"
-          [class.active]="selectedCategoryId() === cat.id_categoria"
-          (click)="filterByCategory(cat.id_categoria!)"
-        >{{ cat.nombre }}</button>
       </div>
     </div>
 
-    <!-- PRODUCTS -->
-    <section class="products-section">
-      <div class="section-header">
-        <div class="section-title-wrap">
-          <div class="section-eyebrow">Catálogo</div>
-          <h2 class="section-title">Nuestra Selección</h2>
+    <!-- FEATURES -->
+    <div class="container mx-auto px-4 py-10">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="flex items-center p-6 bg-white shadow-sm border border-gray-100">
+          <svg class="w-10 h-10 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          <h5 class="font-bold text-gray-800 m-0">Calidad Garantizada</h5>
         </div>
-        <span class="product-count">{{ products().length }} productos encontrados</span>
+        <div class="flex items-center p-6 bg-white shadow-sm border border-gray-100">
+          <svg class="w-10 h-10 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+          <h5 class="font-bold text-gray-800 m-0">Envío Gratis</h5>
+        </div>
+        <div class="flex items-center p-6 bg-white shadow-sm border border-gray-100">
+          <svg class="w-10 h-10 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+          <h5 class="font-bold text-gray-800 m-0">Devolución 14 días</h5>
+        </div>
+        <div class="flex items-center p-6 bg-white shadow-sm border border-gray-100">
+          <svg class="w-10 h-10 text-yellow-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <h5 class="font-bold text-gray-800 m-0">Soporte 24/7</h5>
+        </div>
       </div>
+    </div>
 
-      <div class="product-grid" *ngIf="products().length > 0">
-        <div *ngFor="let product of products()" class="product-card">
-          <div class="product-card-inner">
-            <!-- Image -->
-            <div class="product-image-wrap">
-              <img
-                [src]="getProductImage(product)"
-                [alt]="product.nombre"
-                class="product-image"
-              >
-              <div class="product-overlay"></div>
+    <!-- CATEGORIES -->
+    <div class="container mx-auto px-4 py-5">
+      <div class="relative mb-8 text-center">
+        <h2 class="text-3xl font-bold uppercase text-gray-800 inline-block px-4 bg-[#FAF8F4] relative z-10">Categorías</h2>
+        <div class="absolute top-1/2 left-0 w-full h-[1px] bg-gray-300 -z-0"></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div *ngFor="let cat of categories()" class="group cursor-pointer" (click)="filterByCategory(cat.id_categoria!)">
+          <div class="flex items-center bg-white mb-4 transition-all duration-300 hover:shadow-md" [class.bg-yellow-50]="selectedCategoryId() === cat.id_categoria">
+            <div class="w-[100px] h-[100px] overflow-hidden relative">
+               <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                    [src]="getCategoryImage(cat)" 
+                    [alt]="cat.nombre"
+                    onerror="this.onerror=null;this.src='assets/img/cat-placeholder.jpg'">
+            </div>
+            <div class="flex-1 pl-3">
+                <h6 class="text-base font-semibold text-gray-800 m-0 group-hover:text-[#C9A84C] transition-colors">{{cat.nombre}}</h6>
+                <small class="text-gray-500">Ver Productos</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-              <span *ngIf="product.stock === 0" class="product-badge badge-sold-out">Agotado</span>
-              <span *ngIf="product.stock > 0 && product.stock < 5" class="product-badge badge-last">Últimas unidades</span>
-
-              <div class="product-quick-view">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
+    <ng-container *ngIf="!selectedCategoryId()">
+      <!-- FEATURED PRODUCTS -->
+      <div class="container mx-auto px-4 py-10">
+        <div class="relative mb-8 text-center">
+          <h2 class="text-3xl font-bold uppercase text-gray-800 inline-block px-4 bg-[#FAF8F4] relative z-10">Productos Destacados</h2>
+          <div class="absolute top-1/2 left-0 w-full h-[1px] bg-gray-300 -z-0"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div *ngFor="let product of featuredProducts()" class="bg-white mb-0 group transition-shadow hover:shadow-lg product-item">
+            <!-- Product Card Content -->
+            <div class="relative overflow-hidden aspect-[1/1] bg-white product-img p-4">
+              <img class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                   [src]="getProductImage(product)" [alt]="product.nombre">
+              
+              <div class="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button (click)="addToCart(product, $event)" 
+                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-0" 
+                        title="Agregar al carrito">
+                   <i class="fa fa-shopping-cart"></i>
+                </button>
+                <button (click)="toggleFavorite(product, $event)" 
+                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-100" 
+                        [class.text-red-500]="isFavorite(product.id_producto)"
+                        [class.border-red-500]="isFavorite(product.id_producto)">
+                   <i [class]="isFavorite(product.id_producto) ? 'fas fa-heart' : 'far fa-heart'"></i>
+                </button>
+                <a [routerLink]="['/product', product.id_producto]" 
+                   class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-200">
+                   <i class="fa fa-search"></i>
+                </a>
+              </div>
+  
+              <!-- Badges -->
+              <span *ngIf="product.stock === 0" class="absolute top-2 left-2 bg-black text-white text-[10px] font-bold px-2 py-1 uppercase">Agotado</span>
+              <span *ngIf="product.stock > 0 && product.stock < 5" class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 uppercase">Últimas</span>
+            </div>
+            
+            <div class="text-center py-4 px-3">
+              <a [routerLink]="['/product', product.id_producto]" class="block text-lg font-medium text-gray-800 hover:text-[#C9A84C] truncate mb-1 transition-colors">{{product.nombre}}</a>
+              <div class="flex justify-center items-center gap-2 mb-2">
+                  <h5 class="text-lg font-bold text-gray-900 m-0">S/. {{product.precio}}</h5>
+              </div>
+              <div class="flex justify-center text-[#C9A84C] text-xs items-center">
+                  <small class="fa fa-star mr-1"></small>
+                  <small class="fa fa-star mr-1"></small>
+                  <small class="fa fa-star mr-1"></small>
+                  <small class="fa fa-star mr-1"></small>
+                  <small class="fa fa-star mr-1"></small>
+                  <span class="text-gray-500 ml-1">(99)</span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- OFFER BANNERS -->
+      <div class="container mx-auto px-4 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="relative h-[300px] bg-gray-200 overflow-hidden group">
+            <img src="assets/img/offer-1.jpg" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                 onerror="this.onerror=null;this.src='assets/img/offer-1.jpg'">
+            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
+              <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
+              <h3 class="text-white text-3xl font-bold mb-3">Oferta Especial</h3>
+              <a routerLink="/products" class="inline-block px-6 py-2 bg-[#FFD333] text-gray-900 font-bold uppercase hover:bg-yellow-400 transition-colors">Comprar Ahora</a>
+            </div>
+          </div>
+          <div class="relative h-[300px] bg-gray-200 overflow-hidden group">
+            <img src="assets/img/offer-2.jpg" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                 onerror="this.onerror=null;this.src='assets/img/offer-2.jpg'">
+            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
+              <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
+              <h3 class="text-white text-3xl font-bold mb-3">Oferta Especial</h3>
+              <a routerLink="/products" class="inline-block px-6 py-2 bg-[#FFD333] text-gray-900 font-bold uppercase hover:bg-yellow-400 transition-colors">Comprar Ahora</a>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- RECENT PRODUCTS -->
+      <div class="container mx-auto px-4 py-10">
+        <div class="relative mb-8 text-center">
+          <h2 class="text-3xl font-bold uppercase text-gray-800 inline-block px-4 bg-[#FAF8F4] relative z-10">Productos Recientes</h2>
+          <div class="absolute top-1/2 left-0 w-full h-[1px] bg-gray-300 -z-0"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div *ngFor="let product of recentProducts()" class="bg-white mb-0 group transition-shadow hover:shadow-lg product-item">
+            <!-- Product Card Content (Same as above) -->
+            <div class="relative overflow-hidden aspect-[1/1] bg-white product-img p-4">
+              <img class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                   [src]="getProductImage(product)" [alt]="product.nombre">
+              
+              <div class="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button (click)="addToCart(product, $event)" 
+                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-0" 
+                        title="Agregar al carrito">
+                   <i class="fa fa-shopping-cart"></i>
+                </button>
+                <button (click)="toggleFavorite(product, $event)" 
+                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-100" 
+                        [class.text-red-500]="isFavorite(product.id_producto)"
+                        [class.border-red-500]="isFavorite(product.id_producto)">
+                   <i [class]="isFavorite(product.id_producto) ? 'fas fa-heart' : 'far fa-heart'"></i>
+                </button>
+                <a [routerLink]="['/product', product.id_producto]" 
+                   class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-200">
+                   <i class="fa fa-search"></i>
+                </a>
+              </div>
+  
+              <span *ngIf="product.stock === 0" class="absolute top-2 left-2 bg-black text-white text-[10px] font-bold px-2 py-1 uppercase">Agotado</span>
+              <span *ngIf="product.stock > 0 && product.stock < 5" class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 uppercase">Últimas</span>
+            </div>
+            
+            <div class="text-center py-4 px-3">
+              <a [routerLink]="['/product', product.id_producto]" class="block text-lg font-medium text-gray-800 hover:text-[#C9A84C] truncate mb-1 transition-colors">{{product.nombre}}</a>
+              <div class="flex justify-center items-center gap-2 mb-2">
+                  <h5 class="text-lg font-bold text-gray-900 m-0">S/. {{product.precio}}</h5>
+              </div>
+              <div class="flex justify-center text-[#C9A84C] text-xs items-center">
+                  <small class="fa fa-star mr-1"></small>
+                  <small class="fa fa-star mr-1"></small>
+                  <small class="fa fa-star mr-1"></small>
+                  <small class="fa fa-star mr-1"></small>
+                  <small class="fa fa-star mr-1"></small>
+                  <span class="text-gray-500 ml-1">(99)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Info -->
-            <div class="product-info">
-              <div class="product-category">{{ product.category?.nombre || 'General' }}</div>
-              <div class="product-name">{{ product.nombre }}</div>
-              <p class="product-desc">{{ product.descripcion }}</p>
-              <div class="product-footer">
-                <span class="product-price">S/. {{ product.precio }}</span>
-                <div class="product-actions">
-                  <button 
-                    (click)="addToCart(product, $event)" 
-                    class="product-btn product-add-btn"
-                    title="Agregar al carrito"
-                    [disabled]="product.stock === 0"
-                  >
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                  </button>
-                  <button 
-                    (click)="toggleFavorite(product, $event)" 
-                    class="product-btn"
-                    [class.text-red-500]="isFavorite(product.id_producto)"
-                    [attr.title]="isFavorite(product.id_producto) ? 'Quitar de favoritos' : 'Agregar a favoritos'"
-                  >
-                    <svg width="16" height="16" [attr.fill]="isFavorite(product.id_producto) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </button>
-                  <a [routerLink]="['/product', product.id_producto]" class="product-btn" title="Ver detalles">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                    </svg>
-                  </a>
+      <!-- VENDOR LOGOS -->
+      <div class="container mx-auto px-4 py-10">
+        <div class="relative overflow-hidden group">
+           <!-- Scroll Container -->
+           <div class="flex gap-6 animate-marquee whitespace-nowrap hover:pause-animation">
+              <!-- Original Vendors -->
+              <div *ngFor="let vendor of vendors()" class="inline-block flex-shrink-0 bg-white p-4 shadow-sm border border-gray-100 w-[150px] h-[100px] flex items-center justify-center grayscale hover:grayscale-0 transition-all">
+                  <img [src]="vendor.img" [alt]="vendor.name" class="max-w-full max-h-full object-contain"
+                       onerror="this.onerror=null;this.src='assets/img/vendor-1.jpg'">
+              </div>
+              <!-- Duplicate for Infinite Loop -->
+              <div *ngFor="let vendor of vendors()" class="inline-block flex-shrink-0 bg-white p-4 shadow-sm border border-gray-100 w-[150px] h-[100px] flex items-center justify-center grayscale hover:grayscale-0 transition-all">
+                  <img [src]="vendor.img" [alt]="vendor.name" class="max-w-full max-h-full object-contain"
+                       onerror="this.onerror=null;this.src='assets/img/vendor-1.jpg'">
+              </div>
+           </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- FILTERED PRODUCTS LIST -->
+    <div *ngIf="selectedCategoryId()" class="container mx-auto px-4 py-10">
+        <!-- Header for Filtered List -->
+        <div class="relative mb-8 text-center" id="filtered-products-title">
+            <h2 class="text-3xl font-bold uppercase text-gray-800 inline-block px-4 bg-[#FAF8F4] relative z-10">
+                Productos Filtrados
+            </h2>
+            <div class="absolute top-1/2 left-0 w-full h-[1px] bg-gray-300 -z-0"></div>
+        </div>
+        
+        <!-- Filtered Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div *ngFor="let product of products()" class="bg-white mb-0 group transition-shadow hover:shadow-lg product-item">
+                 <!-- Same Card Template -->
+                 <div class="relative overflow-hidden aspect-[1/1] bg-white product-img p-4">
+               <img class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                        [src]="getProductImage(product)" [alt]="product.nombre">
+                    
+                    <div class="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button (click)="addToCart(product, $event)" 
+                            class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-0" 
+                            title="Agregar al carrito">
+                        <i class="fa fa-shopping-cart"></i>
+                    </button>
+                    <button (click)="toggleFavorite(product, $event)" 
+                            class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-100" 
+                            [class.text-red-500]="isFavorite(product.id_producto)"
+                            [class.border-red-500]="isFavorite(product.id_producto)">
+                        <i [class]="isFavorite(product.id_producto) ? 'fas fa-heart' : 'far fa-heart'"></i>
+                    </button>
+                    <a [routerLink]="['/product', product.id_producto]" 
+                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-200">
+                        <i class="fa fa-search"></i>
+                    </a>
+                    </div>
+
+                    <span *ngIf="product.stock === 0" class="absolute top-2 left-2 bg-black text-white text-[10px] font-bold px-2 py-1 uppercase">Agotado</span>
+                    <span *ngIf="product.stock > 0 && product.stock < 5" class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 uppercase">Últimas</span>
                 </div>
-              </div>
+                
+                <div class="text-center py-4 px-3">
+                    <a [routerLink]="['/product', product.id_producto]" class="block text-lg font-medium text-gray-800 hover:text-[#C9A84C] truncate mb-1 transition-colors">{{product.nombre}}</a>
+                    <div class="flex justify-center items-center gap-2 mb-2">
+                        <h5 class="text-lg font-bold text-gray-900 m-0">S/. {{product.precio}}</h5>
+                    </div>
+                    <div class="flex justify-center text-[#C9A84C] text-xs items-center">
+                        <small class="fa fa-star mr-1"></small>
+                        <small class="fa fa-star mr-1"></small>
+                        <small class="fa fa-star mr-1"></small>
+                        <small class="fa fa-star mr-1"></small>
+                        <small class="fa fa-star mr-1"></small>
+                        <span class="text-gray-500 ml-1">(99)</span>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <div *ngIf="products().length === 0" class="empty-state">
-        <div class="empty-icon">
-          <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-          </svg>
-        </div>
-        <h3 class="empty-title">Sin resultados</h3>
-        <p class="empty-text">No encontramos productos que coincidan con tu búsqueda. Intenta con otros términos o explora todas las categorías.</p>
-        <button class="empty-btn" (click)="searchTerm = ''; filterByCategory(null)">
-          Ver todos los productos
-        </button>
-      </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="site-footer">
-      <div class="footer-inner">
-        <div class="footer-top">
-          <div>
-            <div class="footer-brand-name">Mi Tienda</div>
-            <span class="footer-gold-line"></span>
-            <p class="footer-brand-desc">
-              Ofrecemos productos de la más alta calidad, seleccionados con criterio y cuidado para satisfacer los estándares más exigentes.
-            </p>
-          </div>
-          <div>
-            <div class="footer-heading">Navegación</div>
-            <ul class="footer-links">
-              <li><a routerLink="/" class="footer-link">Inicio</a></li>
-              <li><a routerLink="/products" class="footer-link">Catálogo</a></li>
-              <li><a routerLink="/auth/login" class="footer-link">Ingresar</a></li>
-            </ul>
-          </div>
-          <div>
-            <div class="footer-heading">Soporte</div>
-            <ul class="footer-links">
-              <li><a href="#" class="footer-link">Preguntas frecuentes</a></li>
-              <li><a href="#" class="footer-link">Devoluciones</a></li>
-              <li><a href="#" class="footer-link">Envíos</a></li>
-            </ul>
-          </div>
-          <div>
-            <div class="footer-heading">Contacto</div>
-            <div class="footer-contact-item">contacto@mitienda.com</div>
-            <div class="footer-contact-item">+51 999 999 999</div>
-          </div>
         </div>
 
-        <div class="footer-bottom">
-          <p class="footer-copy">&copy; 2026 Mi Empresa. Todos los derechos reservados.</p>
-          <div class="footer-gold-badge">
-            <span class="gold-dot"></span>
-            <span>Calidad garantizada</span>
-            <span class="gold-dot"></span>
-          </div>
+        <!-- Pagination -->
+        <div *ngIf="totalPages() > 1" class="flex justify-center mt-8 gap-2">
+            <button 
+                (click)="changePage(currentPage() - 1)" 
+                [disabled]="currentPage() === 1"
+                class="px-4 py-2 border rounded-md text-sm font-medium transition-colors"
+                [class.text-gray-400]="currentPage() === 1"
+                [class.border-gray-200]="currentPage() === 1"
+                [class.cursor-not-allowed]="currentPage() === 1"
+                [class.hover:bg-gray-50]="currentPage() !== 1"
+                [class.text-gray-700]="currentPage() !== 1"
+                [class.border-gray-300]="currentPage() !== 1">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <ng-container *ngFor="let page of getPages()">
+                <button 
+                    *ngIf="page === 1 || page === totalPages() || (page >= currentPage() - 1 && page <= currentPage() + 1)"
+                    (click)="changePage(page)"
+                    class="px-4 py-2 border rounded-md text-sm font-medium transition-colors"
+                    [class.bg-yellow-500]="currentPage() === page"
+                    [class.text-white]="currentPage() === page"
+                    [class.border-yellow-500]="currentPage() === page"
+                    [class.text-gray-700]="currentPage() !== page"
+                    [class.hover:bg-gray-50]="currentPage() !== page"
+                    [class.border-gray-300]="currentPage() !== page">
+                    {{ page }}
+                </button>
+                <span *ngIf="(page === 1 && currentPage() > 3) || (page === totalPages() && currentPage() < totalPages() - 2)" 
+                      class="px-2 py-2 text-gray-400">...</span>
+            </ng-container>
+
+            <button 
+                (click)="changePage(currentPage() + 1)" 
+                [disabled]="currentPage() === totalPages()"
+                class="px-4 py-2 border rounded-md text-sm font-medium transition-colors"
+                [class.text-gray-400]="currentPage() === totalPages()"
+                [class.border-gray-200]="currentPage() === totalPages()"
+                [class.cursor-not-allowed]="currentPage() === totalPages()"
+                [class.hover:bg-gray-50]="currentPage() !== totalPages()"
+                [class.text-gray-700]="currentPage() !== totalPages()"
+                [class.border-gray-300]="currentPage() !== totalPages()">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
-      </div>
-    </footer>
+        
+        <!-- Empty State -->
+        <div *ngIf="products().length === 0" class="flex flex-col items-center justify-center py-20 text-center">
+            <div class="w-20 h-20 border border-yellow-200 rounded-full flex items-center justify-center mb-6 text-yellow-600">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+            </div>
+            <h3 class="text-2xl font-serif text-gray-800 mb-2">Sin resultados</h3>
+            <p class="text-gray-500 max-w-xs mb-6">No encontramos productos en esta categoría.</p>
+            <button class="border border-yellow-600 text-yellow-700 px-6 py-2 uppercase text-xs font-bold tracking-wider hover:bg-yellow-600 hover:text-white transition-colors" (click)="filterByCategory(null)">
+            Ver todos los productos
+            </button>
+        </div>
+    </div>
+
+    <!-- FOOTER REMOVED - Handled by PublicLayout -->
   `
 })
 export class HomeComponent implements OnInit {
@@ -1027,20 +405,101 @@ export class HomeComponent implements OnInit {
   private cartService = inject(CartService);
   private favoriteService = inject(FavoriteService);
   public authService = inject(AuthService);
+  apiUrl = environment.apiUrl;
+  imageBaseUrl = environment.imageBaseUrl || 'http://localhost:3000';
 
+  slides = signal([
+    {
+      img: 'assets/img/carousel-1.jpg',
+      title: 'Moda Masculina',
+      desc: 'Descubre las últimas tendencias en ropa para hombres.',
+      link: '/products'
+    },
+    {
+      img: 'assets/img/carousel-2.jpg',
+      title: 'Moda Femenina',
+      desc: 'Elegancia y estilo para cada ocasión.',
+      link: '/products'
+    },
+    {
+      img: 'assets/img/carousel-3.jpg',
+      title: 'Moda Infantil',
+      desc: 'Ropa cómoda y divertida para los más pequeños.',
+      link: '/products'
+    }
+  ]);
+  currentSlide = signal(0);
+  
   products = signal<Product[]>([]);
+  featuredProducts = signal<Product[]>([]);
+  recentProducts = signal<Product[]>([]);
   categories = signal<Category[]>([]);
-  searchTerm = '';
   selectedCategoryId = signal<number | null>(null);
   favorites = signal<Set<number>>(new Set());
-  apiUrl = 'http://localhost:3000';
-
+  searchTerm: string = '';
+  
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalProducts = signal(0);
+  totalPages = signal(0);
+  
+  // Vendors Logic
+  vendors = signal([
+    { name: 'Vendor 1', img: 'assets/img/vendor-1.jpg' },
+    { name: 'Vendor 2', img: 'assets/img/vendor-2.jpg' },
+    { name: 'Vendor 3', img: 'assets/img/vendor-3.jpg' },
+    { name: 'Vendor 4', img: 'assets/img/vendor-4.jpg' },
+    { name: 'Vendor 5', img: 'assets/img/vendor-5.jpg' },
+    { name: 'Vendor 6', img: 'assets/img/vendor-6.jpg' },
+    { name: 'Vendor 7', img: 'assets/img/vendor-7.jpg' },
+    { name: 'Vendor 8', img: 'assets/img/vendor-8.jpg' },
+  ]);
+  
   ngOnInit() {
     this.loadCategories();
-    this.loadProducts();
+    this.loadFeaturedProducts();
+    this.loadRecentProducts();
     if (this.authService.isAuthenticated()) {
       this.loadFavorites();
     }
+    
+    // Auto-advance carousel
+    setInterval(() => {
+      this.nextSlide();
+    }, 5000);
+  }
+
+  ngOnDestroy() {
+    // Cleanup if needed
+  }
+
+  prevSlide() {
+    this.currentSlide.update(curr => (curr === 0 ? this.slides().length - 1 : curr - 1));
+  }
+
+  nextSlide() {
+    this.currentSlide.update(curr => (curr === this.slides().length - 1 ? 0 : curr + 1));
+  }
+
+  loadFeaturedProducts() {
+    const params: any = { limit: 8, sort: 'price_desc' };
+    this.productsService.getAll(params).subscribe({
+      next: (response) => {
+        this.featuredProducts.set(response.products || []);
+      },
+      error: (err) => console.error('Error loading featured products', err)
+    });
+  }
+
+  loadRecentProducts() {
+    const params: any = { limit: 10 }; // default sort is created_at DESC
+    this.productsService.getAll(params).subscribe({
+      next: (response) => {
+        this.recentProducts.set(response.products || []);
+      },
+      error: (err) => console.error('Error loading recent products', err)
+    });
   }
 
   loadFavorites() {
@@ -1096,35 +555,66 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  loadProducts() {
-    const params: any = { search: this.searchTerm };
-    if (this.selectedCategoryId()) {
-      params.category_id = this.selectedCategoryId();
-    }
+  getPages(): number[] {
+    return Array.from({length: this.totalPages()}, (_, i) => i + 1);
+  }
 
+  loadProducts() {
+    const params: any = { 
+      search: this.searchTerm,
+      limit: this.pageSize(),
+      page: this.currentPage()
+    };
+    
+    if (this.selectedCategoryId()) {
+      params.category = this.selectedCategoryId();
+    }
+    
     this.productsService.getAll(params).subscribe({
-      next: (res: any) => {
-        let publicProducts = (res.products || []);
-        if (this.selectedCategoryId()) {
-          publicProducts = publicProducts.filter((p: Product) => p.categoria_id === this.selectedCategoryId());
-        }
-        publicProducts = publicProducts.filter((p: Product) => p.estado === 'activo' && p.visible_web);
-        this.products.set(publicProducts);
+      next: (response) => {
+        this.products.set(response.products || []);
+        this.totalProducts.set(response.total || 0);
+        this.totalPages.set(response.totalPages || 0);
       },
-      error: (err: any) => console.error(err)
+      error: (err) => console.error('Error loading products', err)
     });
   }
 
-  filterByCategory(id: number | null) {
-    this.selectedCategoryId.set(id);
-    this.loadProducts();
+  changePage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      this.loadProducts();
+      // Scroll to top of filtered products
+      setTimeout(() => {
+        const element = document.getElementById('filtered-products-title');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }
+
+  filterByCategory(categoryId: number | null) {
+    this.selectedCategoryId.set(categoryId);
+    this.searchTerm = '';
+    this.currentPage.set(1);
+    if (categoryId) {
+      this.loadProducts();
+    }
+  }
+
+  getCategoryImage(category: Category): string {
+    if (category.imagen) {
+      return `${this.imageBaseUrl}${category.imagen}`;
+    }
+    return 'assets/img/cat-placeholder.jpg';
   }
 
   getProductImage(product: Product): string {
     if (product.images && product.images.length > 0) {
-      return `${this.apiUrl}${product.images[0].url}`;
+      return `${this.imageBaseUrl}${product.images[0].url}`;
     }
-    return 'assets/placeholder.png';
+    return 'assets/img/placeholder.png';
   }
 
   addToCart(product: Product, event: Event) {

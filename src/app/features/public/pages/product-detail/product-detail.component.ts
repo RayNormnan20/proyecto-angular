@@ -6,6 +6,7 @@ import { Product } from '../../../products/models/product.model';
 import { CartService } from '../../../../core/services/cart.service';
 import { FavoriteService } from '../../../favorites/services/favorite.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-product-detail',
@@ -41,9 +42,9 @@ import { AuthService } from '../../../../core/services/auth.service';
             <div class="flex gap-2 overflow-x-auto">
               <img 
                 *ngFor="let img of product()!.images" 
-                [src]="apiUrl + img.url" 
+                [src]="imageBaseUrl + img.url" 
                 class="w-20 h-20 object-cover rounded cursor-pointer border hover:border-blue-500"
-                (click)="setCurrentImage(apiUrl + img.url)"
+                (click)="setCurrentImage(imageBaseUrl + img.url)"
               >
             </div>
           </div>
@@ -116,7 +117,7 @@ export class ProductDetailComponent implements OnInit {
   product = signal<Product | null>(null);
   currentImage = signal<string | null>(null);
   isFavorite = signal<boolean>(false);
-  apiUrl = 'http://localhost:3000'; // Ajustar con environment
+  imageBaseUrl = environment.imageBaseUrl || 'http://localhost:3000';
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -170,9 +171,9 @@ export class ProductDetailComponent implements OnInit {
 
   getProductImage(product: Product): string {
     if (product.images && product.images.length > 0) {
-      return `${this.apiUrl}${product.images[0].url}`;
+      return `${this.imageBaseUrl}${product.images[0].url}`;
     }
-    return 'assets/placeholder.png';
+    return 'assets/img/placeholder.png';
   }
 
   setCurrentImage(url: string) {

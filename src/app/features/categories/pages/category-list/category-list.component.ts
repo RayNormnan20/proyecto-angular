@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CategoriesService } from '../../../products/services/categories.service';
 import { Category } from '../../../products/models/product.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-category-list',
@@ -28,6 +29,7 @@ import { Category } from '../../../products/models/product.model';
             <thead class="bg-gray-50">
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
@@ -37,6 +39,11 @@ import { Category } from '../../../products/models/product.model';
             <tbody class="bg-white divide-y divide-gray-200">
               <tr *ngFor="let category of categories()">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#{{ category.id_categoria }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="h-10 w-10 rounded-full overflow-hidden bg-gray-100">
+                    <img [src]="category.imagen ? imageBaseUrl + category.imagen : 'assets/img/cat-placeholder.jpg'" alt="" class="h-full w-full object-cover" onerror="this.onerror=null;this.src='assets/img/cat-placeholder.jpg'">
+                  </div>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ category.nombre }}</td>
                 <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ category.descripcion || '-' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -129,6 +136,16 @@ import { Category } from '../../../products/models/product.model';
                       <textarea formControlName="descripcion" rows="3" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border"></textarea>
                     </div>
 
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+                      <div class="mt-1 flex items-center gap-4">
+                        <div *ngIf="imagePreview" class="w-20 h-20 border rounded overflow-hidden">
+                          <img [src]="imagePreview" alt="Preview" class="w-full h-full object-cover">
+                        </div>
+                        <input type="file" (change)="onFileSelected($event)" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                      </div>
+                    </div>
+
                     <div class="mb-6">
                       <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
                       <select formControlName="estado" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -157,12 +174,16 @@ import { Category } from '../../../products/models/product.model';
 export class CategoryListComponent implements OnInit {
   private categoriesService = inject(CategoriesService);
   private fb = inject(FormBuilder);
+  apiUrl = environment.apiUrl;
+  imageBaseUrl = environment.imageBaseUrl || 'http://localhost:3000';
   
   categories = signal<Category[]>([]);
   isModalOpen = false;
   isEditing = false;
   currentId?: number;
   isSubmitting = false;
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
 
   categoryForm = this.fb.group({
     nombre: ['', Validators.required],
@@ -183,9 +204,15 @@ export class CategoryListComponent implements OnInit {
 
   openModal(category?: Category) {
     this.isModalOpen = true;
+    this.selectedFile = null;
+    this.imagePreview = null;
+
     if (category) {
       this.isEditing = true;
       this.currentId = category.id_categoria;
+      if (category.imagen) {
+        this.imagePreview = `${this.imageBaseUrl}${category.imagen}`;
+      }
       this.categoryForm.patchValue({
         nombre: category.nombre,
         descripcion: category.descripcion,
@@ -205,16 +232,38 @@ export class CategoryListComponent implements OnInit {
   closeModal() {
     this.isModalOpen = false;
     this.categoryForm.reset();
+    this.selectedFile = null;
+    this.imagePreview = null;
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   onSubmit() {
     if (this.categoryForm.invalid) return;
 
     this.isSubmitting = true;
-    const categoryData = this.categoryForm.value as any; // Cast simple para evitar errores de tipo estrictos
+    
+    const formData = new FormData();
+    formData.append('nombre', this.categoryForm.get('nombre')?.value || '');
+    formData.append('descripcion', this.categoryForm.get('descripcion')?.value || '');
+    formData.append('estado', this.categoryForm.get('estado')?.value || 'activo');
+    
+    if (this.selectedFile) {
+      formData.append('image', this.selectedFile);
+    }
 
     if (this.isEditing && this.currentId) {
-      this.categoriesService.update(this.currentId, categoryData).subscribe({
+      this.categoriesService.update(this.currentId, formData).subscribe({
         next: () => {
           this.loadCategories();
           this.closeModal();
@@ -227,7 +276,7 @@ export class CategoryListComponent implements OnInit {
         }
       });
     } else {
-      this.categoriesService.create(categoryData).subscribe({
+      this.categoriesService.create(formData).subscribe({
         next: () => {
           this.loadCategories();
           this.closeModal();

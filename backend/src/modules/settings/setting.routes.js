@@ -4,7 +4,7 @@ const { getSettings, updateSettings, uploadQr } = require('./setting.controller'
 const verifyToken = require('../../middlewares/auth.middleware');
 const verifyRole = require('../../middlewares/role.middleware');
 const checkPermission = require('../../middlewares/permission.middleware');
-const upload = require('../../middlewares/upload.middleware');
+const upload = require('../../middlewares/upload.middleware')('settings');
 
 // Public access to read settings (for cart)
 router.get('/', getSettings);

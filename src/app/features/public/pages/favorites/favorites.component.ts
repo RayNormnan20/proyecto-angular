@@ -76,7 +76,7 @@ export class FavoritesComponent implements OnInit {
   
   favorites = signal<Product[]>([]);
   loading = signal<boolean>(true);
-  apiUrl = environment.apiUrl.replace('/api', ''); // Base URL for images
+  imageBaseUrl = environment.imageBaseUrl || 'http://localhost:3000';
 
   ngOnInit() {
     this.loadFavorites();
@@ -111,7 +111,7 @@ export class FavoritesComponent implements OnInit {
     if (product.images && product.images.length > 0) {
       const mainImage = product.images.find(img => img.es_principal);
       const image = mainImage || product.images[0];
-      return `${this.apiUrl}${image.url}`;
+      return `${this.imageBaseUrl}${image.url}`;
     }
     return 'assets/images/no-image.png';
   }

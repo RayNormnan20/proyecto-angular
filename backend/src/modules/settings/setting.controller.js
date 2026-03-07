@@ -46,7 +46,7 @@ const uploadQr = async (req, res) => {
     }
     
     // Construct URL (assuming server serves 'uploads' statically)
-    const imageUrl = `/uploads/products/${req.file.filename}`; // Reusing existing upload path
+    const imageUrl = `/uploads/settings/${req.file.filename}`;
     
     // Update setting directly
     const [setting, created] = await Setting.findOrCreate({

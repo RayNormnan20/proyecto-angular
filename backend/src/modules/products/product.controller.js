@@ -4,10 +4,19 @@ const { Op } = require('sequelize');
 // Listar productos con filtros y paginación
 exports.getAll = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, category, brand, minPrice, maxPrice } = req.query;
+    const { page = 1, limit = 10, search, category, brand, minPrice, maxPrice, sort } = req.query;
     const offset = (page - 1) * limit;
     
     const where = {};
+    let order = [['created_at', 'DESC']]; // Default sort
+
+    if (sort === 'oldest') {
+      order = [['created_at', 'ASC']];
+    } else if (sort === 'price_asc') {
+      order = [['precio', 'ASC']];
+    } else if (sort === 'price_desc') {
+      order = [['precio', 'DESC']];
+    }
     
     if (search) {
       where[Op.or] = [
@@ -31,6 +40,7 @@ exports.getAll = async (req, res) => {
       where,
       limit: parseInt(limit),
       offset: parseInt(offset),
+      order,
       include: [
         { model: Category, as: 'category' },
         { model: Brand, as: 'brand' },

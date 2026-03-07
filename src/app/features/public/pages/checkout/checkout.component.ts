@@ -476,14 +476,11 @@ export class CheckoutComponent implements OnInit {
 
   getPaymentMethodImage(method: PaymentMethod): string {
     if (method.imagen_url) {
-      // If it's a full URL (http/https), return it as is
       if (method.imagen_url.startsWith('http')) {
         return method.imagen_url;
       }
-      // Otherwise assume it's relative to API/static
-      const baseUrl = environment.apiUrl.replace(/\/api$/, '');
-      const imageUrl = method.imagen_url.startsWith('/') ? method.imagen_url : `/${method.imagen_url}`;
-      return `${baseUrl}${imageUrl}`;
+      const baseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+      return `${baseUrl}${method.imagen_url}`;
     }
     return '';
   }

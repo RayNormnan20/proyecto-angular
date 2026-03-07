@@ -6,6 +6,7 @@ import { ProductsService } from '../../services/products.service';
 import { CategoriesService } from '../../services/categories.service';
 import { BrandsService } from '../../services/brands.service';
 import { Category, Brand, ProductImage } from '../../models/product.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-product-form',
@@ -142,7 +143,7 @@ export class ProductFormComponent implements OnInit {
   selectedFiles: File[] = [];
   existingImages: ProductImage[] = [];
   isSubmitting = false;
-  apiUrl = 'http://localhost:3000';
+  apiUrl = environment.imageBaseUrl || 'http://localhost:3000';
 
   ngOnInit() {
     this.loadDependencies();

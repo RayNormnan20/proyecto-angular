@@ -8,6 +8,9 @@ const ProductImage = require('./products/product-image.model');
 const Order = require('./orders/order.model');
 const OrderItem = require('./orders/order-item.model');
 const Setting = require('./settings/setting.model');
+const Session = require('./auth/session.model');
+const AccessLog = require('./auth/access-log.model');
+const Favorite = require('./favorites/favorite.model');
 
 // Role-Permission associations (Many-to-Many)
 if (!Role.associations.permissions) {
@@ -52,6 +55,29 @@ OrderItem.belongsTo(Order, { foreignKey: 'orden_id', as: 'order' });
 OrderItem.belongsTo(Product, { foreignKey: 'producto_id', as: 'product' });
 Product.hasMany(OrderItem, { foreignKey: 'producto_id', as: 'order_items' });
 
+// Session Associations
+Session.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
+User.hasMany(Session, { foreignKey: 'usuario_id', as: 'sessions' });
+
+// Access Log Associations
+AccessLog.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
+User.hasMany(AccessLog, { foreignKey: 'usuario_id', as: 'access_logs' });
+
+// Favorite Associations (Many-to-Many User <-> Product)
+User.belongsToMany(Product, { 
+  through: Favorite, 
+  foreignKey: 'usuario_id', 
+  otherKey: 'producto_id',
+  as: 'favorites'
+});
+
+Product.belongsToMany(User, { 
+  through: Favorite, 
+  foreignKey: 'producto_id', 
+  otherKey: 'usuario_id',
+  as: 'favoritedBy'
+});
+
 module.exports = { 
   User, 
   Role, 
@@ -62,5 +88,8 @@ module.exports = {
   ProductImage,
   Order,
   OrderItem,
-  Setting
+  Setting,
+  Session,
+  AccessLog,
+  Favorite
 };

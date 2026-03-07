@@ -7,8 +7,8 @@ const { hashPassword } = require('../../utils/password.utils');
 const register = async (req, res) => {
   try {
     // Basic validation
-    const { nombre, email, password } = req.body;
-    if (!nombre || !email || !password) {
+    const { nombre, apellidos, email, password, telefono, direccion } = req.body;
+    if (!nombre || !apellidos || !email || !password || !telefono || !direccion) {
       return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
@@ -27,7 +27,10 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Email y contraseña requeridos' });
     }
     
-    const result = await authService.login(email, password);
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+    
+    const result = await authService.login(email, password, ip, userAgent);
     res.json(result);
   } catch (error) {
     console.error(error);
@@ -87,9 +90,17 @@ const getProfile = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
-  // En una implementación más robusta, invalidaríamos el refresh token en la DB
-  res.json({ message: 'Sesión cerrada correctamente' });
+const logout = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    if (refreshToken) {
+      await authService.logout(refreshToken);
+    }
+    res.json({ message: 'Sesión cerrada correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al cerrar sesión' });
+  }
 };
 
 module.exports = { register, login, refreshToken, logout, getProfile };

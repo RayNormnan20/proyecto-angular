@@ -31,7 +31,8 @@ const connectDB = async () => {
     console.log('✅ Conexión a la base de datos MySQL establecida correctamente.');
     
     // Sincronizar modelos (en producción usar migraciones)
-    await sequelize.sync({ alter: true }); 
+    // Usamos alter: false para evitar problemas con índices duplicados en tablas existentes como 'roles'
+    await sequelize.sync({ alter: false }); 
     console.log('✅ Modelos sincronizados con la base de datos.');
 
     // Sembrar configuraciones

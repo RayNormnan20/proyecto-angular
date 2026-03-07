@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
+import { FavoriteService } from '../../features/favorites/services/favorite.service';
 import { environment } from '../../../environments/environment';
 import { Product } from '../../features/products/models/product.model';
 
@@ -35,6 +36,16 @@ import { Product } from '../../features/products/models/product.model';
                 </span>
               </a>
 
+              <!-- Favoritos -->
+              <a *ngIf="authService.currentUser()" routerLink="/favorites" class="text-gray-700 hover:text-blue-600 relative p-2 flex items-center group" title="Mis Favoritos">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span *ngIf="favoriteService.favoritesCount() > 0" class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transform translate-x-1 -translate-y-1">
+                  {{ favoriteService.favoritesCount() }}
+                </span>
+              </a>
+
               <ng-container *ngIf="authService.currentUser() as user; else loginButtons">
                 <div class="flex items-center gap-3 relative group cursor-pointer">
                   <span class="text-gray-700 text-sm font-medium">Hola, {{ user.nombre }}</span>
@@ -47,11 +58,6 @@ import { Product } from '../../features/products/models/product.model';
                     <!-- Dropdown Menu -->
                     <div class="absolute right-0 top-full -mt-2 pt-4 w-48 hidden group-hover:block hover:block z-50">
                       <div class="bg-white rounded-md shadow-lg py-1 border border-gray-100">
-                        <div class="px-4 py-2 border-b border-gray-100">
-                          <p class="text-sm font-medium text-gray-900 truncate">{{ user.nombre }}</p>
-                          <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
-                          <p class="text-xs text-blue-600 font-medium mt-1 uppercase">{{ user.role }}</p>
-                        </div>
                         
                         <a routerLink="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600">
                           Mi Perfil
@@ -88,9 +94,16 @@ import { Product } from '../../features/products/models/product.model';
     </div>
   `
 })
-export class PublicLayoutComponent {
+export class PublicLayoutComponent implements OnInit {
   authService = inject(AuthService);
   cartService = inject(CartService);
+  favoriteService = inject(FavoriteService);
+
+  ngOnInit() {
+    if (this.authService.currentUser()) {
+      this.favoriteService.loadFavoritesCount();
+    }
+  }
 
   logout() {
     this.authService.logout();

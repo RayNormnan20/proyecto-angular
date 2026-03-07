@@ -5,6 +5,8 @@ import { ProductsService } from '../../../products/services/products.service';
 import { Product, Category } from '../../../products/models/product.model';
 import { CategoriesService } from '../../../products/services/categories.service';
 import { CartService } from '../../../../core/services/cart.service';
+import { FavoriteService } from '../../../favorites/services/favorite.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -936,6 +938,16 @@ import { FormsModule } from '@angular/forms';
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
                   </button>
+                  <button 
+                    (click)="toggleFavorite(product, $event)" 
+                    class="product-btn"
+                    [class.text-red-500]="isFavorite(product.id_producto)"
+                    [attr.title]="isFavorite(product.id_producto) ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+                  >
+                    <svg width="16" height="16" [attr.fill]="isFavorite(product.id_producto) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </button>
                   <a [routerLink]="['/product', product.id_producto]" class="product-btn" title="Ver detalles">
                     <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -1013,16 +1025,68 @@ export class HomeComponent implements OnInit {
   private productsService = inject(ProductsService);
   private categoriesService = inject(CategoriesService);
   private cartService = inject(CartService);
+  private favoriteService = inject(FavoriteService);
+  public authService = inject(AuthService);
 
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
   searchTerm = '';
   selectedCategoryId = signal<number | null>(null);
+  favorites = signal<Set<number>>(new Set());
   apiUrl = 'http://localhost:3000';
 
   ngOnInit() {
     this.loadCategories();
     this.loadProducts();
+    if (this.authService.isAuthenticated()) {
+      this.loadFavorites();
+    }
+  }
+
+  loadFavorites() {
+    this.favoriteService.getFavorites().subscribe({
+      next: (favs) => {
+        const ids = new Set(favs.map(f => f.id_producto!));
+        this.favorites.set(ids);
+      },
+      error: (err) => console.error('Error loading favorites', err)
+    });
+  }
+
+  isFavorite(productId: number | undefined): boolean {
+    return productId ? this.favorites().has(productId) : false;
+  }
+
+  toggleFavorite(product: Product, event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (!this.authService.isAuthenticated()) {
+      alert('Debes iniciar sesión para agregar a favoritos');
+      return;
+    }
+
+    if (!product.id_producto) return;
+
+    if (this.isFavorite(product.id_producto)) {
+      this.favoriteService.removeFavorite(product.id_producto).subscribe({
+        next: () => {
+          const current = new Set(this.favorites());
+          current.delete(product.id_producto!);
+          this.favorites.set(current);
+        },
+        error: (err) => console.error('Error removing favorite', err)
+      });
+    } else {
+      this.favoriteService.addFavorite(product.id_producto).subscribe({
+        next: () => {
+          const current = new Set(this.favorites());
+          current.add(product.id_producto!);
+          this.favorites.set(current);
+        },
+        error: (err) => console.error('Error adding favorite', err)
+      });
+    }
   }
 
   loadCategories() {

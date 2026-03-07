@@ -4,6 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { ProductsService } from '../../../products/services/products.service';
 import { Product } from '../../../products/models/product.model';
 import { CartService } from '../../../../core/services/cart.service';
+import { FavoriteService } from '../../../favorites/services/favorite.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -21,6 +23,20 @@ import { CartService } from '../../../../core/services/cart.service';
                 class="w-full h-full object-contain"
                 alt="Product Image"
               >
+              
+              <!-- Botón de Favoritos (Flotante en la imagen) -->
+              <button 
+                (click)="toggleFavorite()"
+                class="absolute top-4 right-4 p-2 rounded-full bg-white shadow-md hover:bg-gray-50 transition-colors z-10"
+                [class.text-red-500]="isFavorite()"
+                [class.text-gray-400]="!isFavorite()"
+                [attr.title]="isFavorite() ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" [class.fill-current]="isFavorite()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
+
             </div>
             <div class="flex gap-2 overflow-x-auto">
               <img 
@@ -94,9 +110,12 @@ export class ProductDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private productsService = inject(ProductsService);
   private cartService = inject(CartService);
+  private favoriteService = inject(FavoriteService);
+  private authService = inject(AuthService);
 
   product = signal<Product | null>(null);
   currentImage = signal<string | null>(null);
+  isFavorite = signal<boolean>(false);
   apiUrl = 'http://localhost:3000'; // Ajustar con environment
 
   ngOnInit() {
@@ -110,9 +129,43 @@ export class ProductDetailComponent implements OnInit {
 
   loadProduct(id: number) {
     this.productsService.getById(id).subscribe({
-      next: (res: Product) => this.product.set(res),
+      next: (res: Product) => {
+        this.product.set(res);
+        if (this.authService.isAuthenticated()) {
+          this.checkIfFavorite(id);
+        }
+      },
       error: (err: any) => console.error(err)
     });
+  }
+
+  checkIfFavorite(productId: number) {
+    this.favoriteService.checkFavorite(productId).subscribe({
+      next: (res) => this.isFavorite.set(res.isFavorite),
+      error: (err) => console.error('Error checking favorite', err)
+    });
+  }
+
+  toggleFavorite() {
+    if (!this.authService.isAuthenticated()) {
+      alert('Debes iniciar sesión para agregar a favoritos');
+      return;
+    }
+
+    const product = this.product();
+    if (!product || !product.id_producto) return;
+
+    if (this.isFavorite()) {
+      this.favoriteService.removeFavorite(product.id_producto).subscribe({
+        next: () => this.isFavorite.set(false),
+        error: (err) => console.error('Error removing favorite', err)
+      });
+    } else {
+      this.favoriteService.addFavorite(product.id_producto).subscribe({
+        next: () => this.isFavorite.set(true),
+        error: (err) => console.error('Error adding favorite', err)
+      });
+    }
   }
 
   getProductImage(product: Product): string {

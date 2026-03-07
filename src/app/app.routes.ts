@@ -27,6 +27,7 @@ import { ProductDetailComponent } from './features/public/pages/product-detail/p
 import { ProfileComponent } from './features/public/pages/profile/profile.component';
 import { CartComponent } from './features/public/pages/cart/cart.component';
 import { CheckoutComponent } from './features/public/pages/checkout/checkout.component';
+import { FavoritesComponent } from './features/public/pages/favorites/favorites.component';
 
 export const routes: Routes = [
   // Rutas Públicas
@@ -39,6 +40,7 @@ export const routes: Routes = [
       { path: 'product/:id', component: ProductDetailComponent },
       { path: 'cart', component: CartComponent },
       { path: 'checkout', component: CheckoutComponent },
+      { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
       { path: 'profile', component: ProfileComponent }
     ]
   },

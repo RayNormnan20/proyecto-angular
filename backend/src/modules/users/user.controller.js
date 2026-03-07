@@ -5,7 +5,7 @@ const { hashPassword } = require('../../utils/password.utils');
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      attributes: ['id_usuario', 'nombre', 'email', 'estado', 'created_at', 'rol_id'],
+      attributes: ['id_usuario', 'nombre', 'apellidos', 'email', 'telefono', 'direccion', 'estado', 'created_at', 'rol_id'],
       include: [{
         model: Role,
         as: 'role',
@@ -21,7 +21,7 @@ exports.getAllUsers = async (req, res) => {
 
 exports.createUser = async (req, res) => {
   try {
-    const { nombre, email, password, rol_id, estado } = req.body;
+    const { nombre, apellidos, email, password, telefono, direccion, rol_id, estado } = req.body;
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
@@ -32,8 +32,11 @@ exports.createUser = async (req, res) => {
 
     const newUser = await User.create({
       nombre,
+      apellidos,
       email,
       password_hash: hashedPassword,
+      telefono,
+      direccion,
       rol_id: rol_id || null, // Optional role
       estado: estado || 'activo'
     });
@@ -65,7 +68,7 @@ exports.deleteUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, email, estado, rol_id } = req.body;
+    const { nombre, apellidos, email, telefono, direccion, estado, rol_id } = req.body;
     
     const user = await User.findByPk(id);
     
@@ -73,7 +76,7 @@ exports.updateUser = async (req, res) => {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    await user.update({ nombre, email, estado, rol_id });
+    await user.update({ nombre, apellidos, email, telefono, direccion, estado, rol_id });
     res.json({ message: 'Usuario actualizado correctamente', user });
   } catch (error) {
     console.error(error);

@@ -7,6 +7,9 @@ const verifyToken = require('../../middlewares/auth.middleware');
 
 router.post('/register', [
   body('nombre').notEmpty().withMessage('El nombre es obligatorio'),
+  body('apellidos').notEmpty().withMessage('Los apellidos son obligatorios'),
+  body('telefono').notEmpty().withMessage('El teléfono es obligatorio'),
+  body('direccion').notEmpty().withMessage('La dirección es obligatoria'),
   body('email').isEmail().withMessage('El email no es válido'),
   body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
   validate

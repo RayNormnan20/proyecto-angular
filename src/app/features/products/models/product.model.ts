@@ -34,5 +34,6 @@ export interface ProductImage {
   id_imagen?: number;
   producto_id: number;
   url: string;
+  es_principal?: boolean;
   created_at?: string;
 }

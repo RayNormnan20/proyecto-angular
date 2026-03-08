@@ -175,7 +175,7 @@ export class CategoryListComponent implements OnInit {
   private categoriesService = inject(CategoriesService);
   private fb = inject(FormBuilder);
   apiUrl = environment.apiUrl;
-  imageBaseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+  imageBaseUrl = environment.imageBaseUrl;
   
   categories = signal<Category[]>([]);
   isModalOpen = false;

@@ -192,7 +192,7 @@ export class CartComponent {
 
   getProductImage(product: Product): string {
     if (product.images && product.images.length > 0) {
-      const baseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+      const baseUrl = environment.imageBaseUrl;
       return `${baseUrl}${product.images[0].url}`;
     }
     return this.PLACEHOLDER_IMAGE;

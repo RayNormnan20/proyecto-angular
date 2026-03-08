@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductsService } from '../../../products/services/products.service';
 import { Product } from '../../../products/models/product.model';
 import { CartService } from '../../../../core/services/cart.service';
@@ -113,11 +113,12 @@ export class ProductDetailComponent implements OnInit {
   private cartService = inject(CartService);
   private favoriteService = inject(FavoriteService);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   product = signal<Product | null>(null);
   currentImage = signal<string | null>(null);
   isFavorite = signal<boolean>(false);
-  imageBaseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+  imageBaseUrl = environment.imageBaseUrl;
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -149,7 +150,7 @@ export class ProductDetailComponent implements OnInit {
 
   toggleFavorite() {
     if (!this.authService.isAuthenticated()) {
-      alert('Debes iniciar sesión para agregar a favoritos');
+      this.router.navigate(['/auth/login']);
       return;
     }
 

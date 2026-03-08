@@ -143,7 +143,7 @@ export class ProductFormComponent implements OnInit {
   selectedFiles: File[] = [];
   existingImages: ProductImage[] = [];
   isSubmitting = false;
-  apiUrl = environment.imageBaseUrl || 'http://localhost:3000';
+  apiUrl = environment.imageBaseUrl;
 
   ngOnInit() {
     this.loadDependencies();

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, ViewChild, ElementRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { ProductsService } from '../../../products/services/products.service';
 import { Product, Category } from '../../../products/models/product.model';
 import { CategoriesService } from '../../../products/services/categories.service';
@@ -433,8 +433,9 @@ export class HomeComponent implements OnInit {
   private cartService = inject(CartService);
   private favoriteService = inject(FavoriteService);
   public authService = inject(AuthService);
+  private router = inject(Router);
   apiUrl = environment.apiUrl;
-  imageBaseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+  imageBaseUrl = environment.imageBaseUrl;
 
   slides = signal([
     {
@@ -575,7 +576,7 @@ export class HomeComponent implements OnInit {
     event.preventDefault();
 
     if (!this.authService.isAuthenticated()) {
-      alert('Debes iniciar sesión para agregar a favoritos');
+      this.router.navigate(['/auth/login']);
       return;
     }
 

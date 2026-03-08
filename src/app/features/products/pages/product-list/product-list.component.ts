@@ -268,7 +268,7 @@ export class ProductListComponent implements OnInit {
   
   searchTerm = '';
   apiUrl = environment.apiUrl;
-  imageBaseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+  imageBaseUrl = environment.imageBaseUrl;
 
   // Modal & Form State
   isModalOpen = false;

@@ -76,7 +76,7 @@ export class FavoritesComponent implements OnInit {
   
   favorites = signal<Product[]>([]);
   loading = signal<boolean>(true);
-  imageBaseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+  imageBaseUrl = environment.imageBaseUrl;
 
   ngOnInit() {
     this.loadFavorites();

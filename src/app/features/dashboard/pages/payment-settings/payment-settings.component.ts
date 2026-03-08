@@ -34,7 +34,7 @@ export class PaymentSettingsComponent {
   getImageUrl(path: string | undefined): string {
     if (!path) return '';
     if (path.startsWith('http')) return path;
-    const baseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+    const baseUrl = environment.imageBaseUrl;
     // Ensure path starts with /
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     return `${baseUrl}${normalizedPath}`;

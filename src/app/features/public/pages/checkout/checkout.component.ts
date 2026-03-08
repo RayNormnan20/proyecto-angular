@@ -479,7 +479,7 @@ export class CheckoutComponent implements OnInit {
       if (method.imagen_url.startsWith('http')) {
         return method.imagen_url;
       }
-      const baseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+      const baseUrl = environment.imageBaseUrl;
       return `${baseUrl}${method.imagen_url}`;
     }
     return '';
@@ -487,8 +487,8 @@ export class CheckoutComponent implements OnInit {
   
   getProductImage(product: any): string {
     if (product.images && product.images.length > 0) {
-      // Remove '/api' from the end of apiUrl if present to get the base URL
-      const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+      // Use imageBaseUrl directly
+      const baseUrl = environment.imageBaseUrl;
       // Ensure the image URL starts with a slash if needed
       const imageUrl = product.images[0].url.startsWith('/') ? product.images[0].url : `/${product.images[0].url}`;
       return `${baseUrl}${imageUrl}`;

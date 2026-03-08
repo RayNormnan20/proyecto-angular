@@ -143,7 +143,7 @@ export class CategoryFormComponent implements OnInit {
           estado: category.estado
         });
         if (category.imagen) {
-          const baseUrl = environment.imageBaseUrl || 'http://localhost:3000';
+          const baseUrl = environment.imageBaseUrl;
           this.imagePreview = `${baseUrl}${category.imagen}`;
         }
       },

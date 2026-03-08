@@ -172,7 +172,9 @@ export class ProductDetailComponent implements OnInit {
 
   getProductImage(product: Product): string {
     if (product.images && product.images.length > 0) {
-      return `${this.imageBaseUrl}${product.images[0].url}`;
+      const url = product.images[0].url;
+      if (url.startsWith('http')) return url;
+      return `${this.imageBaseUrl}${url}`;
     }
     return 'assets/img/placeholder.png';
   }

@@ -27,4 +27,8 @@ export class SettingsService {
     formData.append('image', file);
     return this.http.post(`${this.apiUrl}/upload-qr`, formData);
   }
+
+  testEmailSettings(settings: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/test-email`, settings);
+  }
 }

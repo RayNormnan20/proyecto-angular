@@ -41,7 +41,7 @@ import { environment } from '../../../../../environments/environment';
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#{{ category.id_categoria }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="h-10 w-10 rounded-full overflow-hidden bg-gray-100">
-                    <img [src]="category.imagen ? imageBaseUrl + category.imagen : 'assets/img/cat-placeholder.jpg'" alt="" class="h-full w-full object-cover" onerror="this.onerror=null;this.src='assets/img/cat-placeholder.jpg'">
+                    <img [src]="getImageUrl(category.imagen)" alt="" class="h-full w-full object-cover" onerror="this.onerror=null;this.src='assets/img/cat-placeholder.jpg'">
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ category.nombre }}</td>
@@ -191,6 +191,12 @@ export class CategoryListComponent implements OnInit {
     estado: ['activo', Validators.required]
   });
 
+  getImageUrl(url: string | undefined): string {
+    if (!url) return 'assets/img/cat-placeholder.jpg';
+    if (url.startsWith('http')) return url;
+    return `${this.imageBaseUrl}${url}`;
+  }
+
   ngOnInit() {
     this.loadCategories();
   }
@@ -211,7 +217,7 @@ export class CategoryListComponent implements OnInit {
       this.isEditing = true;
       this.currentId = category.id_categoria;
       if (category.imagen) {
-        this.imagePreview = `${this.imageBaseUrl}${category.imagen}`;
+        this.imagePreview = this.getImageUrl(category.imagen);
       }
       this.categoryForm.patchValue({
         nombre: category.nombre,

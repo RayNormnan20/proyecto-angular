@@ -5,8 +5,11 @@ const authenticateToken = require('../../middlewares/auth.middleware');
 const checkRole = require('../../middlewares/role.middleware');
 const checkPermission = require('../../middlewares/permission.middleware');
 
+const createUploadMiddleware = require('../../middlewares/upload.middleware');
+const upload = createUploadMiddleware('comprobantes');
+
 // Public routes (authenticated users)
-router.post('/', authenticateToken, orderController.createOrder);
+router.post('/', authenticateToken, upload.single('comprobante_pago'), orderController.createOrder);
 router.get('/', authenticateToken, orderController.getOrders); // Logic inside controller filters by ownership
 router.get('/:id', authenticateToken, orderController.getOrderById);
 

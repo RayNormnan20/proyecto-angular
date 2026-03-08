@@ -1,6 +1,7 @@
 const { User, Role, Permission, Session, AccessLog } = require('../associations');
 const { hashPassword, comparePassword } = require('../../utils/password.utils');
 const { generateToken, generateRefreshToken, verifyRefreshToken } = require('../../utils/jwt.utils');
+const { sendWelcomeEmail } = require('../../utils/email.utils');
 const jwt = require('jsonwebtoken');
 
 const register = async (userData) => {
@@ -41,6 +42,9 @@ const register = async (userData) => {
     rol_id: roleId,
     estado: 'activo'
   });
+
+  // Enviar correo de bienvenida
+  sendWelcomeEmail(user).catch(err => console.error('Error sending welcome email in background:', err));
 
   return { id: user.id_usuario, email: user.email, nombre: user.nombre };
 };

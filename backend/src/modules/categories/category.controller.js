@@ -34,8 +34,12 @@ exports.create = async (req, res) => {
     console.log('File:', req.file);
 
     if (req.file) {
-      // Guardar ruta relativa
-      categoryData.imagen = `/uploads/categories/${req.file.filename}`;
+      if (req.file.path && req.file.path.startsWith('http')) {
+        categoryData.imagen = req.file.path;
+      } else {
+        // Guardar ruta relativa
+        categoryData.imagen = `/uploads/categories/${req.file.filename}`;
+      }
     }
 
     const category = await Category.create(categoryData);
@@ -60,7 +64,11 @@ exports.update = async (req, res) => {
     console.log('File:', req.file);
 
     if (req.file) {
-      categoryData.imagen = `/uploads/categories/${req.file.filename}`;
+      if (req.file.path && req.file.path.startsWith('http')) {
+        categoryData.imagen = req.file.path;
+      } else {
+        categoryData.imagen = `/uploads/categories/${req.file.filename}`;
+      }
     }
 
     await category.update(categoryData);

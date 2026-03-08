@@ -86,10 +86,18 @@ exports.create = async (req, res) => {
 
     // Manejar imágenes subidas
     if (req.files && req.files.length > 0) {
-      const images = req.files.map(file => ({
-        producto_id: product.id_producto,
-        url: `/uploads/products/${file.filename}`
-      }));
+      const images = req.files.map(file => {
+        let imageUrl;
+        if (file.path && file.path.startsWith('http')) {
+          imageUrl = file.path;
+        } else {
+          imageUrl = `/uploads/products/${file.filename}`;
+        }
+        return {
+          producto_id: product.id_producto,
+          url: imageUrl
+        };
+      });
       await ProductImage.bulkCreate(images);
     }
 
@@ -112,10 +120,18 @@ exports.update = async (req, res) => {
 
     // Si se suben nuevas imágenes, se agregan a las existentes
     if (req.files && req.files.length > 0) {
-      const images = req.files.map(file => ({
-        producto_id: product.id_producto,
-        url: `/uploads/products/${file.filename}`
-      }));
+      const images = req.files.map(file => {
+        let imageUrl;
+        if (file.path && file.path.startsWith('http')) {
+          imageUrl = file.path;
+        } else {
+          imageUrl = `/uploads/products/${file.filename}`;
+        }
+        return {
+          producto_id: product.id_producto,
+          url: imageUrl
+        };
+      });
       await ProductImage.bulkCreate(images);
     }
 

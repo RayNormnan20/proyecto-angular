@@ -233,7 +233,7 @@ import { environment } from '../../../../../environments/environment';
                       <!-- Preview Imágenes Existentes -->
                       <div class="flex gap-4 mt-4 overflow-x-auto" *ngIf="existingImages.length > 0">
                          <div *ngFor="let img of existingImages" class="relative">
-                           <img [src]="apiUrl + img.url" class="h-20 w-20 object-cover rounded border">
+                           <img [src]="getImageUrl(img.url)" class="h-20 w-20 object-cover rounded border">
                            <button type="button" (click)="deleteImage(img.id_imagen!)" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">x</button>
                          </div>
                       </div>
@@ -311,9 +311,15 @@ export class ProductListComponent implements OnInit {
 
   getProductImage(product: Product): string {
     if (product.images && product.images.length > 0) {
-      return `${this.imageBaseUrl}${product.images[0].url}`;
+      return this.getImageUrl(product.images[0].url);
     }
-    return 'assets/placeholder.png'; // Asegurarse de tener un placeholder
+    return 'assets/img/placeholder.png'; // Asegurarse de tener un placeholder
+  }
+
+  getImageUrl(url: string): string {
+    if (!url) return 'assets/img/placeholder.png';
+    if (url.startsWith('http')) return url;
+    return `${this.imageBaseUrl}${url}`;
   }
 
   getStatusClass(status: string): string {

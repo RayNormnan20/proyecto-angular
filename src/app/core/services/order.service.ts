@@ -18,6 +18,7 @@ export interface Order {
   direccion_envio: string;
   notas?: string;
   codigo_operacion?: string;
+  comprobante_pago?: string;
   items?: OrderItem[];
   user?: {
     id_usuario: number;
@@ -51,7 +52,7 @@ export class OrderService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/orders`;
 
-  createOrder(orderData: CreateOrderDto): Observable<Order> {
+  createOrder(orderData: CreateOrderDto | FormData): Observable<Order> {
     return this.http.post<Order>(this.apiUrl, orderData);
   }
 

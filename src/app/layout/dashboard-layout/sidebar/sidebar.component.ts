@@ -121,6 +121,19 @@ import { AuthService } from '../../../core/services/auth.service';
                     </span>
                     Costo Envíos
                 </a>
+
+                <a 
+                    *ngIf="authService.hasRole('admin') || authService.hasPermission('GESTIONAR_CONFIGURACION')"
+                    routerLink="/dashboard/email-settings" 
+                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    (click)="close.emit()"
+                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
+                >
+                    <span class="mr-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    </span>
+                    Configuración Correo
+                </a>
             </div>
         </ng-container>
 

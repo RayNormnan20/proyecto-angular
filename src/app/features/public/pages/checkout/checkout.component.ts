@@ -256,19 +256,44 @@ import { environment } from '../../../../../environments/environment';
 
                   <!-- Transaction Code Input -->
                   <div class="mt-6 pt-6 border-t border-gray-200" *ngIf="selectedPaymentMethod()?.requiere_comprobante">
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+                      <div class="flex">
+                        <div class="flex-shrink-0">
+                          <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                          </svg>
+                        </div>
+                        <div class="ml-3">
+                          <p class="text-sm text-blue-700">
+                            Realiza tu pago directamente en nuestra cuenta bancarias. Completa el pedido, y sube el comprobante de pago al finalizar el pedido. El producto no se enviará hasta que se verifique el comprobante de pago y el depósito en nuestras cuentas. Puede subir su comprobante en la parte inferior.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     <label for="operation-code" class="block text-sm font-medium text-gray-900 mb-2">
-                      Código de Operación / Nro. de Pedido
-                      <span class="text-red-500">*</span>
+                      Código de Operación / Nro. de Pedido (Opcional)
                     </label>
                     <input type="text" id="operation-code" formControlName="codigo_operacion" 
                            class="w-full pl-4 pr-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono tracking-wider"
-                           placeholder="Ej: 12345678"
-                           [class.border-red-300]="isFieldInvalid('codigo_operacion')">
+                           placeholder="Ej: 12345678">
+                    
+                    <div class="mt-4">
+                      <label class="block text-sm font-medium text-gray-900 mb-2">
+                        Subir Comprobante (Imagen)
+                        <span class="text-red-500">*</span>
+                      </label>
+                      <input type="file" (change)="onFileSelected($event)" accept="image/*" 
+                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                             [class.border-red-300]="showFileError()">
+                      <p *ngIf="showFileError()" class="text-red-500 text-xs mt-1 ml-1">
+                        Debes subir una imagen del comprobante de pago.
+                      </p>
+                    </div>
+
                     <p class="text-xs text-gray-500 mt-2">
                       Ingresa el código que aparece en tu comprobante de pago.
-                    </p>
-                    <p *ngIf="isFieldInvalid('codigo_operacion')" class="text-red-500 text-xs mt-1 ml-1">
-                      Este campo es requerido.
                     </p>
                   </div>
                 </div>
@@ -356,6 +381,9 @@ export class CheckoutComponent implements OnInit {
   
   paymentMethods = signal<PaymentMethod[]>([]);
   selectedPaymentMethod = signal<PaymentMethod | null>(null);
+  
+  selectedFile: File | null = null;
+  showFileError = signal(false);
   
   // Shipping logic
   shippingCosts = signal<{district: string, cost: number}[]>([]);
@@ -457,13 +485,22 @@ export class CheckoutComponent implements OnInit {
     this.checkoutForm.patchValue({ metodo_pago_id: method.id_metodo_pago });
     this.selectedPaymentMethod.set(method);
 
+    // Operation code is now optional for all methods
     const codeControl = this.checkoutForm.get('codigo_operacion');
-    if (method.requiere_comprobante) {
-      codeControl?.setValidators([Validators.required, Validators.minLength(4)]);
-    } else {
-      codeControl?.clearValidators();
-    }
+    codeControl?.clearValidators();
     codeControl?.updateValueAndValidity();
+    
+    // Reset file
+    this.selectedFile = null;
+    this.showFileError.set(false);
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      this.showFileError.set(false);
+    }
   }
 
   isFieldInvalid(field: string): boolean {
@@ -480,23 +517,34 @@ export class CheckoutComponent implements OnInit {
         return method.imagen_url;
       }
       const baseUrl = environment.imageBaseUrl;
-      return `${baseUrl}${method.imagen_url}`;
+      const imageUrl = method.imagen_url.startsWith('/') ? method.imagen_url : `/${method.imagen_url}`;
+      return `${baseUrl}${imageUrl}`;
     }
     return '';
   }
   
   getProductImage(product: any): string {
     if (product.images && product.images.length > 0) {
-      // Use imageBaseUrl directly
+      const url = product.images[0].url;
+      if (url.startsWith('http')) return url;
+      
       const baseUrl = environment.imageBaseUrl;
       // Ensure the image URL starts with a slash if needed
-      const imageUrl = product.images[0].url.startsWith('/') ? product.images[0].url : `/${product.images[0].url}`;
+      const imageUrl = url.startsWith('/') ? url : `/${url}`;
       return `${baseUrl}${imageUrl}`;
     }
     return this.PLACEHOLDER_IMAGE;
   }
 
   onSubmit() {
+    // Validate file upload if required
+    if (this.selectedPaymentMethod()?.requiere_comprobante && !this.selectedFile) {
+      this.showFileError.set(true);
+      // Mark other fields as touched so they show errors too
+      this.checkoutForm.markAllAsTouched();
+      return;
+    }
+
     if (this.checkoutForm.invalid) {
       this.checkoutForm.markAllAsTouched();
       return;
@@ -530,7 +578,20 @@ export class CheckoutComponent implements OnInit {
       total: this.totalToPay()
     };
 
-    this.orderService.createOrder(orderData).subscribe({
+    // Convert to FormData for file upload
+    const formData = new FormData();
+    formData.append('items', JSON.stringify(orderData.items));
+    formData.append('metodo_entrega', orderData.metodo_entrega || '');
+    if (orderData.distrito) formData.append('distrito', orderData.distrito);
+    if (orderData.direccion_envio) formData.append('direccion_envio', orderData.direccion_envio);
+    formData.append('metodo_pago_id', String(orderData.metodo_pago_id));
+    if (orderData.codigo_operacion) formData.append('codigo_operacion', orderData.codigo_operacion);
+    if (orderData.notas) formData.append('notas', orderData.notas);
+    if (this.selectedFile) {
+      formData.append('comprobante_pago', this.selectedFile);
+    }
+
+    this.orderService.createOrder(formData).subscribe({
       next: (order) => {
         this.cartService.clearCart();
         this.isProcessing.set(false);

@@ -1,11 +1,28 @@
 const { sequelize } = require('../../config/database');
 const { Order, OrderItem, Product, User, ProductImage, PaymentMethod } = require('../associations');
+const { sendOrderConfirmation } = require('../../utils/email.utils');
 
 const createOrder = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { items, metodo_pago_id, direccion_envio, notas, codigo_operacion } = req.body;
+    let { items, metodo_pago_id, direccion_envio, notas, codigo_operacion } = req.body;
     const userId = req.user.id; // From auth middleware
+
+    // Parse items if it comes as a string (from FormData)
+    if (typeof items === 'string') {
+      try {
+        items = JSON.parse(items);
+      } catch (e) {
+        return res.status(400).json({ message: 'Formato de items inválido' });
+      }
+    }
+
+    // Handle file upload
+    let comprobantePath = null;
+    if (req.file) {
+      // Store relative path
+      comprobantePath = `/uploads/comprobantes/${req.file.filename}`;
+    }
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'El carrito está vacío' });
@@ -62,7 +79,8 @@ const createOrder = async (req, res) => {
       metodo_pago_id: metodo_pago_id,
       direccion_envio: direccion_envio,
       notas: notas,
-      codigo_operacion: codigo_operacion
+      codigo_operacion: codigo_operacion,
+      comprobante_pago: comprobantePath
     }, { transaction: t });
 
     // Create Order Items
@@ -82,9 +100,24 @@ const createOrder = async (req, res) => {
           model: OrderItem, 
           as: 'items',
           include: [{ model: Product, as: 'product' }]
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id_usuario', 'nombre', 'email']
+        },
+        {
+          model: PaymentMethod,
+          as: 'paymentMethod'
         }
       ]
     });
+
+    // Send confirmation email asynchronously
+    if (createdOrder && createdOrder.user) {
+      sendOrderConfirmation(createdOrder, createdOrder.user, createdOrder.items)
+        .catch(err => console.error('Error sending confirmation email:', err));
+    }
 
     res.status(201).json(createdOrder);
 

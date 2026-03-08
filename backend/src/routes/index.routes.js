@@ -11,6 +11,7 @@ const orderRoutes = require('../modules/orders/order.routes');
 const settingRoutes = require('../modules/settings/setting.routes');
 const favoriteRoutes = require('../modules/favorites/favorite.routes');
 const paymentMethodRoutes = require('../modules/payment-methods/payment-method.routes');
+const emailLogRoutes = require('../modules/email-logs/email-log.routes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -23,6 +24,7 @@ router.use('/orders', orderRoutes);
 router.use('/settings', settingRoutes);
 router.use('/favorites', favoriteRoutes);
 router.use('/payment-methods', paymentMethodRoutes);
+router.use('/email-logs', emailLogRoutes);
 
 // Ejemplo de ruta protegida para verificar el token
 const verifyToken = require('../middlewares/auth.middleware');

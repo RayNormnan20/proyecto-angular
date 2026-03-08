@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getSettings, updateSettings, uploadQr } = require('./setting.controller');
+const { getSettings, updateSettings, uploadQr, testEmail } = require('./setting.controller');
 const verifyToken = require('../../middlewares/auth.middleware');
 const verifyRole = require('../../middlewares/role.middleware');
 const checkPermission = require('../../middlewares/permission.middleware');
@@ -14,5 +14,8 @@ router.put('/', verifyToken, checkPermission('GESTIONAR_CONFIGURACION'), updateS
 
 // Admin/Staff access to upload QR
 router.post('/upload-qr', verifyToken, checkPermission('GESTIONAR_CONFIGURACION'), upload.single('image'), uploadQr);
+
+// Admin/Staff access to test email settings
+router.post('/test-email', verifyToken, checkPermission('GESTIONAR_CONFIGURACION'), testEmail);
 
 module.exports = router;

@@ -19,6 +19,7 @@ import { BrandFormComponent } from './features/brands/pages/brand-form/brand-for
 import { OrdersListComponent } from './features/dashboard/pages/orders-list/orders-list.component';
 import { PaymentSettingsComponent } from './features/dashboard/pages/payment-settings/payment-settings.component';
 import { ShippingSettingsComponent } from './features/dashboard/pages/shipping-settings/shipping-settings.component';
+import { EmailSettingsComponent } from './features/dashboard/pages/email-settings/email-settings.component';
 
 // Público
 import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
@@ -84,7 +85,9 @@ export const routes: Routes = [
       // Configuración Pagos
       { path: 'payment-settings', component: PaymentSettingsComponent },
       // Configuración Envíos
-      { path: 'shipping-settings', component: ShippingSettingsComponent }
+      { path: 'shipping-settings', component: ShippingSettingsComponent },
+      // Configuración Correo
+      { path: 'email-settings', component: EmailSettingsComponent }
     ]
   },
   

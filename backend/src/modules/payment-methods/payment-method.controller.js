@@ -56,12 +56,19 @@ exports.uploadImage = async (req, res) => {
       return res.status(400).json({ message: 'No se ha subido ninguna imagen' });
     }
 
-    // Normalize path to use forward slashes and ensure it starts with /uploads
-    let imagePath = req.file.path.replace(/\\/g, '/');
-    // Ensure the path is relative to the server root for public access
-    // Assuming 'uploads' is served statically
-    if (imagePath.includes('uploads/')) {
-        imagePath = '/uploads/' + imagePath.split('uploads/')[1];
+    let imagePath;
+    
+    // Check if file was uploaded to Cloudinary
+    if (req.file.path && req.file.path.startsWith('http')) {
+      imagePath = req.file.path;
+    } else {
+      // Normalize path to use forward slashes and ensure it starts with /uploads
+      imagePath = req.file.path.replace(/\\/g, '/');
+      // Ensure the path is relative to the server root for public access
+      // Assuming 'uploads' is served statically
+      if (imagePath.includes('uploads/')) {
+          imagePath = '/uploads/' + imagePath.split('uploads/')[1];
+      }
     }
 
     await method.update({ imagen_url: imagePath });

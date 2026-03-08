@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderService, Order } from '../../../../core/services/order.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-orders-list',
@@ -93,6 +94,14 @@ import { OrderService, Order } from '../../../../core/services/order.service';
                     </div>
                     <div class="mt-1" *ngIf="order.codigo_operacion">
                        <p><span class="font-bold">Código de Operación:</span> <span class="bg-gray-100 px-2 py-1 rounded text-gray-800 font-mono">{{ order.codigo_operacion }}</span></p>
+                    </div>
+                    <div class="mt-3" *ngIf="order.comprobante_pago">
+                      <p><span class="font-bold">Comprobante de Pago:</span></p>
+                      <div class="mt-2">
+                        <a [href]="imageBaseUrl + order.comprobante_pago" target="_blank" rel="noopener noreferrer">
+                          <img [src]="imageBaseUrl + order.comprobante_pago" alt="Comprobante de Pago" class="max-w-xs max-h-48 object-contain border border-gray-200 rounded shadow-sm hover:opacity-90 transition-opacity">
+                        </a>
+                      </div>
                     </div>
                     <div class="mt-1" *ngIf="order.notas">
                        <p><span class="font-bold">Notas:</span> {{ order.notas }}</p>
@@ -208,6 +217,7 @@ export class OrdersListComponent {
   orderService = inject(OrderService);
   orders = signal<Order[]>([]);
   expandedOrders = signal<Set<number>>(new Set());
+  imageBaseUrl = environment.imageBaseUrl;
 
   constructor() {
     this.loadOrders();

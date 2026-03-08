@@ -134,6 +134,12 @@ export class CategoryFormComponent implements OnInit {
     });
   }
 
+  getImageUrl(url: string | undefined): string {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${environment.imageBaseUrl}${url}`;
+  }
+
   loadCategory(id: number) {
     this.categoriesService.getById(id).subscribe({
       next: (category) => {
@@ -143,8 +149,7 @@ export class CategoryFormComponent implements OnInit {
           estado: category.estado
         });
         if (category.imagen) {
-          const baseUrl = environment.imageBaseUrl;
-          this.imagePreview = `${baseUrl}${category.imagen}`;
+          this.imagePreview = this.getImageUrl(category.imagen);
         }
       },
       error: (err) => {

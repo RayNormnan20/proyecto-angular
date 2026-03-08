@@ -1,3 +1,4 @@
+const nodemailer = require('nodemailer');
 const Setting = require('./setting.model');
 
 const getSettings = async (req, res) => {
@@ -45,8 +46,13 @@ const uploadQr = async (req, res) => {
       return res.status(400).json({ message: 'No se ha subido ninguna imagen' });
     }
     
-    // Construct URL (assuming server serves 'uploads' statically)
-    const imageUrl = `/uploads/settings/${req.file.filename}`;
+    // Construct URL
+    let imageUrl;
+    if (req.file.path && req.file.path.startsWith('http')) {
+      imageUrl = req.file.path;
+    } else {
+      imageUrl = `/uploads/settings/${req.file.filename}`;
+    }
     
     // Update setting directly
     const [setting, created] = await Setting.findOrCreate({
@@ -66,4 +72,40 @@ const uploadQr = async (req, res) => {
   }
 };
 
-module.exports = { getSettings, updateSettings, uploadQr };
+const testEmail = async (req, res) => {
+  try {
+    const { email_host, email_port, email_user, email_pass } = req.body;
+
+    if (!email_host || !email_port || !email_user || !email_pass) {
+      return res.status(400).json({ message: 'Faltan credenciales de correo' });
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: email_host,
+      port: parseInt(email_port),
+      secure: parseInt(email_port) === 465,
+      auth: {
+        user: email_user,
+        pass: email_pass
+      }
+    });
+
+    await transporter.verify();
+
+    // Send a test email
+    await transporter.sendMail({
+      from: `"Test Ecommerce" <${email_user}>`,
+      to: email_user, // Send to self
+      subject: 'Prueba de Configuración de Correo',
+      text: 'Si estás leyendo esto, la configuración de correo es correcta.',
+      html: '<b>Si estás leyendo esto, la configuración de correo es correcta.</b>'
+    });
+
+    res.json({ message: 'Correo de prueba enviado correctamente a ' + email_user });
+  } catch (error) {
+    console.error('Error sending test email:', error);
+    res.status(500).json({ message: 'Error al enviar correo de prueba: ' + error.message });
+  }
+};
+
+module.exports = { getSettings, updateSettings, uploadQr, testEmail };

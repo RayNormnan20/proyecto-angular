@@ -8,9 +8,10 @@ const cloudinary = require('../config/cloudinary');
 const createUploadMiddleware = (folderName) => {
   let storage;
 
-  // Use Cloudinary for specific folders or if configured
-  const useCloudinary = process.env.CLOUDINARY_CLOUD_NAME && 
-                        (folderName === 'products' || folderName === 'payments' || folderName === 'categories' || folderName === 'settings');
+  // Use Cloudinary if enabled via env var and configured for specific folders
+  const useCloudinary = process.env.USE_CLOUDINARY === 'true' && 
+                        process.env.CLOUDINARY_CLOUD_NAME && 
+                        (folderName === 'products' || folderName === 'payments' || folderName === 'categories' || folderName === 'settings' || folderName === 'testimonials');
 
   if (useCloudinary) {
     storage = new CloudinaryStorage({
@@ -21,7 +22,9 @@ const createUploadMiddleware = (folderName) => {
         public_id: (req, file) => {
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
           return file.fieldname + '-' + uniqueSuffix;
-        }
+        },
+        // Redimensionar imágenes de productos a 500x500
+        transformation: folderName === 'products' ? [{ width: 500, height: 500, crop: 'pad' }] : undefined
       }
     });
   } else {

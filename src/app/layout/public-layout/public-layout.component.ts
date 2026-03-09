@@ -157,6 +157,7 @@ import { environment } from '../../../environments/environment';
                   <div class="hidden lg:flex space-x-8">
                     <a (click)="goHome()" class="text-white hover:text-yellow-500 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Inicio</a>
                     <a (click)="goHome()" class="text-white hover:text-yellow-500 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Catálogo</a>
+                    <a routerLink="/testimonials" class="text-white hover:text-yellow-500 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Clientes Satisfechos</a>
                     <a routerLink="/contact" class="text-white hover:text-yellow-500 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Contacto</a>
                   </div>
                   
@@ -187,6 +188,7 @@ import { environment } from '../../../environments/environment';
             <nav class="flex flex-col space-y-4">
               <a (click)="goHome(); isMobileMenuOpen.set(false)" class="text-white hover:text-yellow-500 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Inicio</a>
               <a (click)="goHome(); isMobileMenuOpen.set(false)" class="text-white hover:text-yellow-500 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Catálogo</a>
+              <a routerLink="/testimonials" (click)="isMobileMenuOpen.set(false)" class="text-white hover:text-yellow-500 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Clientes Satisfechos</a>
               <a routerLink="/contact" (click)="isMobileMenuOpen.set(false)" class="text-white hover:text-yellow-500 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Contacto</a>
               
               <div class="border-t border-gray-700 pt-4 mt-2">

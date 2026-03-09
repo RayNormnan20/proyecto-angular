@@ -460,10 +460,11 @@ export class HomeComponent implements OnInit {
   currentSlide = signal(0);
   
   products = signal<Product[]>([]);
-  featuredProducts = signal<Product[]>([]);
+featuredProducts = signal<Product[]>([]);
   recentProducts = signal<Product[]>([]);
   categories = signal<Category[]>([]);
-  // selectedCategoryId = signal<number | null>(null); // Removed local signal
+  
+  // Carousel StateselectedCategoryId = signal<number | null>(null); // Removed local signal
   
   @ViewChild('categoryScroll') categoryScroll!: ElementRef;
 

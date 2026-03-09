@@ -20,6 +20,7 @@ import { OrdersListComponent } from './features/dashboard/pages/orders-list/orde
 import { PaymentSettingsComponent } from './features/dashboard/pages/payment-settings/payment-settings.component';
 import { ShippingSettingsComponent } from './features/dashboard/pages/shipping-settings/shipping-settings.component';
 import { EmailSettingsComponent } from './features/dashboard/pages/email-settings/email-settings.component';
+import { TestimonialSettingsComponent } from './features/dashboard/pages/testimonial-settings/testimonial-settings.component';
 
 // Público
 import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
@@ -33,6 +34,7 @@ import { AboutComponent } from './features/public/pages/about/about';
 import { ContactComponent } from './features/public/pages/contact/contact';
 import { HelpComponent } from './features/public/pages/help/help';
 import { FaqComponent } from './features/public/pages/faq/faq';
+import { TestimonialsComponent } from './features/public/pages/testimonials/testimonials.component';
 
 export const routes: Routes = [
   // Rutas Públicas
@@ -50,7 +52,8 @@ export const routes: Routes = [
       { path: 'about', component: AboutComponent },
       { path: 'contact', component: ContactComponent },
       { path: 'help', component: HelpComponent },
-      { path: 'faq', component: FaqComponent }
+      { path: 'faq', component: FaqComponent },
+      { path: 'testimonials', component: TestimonialsComponent }
     ]
   },
   
@@ -87,7 +90,9 @@ export const routes: Routes = [
       // Configuración Envíos
       { path: 'shipping-settings', component: ShippingSettingsComponent },
       // Configuración Correo
-      { path: 'email-settings', component: EmailSettingsComponent }
+      { path: 'email-settings', component: EmailSettingsComponent },
+      // Configuración Testimonios (Clientes Satisfechos)
+      { path: 'testimonial-settings', component: TestimonialSettingsComponent }
     ]
   },
   

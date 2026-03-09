@@ -13,6 +13,7 @@ const AccessLog = require('./auth/access-log.model');
 const Favorite = require('./favorites/favorite.model');
 const PaymentMethod = require('./payment-methods/payment-method.model');
 const EmailLog = require('./email-logs/email-log.model');
+const Testimonial = require('./testimonials/testimonial.model');
 
 // Role-Permission associations (Many-to-Many)
 if (!Role.associations.permissions) {
@@ -98,5 +99,6 @@ module.exports = {
   AccessLog,
   Favorite,
   PaymentMethod,
-  EmailLog
+  EmailLog,
+  Testimonial
 };

@@ -79,6 +79,7 @@ export class CartService {
 
   removeFromCart(productId: number) {
     this.cartItems.update(items => items.filter(item => item.product.id_producto !== productId));
+    this.toastService.show('Producto eliminado del carrito', 'info');
   }
 
   updateQuantity(productId: number, quantity: number) {

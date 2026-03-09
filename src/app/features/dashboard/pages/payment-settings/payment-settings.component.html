@@ -1,16 +1,6 @@
 <div class="p-4 md:p-6">
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold text-gray-800">Métodos de Pago</h1>
-    
-    <!-- Toast Message -->
-    <div *ngIf="message()" 
-      [class.bg-green-100]="message()?.type === 'success'" 
-      [class.text-green-800]="message()?.type === 'success'" 
-      [class.bg-red-100]="message()?.type === 'error'" 
-      [class.text-red-800]="message()?.type === 'error'" 
-      class="px-4 py-2 rounded-md text-sm font-medium animate-fade-in shadow-sm">
-      {{ message()?.text }}
-    </div>
   </div>
 
   <div class="grid grid-cols-1 gap-6">
@@ -27,7 +17,7 @@
         </div>
         <label class="relative inline-flex items-center cursor-pointer" title="{{ method.activo ? 'Desactivar' : 'Activar' }}">
           <input type="checkbox" [checked]="method.activo" (change)="toggleActive(method)" class="sr-only peer">
-          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
         </label>
       </div>
 
@@ -42,13 +32,13 @@
              </div>
              <label class="relative inline-flex items-center cursor-pointer">
                <input type="checkbox" [checked]="method.requiere_comprobante" (change)="toggleRequireProof(method)" class="sr-only peer">
-               <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+               <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
              </label>
            </div>
 
            <div>
              <label class="block text-sm font-medium text-gray-700 mb-1">Descripción (Corta)</label>
-             <input type="text" [(ngModel)]="method.descripcion" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
+             <input type="text" [(ngModel)]="method.descripcion" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
               [placeholder]="isYape(method) ? 'Ej: Escanea el QR o usa el número' : 'Ej: Transferencia directa a nuestra cuenta BCP'">
            </div>
 
@@ -59,13 +49,21 @@
                 <span *ngIf="isCash(method)">Mensaje para el cliente</span>
                 <span *ngIf="!isYape(method) && !isTransfer(method) && !isCash(method)">Instrucciones de Pago</span>
              </label>
-             <textarea [(ngModel)]="method.instrucciones" rows="4" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
+             <textarea [(ngModel)]="method.instrucciones" rows="4" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
               [placeholder]="isYape(method) ? 'Número: 999 999 999\nTitular: Mi Empresa SAC' : (isTransfer(method) ? 'Banco: BCP\nCuenta: 191-...\nCCI: 002-...\nTitular: Mi Empresa SAC' : 'Ten el monto exacto por favor.')"></textarea>
              <p class="text-xs text-gray-500 mt-1">Esta información se mostrará al cliente al finalizar la compra.</p>
            </div>
 
-           <button (click)="saveInstructions(method)" [disabled]="isProcessing() === method.id_metodo_pago" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50">
-             <span *ngIf="isProcessing() === method.id_metodo_pago" class="animate-spin mr-2">⟳</span>
+           <button (click)="saveInstructions(method)" [disabled]="isProcessing() === method.id_metodo_pago" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none disabled:opacity-50 transition-colors">
+             <span *ngIf="isProcessing() === method.id_metodo_pago" class="animate-spin mr-2">
+               <svg class="h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+               </svg>
+             </span>
+             <svg *ngIf="isProcessing() !== method.id_metodo_pago" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+             </svg>
              Guardar Cambios
            </button>
         </div>
@@ -87,7 +85,10 @@
               <p class="mt-1 text-sm text-gray-500">Sin imagen</p>
             </div>
 
-            <label class="cursor-pointer bg-white border border-gray-300 rounded-md py-2 px-4 inline-flex items-center justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm mt-2">
+            <label class="cursor-pointer bg-white border border-gray-300 rounded-md py-2 px-4 inline-flex items-center justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm mt-2 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
               <span>{{ method.imagen_url ? 'Cambiar Imagen' : 'Subir Imagen' }}</span>
               <input type="file" (change)="onFileSelected($event, method)" accept="image/*" class="sr-only">
             </label>
@@ -100,7 +101,7 @@
             <div class="text-center p-6">
                 <p class="text-sm">No se requiere imagen para este método.</p>
                 <!-- Optional: Button to enable image if they really want it -->
-                 <label class="mt-2 text-xs text-blue-500 cursor-pointer hover:underline">
+                 <label class="mt-2 text-xs text-indigo-500 cursor-pointer hover:underline">
                     <span>¿Agregar imagen?</span>
                     <input type="file" (change)="onFileSelected($event, method)" accept="image/*" class="sr-only">
                  </label>

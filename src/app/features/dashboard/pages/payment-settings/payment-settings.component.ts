@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaymentMethodService, PaymentMethod } from '../../../../core/services/payment-method.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -12,10 +13,10 @@ import { environment } from '../../../../../environments/environment';
 })
 export class PaymentSettingsComponent {
   private paymentMethodService = inject(PaymentMethodService);
+  private toastService = inject(ToastService);
   
   paymentMethods = signal<PaymentMethod[]>([]);
   isProcessing = signal<number | null>(null); // Stores ID of method being processed
-  message = signal<{text: string, type: 'success' | 'error'} | null>(null);
 
   constructor() {
     this.loadPaymentMethods();
@@ -62,12 +63,12 @@ export class PaymentSettingsComponent {
         this.paymentMethods.update(methods => 
           methods.map(m => m.id_metodo_pago === id ? { ...m, ...updatedMethod } : m)
         );
-        this.showMessage('Actualizado correctamente', 'success');
+        this.toastService.show('Actualizado correctamente', 'success');
         this.isProcessing.set(null);
       },
       error: (err) => {
         console.error('Error updating method', err);
-        this.showMessage('Error al actualizar', 'error');
+        this.toastService.show('Error al actualizar', 'error');
         this.isProcessing.set(null);
       }
     });
@@ -88,20 +89,15 @@ export class PaymentSettingsComponent {
         this.paymentMethods.update(methods => 
           methods.map(m => m.id_metodo_pago === id ? { ...m, imagen_url: res.url } : m)
         );
-        this.showMessage('Imagen actualizada', 'success');
+        this.toastService.show('Imagen actualizada', 'success');
         this.isProcessing.set(null);
       },
       error: (err) => {
         console.error('Error uploading image', err);
-        this.showMessage('Error al subir imagen', 'error');
+        this.toastService.show('Error al subir imagen', 'error');
         this.isProcessing.set(null);
       }
     });
-  }
-
-  showMessage(text: string, type: 'success' | 'error') {
-    this.message.set({ text, type });
-    setTimeout(() => this.message.set(null), 3000);
   }
 
   // Helpers for UI logic

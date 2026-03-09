@@ -201,11 +201,12 @@ export class ProfileComponent {
   }
 
   loadOrders() {
-    this.orderService.getOrders().subscribe({
-      next: (data) => {
-        this.orders.set(data);
+    this.orderService.getOrders({ limit: 50 }).subscribe({
+      next: (res: any) => {
+        const ordersList = res.orders || (Array.isArray(res) ? res : []);
+        this.orders.set(ordersList);
         this.activeOrdersCount.set(
-          data.filter(o => ['pendiente', 'pagado', 'enviado'].includes(o.estado)).length
+          ordersList.filter((o: Order) => ['pendiente', 'pagado', 'enviado'].includes(o.estado)).length
         );
       },
       error: (err) => console.error('Error loading orders', err)

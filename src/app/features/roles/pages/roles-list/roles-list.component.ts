@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RolesService, Role, Permission } from '../../services/roles.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-roles-list',
@@ -16,7 +17,7 @@ import { AuthService } from '../../../../core/services/auth.service';
           <h2 class="text-3xl font-bold text-gray-800">Gestión de Roles</h2>
           <p class="text-gray-600 mt-1">Administra los roles y permisos del sistema</p>
         </div>
-        <button *ngIf="canCreate()" (click)="openCreateModal()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center justify-center transition duration-200 transform hover:scale-105">
+        <button *ngIf="canCreate()" (click)="openCreateModal()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center justify-center transition duration-200 transform hover:scale-105">
           <span class="text-xl mr-2">+</span> Nuevo Rol
         </button>
       </div>
@@ -73,8 +74,18 @@ import { AuthService } from '../../../../core/services/auth.service';
                   </span>
                 </td>
                 <td *ngIf="canEdit() || canDelete()" class="px-6 py-4 border-b border-gray-100 text-right text-sm font-medium">
-                  <button *ngIf="canEdit()" (click)="editRole(role)" class="text-indigo-600 hover:text-indigo-900 mr-4 font-semibold hover:underline">Editar</button>
-                  <button *ngIf="canDelete()" (click)="deleteRole(role)" class="text-red-600 hover:text-red-900 font-semibold hover:underline">Eliminar</button>
+                  <div class="flex justify-end space-x-2">
+                    <button *ngIf="canEdit()" (click)="editRole(role)" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 p-2 rounded-full transition-colors" title="Editar">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button *ngIf="canDelete()" (click)="deleteRole(role)" class="bg-red-50 text-red-600 hover:bg-red-100 p-2 rounded-full transition-colors" title="Eliminar">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -117,10 +128,16 @@ import { AuthService } from '../../../../core/services/auth.service';
           </div>
 
           <div *ngIf="canEdit() || canDelete()" class="flex justify-end space-x-3 pt-3 border-t border-gray-100">
-            <button *ngIf="canEdit()" (click)="editRole(role)" class="flex-1 bg-indigo-50 text-indigo-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-100 transition-colors text-center">
+            <button *ngIf="canEdit()" (click)="editRole(role)" class="flex-1 bg-indigo-50 text-indigo-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-100 transition-colors text-center flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
               Editar
             </button>
-            <button *ngIf="canDelete()" (click)="deleteRole(role)" class="flex-1 bg-red-50 text-red-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-red-100 transition-colors text-center">
+            <button *ngIf="canDelete()" (click)="deleteRole(role)" class="flex-1 bg-red-50 text-red-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-red-100 transition-colors text-center flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
               Eliminar
             </button>
           </div>
@@ -209,6 +226,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 export class RolesListComponent implements OnInit {
   private rolesService = inject(RolesService);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
   roles: Role[] = [];
   availablePermissions: Permission[] = [];
   isModalOpen = false;
@@ -330,23 +348,25 @@ export class RolesListComponent implements OnInit {
       if (this.isEditing && this.currentRole.id_rol) {
         this.rolesService.updateRole(this.currentRole.id_rol, roleData).subscribe({
           next: () => {
+            this.toastService.show('Rol actualizado correctamente', 'success');
             this.loadRoles();
             this.closeModal();
           },
           error: (error) => {
             console.error('Error updating role:', error);
-            alert('Error al actualizar rol');
+            this.toastService.show('Error al actualizar rol', 'error');
           }
         });
       } else {
         this.rolesService.createRole(roleData).subscribe({
           next: () => {
+            this.toastService.show('Rol creado correctamente', 'success');
             this.loadRoles();
             this.closeModal();
           },
           error: (error) => {
             console.error('Error creating role:', error);
-            alert('Error al crear rol');
+            this.toastService.show('Error al crear rol', 'error');
           }
         });
       }
@@ -357,11 +377,12 @@ export class RolesListComponent implements OnInit {
     if (confirm(`¿Estás seguro de que deseas eliminar el rol ${role.nombre}?`)) {
       this.rolesService.deleteRole(role.id_rol).subscribe({
         next: () => {
+          this.toastService.show('Rol eliminado correctamente', 'success');
           this.loadRoles();
         },
         error: (error) => {
           console.error('Error deleting role:', error);
-          alert(error.error?.message || 'Error al eliminar rol');
+          this.toastService.show(error.error?.message || 'Error al eliminar rol', 'error');
         }
       });
     }

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { UsersService, User } from '../../services/users.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { RolesService, Role } from '../../../roles/services/roles.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-users-list',
@@ -78,8 +79,18 @@ import { RolesService, Role } from '../../../roles/services/roles.service';
                   {{ user.created_at | date:'mediumDate' }}
                 </td>
                 <td *ngIf="canEdit() || canDelete()" class="px-6 py-4 border-b border-gray-100 text-right text-sm font-medium">
-                  <button *ngIf="canEdit()" (click)="editUser(user)" class="text-indigo-600 hover:text-indigo-900 mr-4 font-semibold hover:underline">Editar</button>
-                  <button *ngIf="canDelete()" (click)="deleteUser(user)" class="text-red-600 hover:text-red-900 font-semibold hover:underline">Eliminar</button>
+                  <div class="flex justify-end space-x-2">
+                    <button *ngIf="canEdit()" (click)="editUser(user)" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 p-2 rounded-full transition-colors" title="Editar">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button *ngIf="canDelete()" (click)="deleteUser(user)" class="bg-red-50 text-red-600 hover:bg-red-100 p-2 rounded-full transition-colors" title="Eliminar">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -134,12 +145,12 @@ import { RolesService, Role } from '../../../roles/services/roles.service';
           </div>
 
           <div *ngIf="canEdit() || canDelete()" class="flex justify-end space-x-3 border-t border-gray-100 pt-3">
-            <button *ngIf="canEdit()" (click)="editUser(user)" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <button *ngIf="canEdit()" (click)="editUser(user)" class="flex-1 bg-indigo-50 text-indigo-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               Editar
             </button>
-            <button *ngIf="canDelete()" (click)="deleteUser(user)" class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            <button *ngIf="canDelete()" (click)="deleteUser(user)" class="flex-1 bg-red-50 text-red-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
               Eliminar
             </button>
           </div>
@@ -224,6 +235,7 @@ export class UsersListComponent implements OnInit {
   private usersService = inject(UsersService);
   private authService = inject(AuthService);
   private rolesService = inject(RolesService); // Inject RolesService
+  private toastService = inject(ToastService);
   
   users: User[] = [];
   roles: Role[] = [];
@@ -299,23 +311,25 @@ export class UsersListComponent implements OnInit {
       if (this.isEditing && this.currentUser.id_usuario) {
         this.usersService.updateUser(this.currentUser.id_usuario, this.currentUser).subscribe({
           next: () => {
+            this.toastService.show('Usuario actualizado correctamente', 'success');
             this.loadUsers();
             this.closeModal();
           },
           error: (error) => {
             console.error('Error updating user:', error);
-            alert('Error al actualizar usuario');
+            this.toastService.show('Error al actualizar usuario', 'error');
           }
         });
       } else {
         this.usersService.createUser(this.currentUser).subscribe({
           next: () => {
+            this.toastService.show('Usuario creado correctamente', 'success');
             this.loadUsers();
             this.closeModal();
           },
           error: (error) => {
             console.error('Error creating user:', error);
-            alert('Error al crear usuario: ' + (error.error?.message || 'Error desconocido'));
+            this.toastService.show('Error al crear usuario: ' + (error.error?.message || 'Error desconocido'), 'error');
           }
         });
       }
@@ -326,11 +340,12 @@ export class UsersListComponent implements OnInit {
     if (confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.nombre}?`)) {
       this.usersService.deleteUser(user.id_usuario).subscribe({
         next: () => {
+          this.toastService.show('Usuario eliminado correctamente', 'success');
           this.loadUsers(); // Refresh list
         },
         error: (error) => {
           console.error('Error deleting user:', error);
-          alert('Error al eliminar usuario');
+          this.toastService.show('Error al eliminar usuario', 'error');
         }
       });
     }

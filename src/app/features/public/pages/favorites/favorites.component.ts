@@ -38,7 +38,7 @@ import { environment } from '../../../../../environments/environment';
             >
             <button 
               (click)="removeFavorite(product.id_producto!)"
-              class="absolute top-2 right-2 p-1.5 bg-white rounded-full text-red-500 hover:bg-gray-100 shadow-sm"
+              class="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-sm rounded-full text-gray-400 hover:text-red-500 hover:bg-white shadow-sm transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500"
               title="Eliminar de favoritos"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -97,14 +97,12 @@ export class FavoritesComponent implements OnInit {
   }
 
   removeFavorite(productId: number) {
-    if (confirm('¿Estás seguro de eliminar este producto de favoritos?')) {
-      this.favoriteService.removeFavorite(productId).subscribe({
-        next: () => {
-          this.favorites.update(current => current.filter(p => p.id_producto !== productId));
-        },
-        error: (err) => console.error('Error removing favorite', err)
-      });
-    }
+    this.favoriteService.removeFavorite(productId).subscribe({
+      next: () => {
+        this.favorites.update(current => current.filter(p => p.id_producto !== productId));
+      },
+      error: (err) => console.error('Error removing favorite', err)
+    });
   }
 
   getProductImage(product: Product): string {

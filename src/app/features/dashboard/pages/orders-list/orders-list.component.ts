@@ -1,12 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { OrderService, Order } from '../../../../core/services/order.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-orders-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="p-4 md:p-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -15,6 +17,39 @@ import { environment } from '../../../../../environments/environment';
            <button (click)="loadOrders()" class="flex-1 md:flex-none px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-center justify-center flex items-center">
              <span class="mr-2">🔄</span> Actualizar
            </button>
+        </div>
+      </div>
+
+      <!-- Filters Section -->
+      <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio</label>
+            <input type="date" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Fin</label>
+            <input type="date" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+            <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
+              <option value="">Todos</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="pagado">Pagado</option>
+              <option value="enviado">Enviado</option>
+              <option value="entregado">Entregado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <button (click)="applyFilters()" class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-sm font-medium">
+              Filtrar
+            </button>
+            <button (click)="clearFilters()" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-sm font-medium">
+              Limpiar
+            </button>
+          </div>
         </div>
       </div>
 
@@ -72,8 +107,11 @@ import { environment } from '../../../../../environments/environment';
                       <option value="cancelado">Cancelado</option>
                     </select>
                     
-                    <button (click)="toggleDetails(order.id_orden)" class="mt-2 text-blue-600 hover:text-blue-800 text-xs block">
-                      {{ isExpanded(order.id_orden) ? 'Ocultar Detalles' : 'Ver Detalles' }}
+                    <button (click)="toggleDetails(order.id_orden)" class="mt-2 flex items-center text-indigo-600 hover:text-indigo-800 text-xs font-medium transition-colors">
+                      <span class="mr-1">{{ isExpanded(order.id_orden) ? 'Ocultar Detalles' : 'Ver Detalles' }}</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200" [class.rotate-180]="isExpanded(order.id_orden)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
                     </button>
                   </td>
                 </tr>
@@ -228,24 +266,134 @@ import { environment } from '../../../../../environments/environment';
           No hay pedidos registrados.
         </div>
       </div>
+      <!-- Pagination -->
+      <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4 rounded-lg shadow">
+        <div class="flex-1 flex justify-between sm:hidden">
+          <button 
+            [disabled]="currentPage() === 1"
+            (click)="changePage(currentPage() - 1)"
+            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Anterior
+          </button>
+          <button 
+            [disabled]="currentPage() === totalPages()"
+            (click)="changePage(currentPage() + 1)"
+            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Siguiente
+          </button>
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm text-gray-700">
+              Mostrando <span class="font-medium">{{ (currentPage() - 1) * itemsPerPage() + 1 }}</span> a <span class="font-medium">{{ Math.min(currentPage() * itemsPerPage(), totalItems()) }}</span> de <span class="font-medium">{{ totalItems() }}</span> resultados
+            </p>
+          </div>
+          <div>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <button 
+                [disabled]="currentPage() === 1"
+                (click)="changePage(currentPage() - 1)"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="sr-only">Anterior</span>
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              
+              <button 
+                *ngFor="let page of [].constructor(totalPages()); let i = index"
+                (click)="changePage(i + 1)"
+                [class.bg-indigo-50]="currentPage() === i + 1"
+                [class.text-indigo-600]="currentPage() === i + 1"
+                [class.border-indigo-500]="currentPage() === i + 1"
+                [class.z-10]="currentPage() === i + 1"
+                class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                {{ i + 1 }}
+              </button>
+
+              <button 
+                [disabled]="currentPage() === totalPages()"
+                (click)="changePage(currentPage() + 1)"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="sr-only">Siguiente</span>
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </nav>
+          </div>
+        </div>
+      </div>
     </div>
   `
 })
 export class OrdersListComponent {
   orderService = inject(OrderService);
+  toastService = inject(ToastService);
   orders = signal<Order[]>([]);
   expandedOrders = signal<Set<number>>(new Set());
   imageBaseUrl = environment.imageBaseUrl;
+  
+  // Pagination & Filter Signals
+  startDate = signal('');
+  endDate = signal('');
+  statusFilter = signal('');
+  
+  currentPage = signal(1);
+  itemsPerPage = signal(10);
+  totalItems = signal(0);
+  totalPages = signal(0);
+  Math = Math;
 
   constructor() {
     this.loadOrders();
   }
 
   loadOrders() {
-    this.orderService.getOrders().subscribe({
-      next: (data) => this.orders.set(data),
+    const params: any = {
+      page: this.currentPage(),
+      limit: this.itemsPerPage()
+    };
+    
+    if (this.startDate()) params.startDate = this.startDate();
+    if (this.endDate()) params.endDate = this.endDate();
+    if (this.statusFilter()) params.status = this.statusFilter();
+
+    this.orderService.getOrders(params).subscribe({
+      next: (res: any) => {
+        if (res.orders && Array.isArray(res.orders)) {
+           this.orders.set(res.orders);
+           this.totalItems.set(res.total || res.orders.length);
+           this.totalPages.set(res.totalPages || 1);
+        } else if (Array.isArray(res)) {
+           // Fallback logic
+           this.orders.set(res);
+           this.totalItems.set(res.length);
+           this.totalPages.set(1);
+        }
+      },
       error: (err) => console.error('Error loading orders', err)
     });
+  }
+  
+  applyFilters() {
+    this.currentPage.set(1);
+    this.loadOrders();
+  }
+  
+  clearFilters() {
+    this.startDate.set('');
+    this.endDate.set('');
+    this.statusFilter.set('');
+    this.currentPage.set(1);
+    this.loadOrders();
+  }
+  
+  changePage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      this.loadOrders();
+    }
   }
 
   toggleDetails(orderId: number) {
@@ -270,20 +418,21 @@ export class OrdersListComponent {
 
     this.orderService.updateOrderStatus(orderId, newStatus).subscribe({
       next: (updatedOrder) => {
+        this.toastService.show(`Estado del pedido #${orderId} actualizado a ${newStatus}`, 'success');
         this.orders.update(orders => 
           orders.map(o => o.id_orden === orderId ? { ...o, estado: updatedOrder.estado as any } : o)
         );
       },
       error: (err) => {
         console.error('Error updating status', err);
-        // Revert change if needed or show alert
-        alert('Error al actualizar el estado');
+        this.toastService.show('Error al actualizar el estado', 'error');
         this.loadOrders(); // Reload to revert UI
       }
     });
   }
 
   downloadOrderPDF(orderId: number) {
+    this.toastService.show('Generando PDF...', 'info');
     this.orderService.downloadPDF(orderId).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -292,10 +441,11 @@ export class OrdersListComponent {
         link.download = `Orden-${orderId}.pdf`;
         link.click();
         window.URL.revokeObjectURL(url);
+        this.toastService.show('PDF descargado correctamente', 'success');
       },
       error: (err) => {
         console.error('Error al descargar PDF:', err);
-        alert('Error al descargar el comprobante PDF');
+        this.toastService.show('Error al descargar el comprobante PDF', 'error');
       }
     });
   }

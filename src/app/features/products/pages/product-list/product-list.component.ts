@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductsService } from '../../services/products.service';
 import { CategoriesService } from '../../services/categories.service';
 import { BrandsService } from '../../services/brands.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { Product, Category, Brand, ProductImage } from '../../models/product.model';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
@@ -22,15 +23,32 @@ import { environment } from '../../../../../environments/environment';
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white p-4 rounded shadow mb-6 flex flex-col md:flex-row gap-4">
-        <input 
-          type="text" 
-          placeholder="Buscar producto..." 
-          class="border p-2 rounded flex-grow"
-          [(ngModel)]="searchTerm"
-          (keyup.enter)="loadProducts()"
-        >
-        <button (click)="loadProducts()" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 w-full md:w-auto">Buscar</button>
+      <div class="bg-white p-4 rounded shadow mb-6 flex flex-col md:flex-row gap-4 items-center">
+        <div class="flex-grow w-full md:w-auto">
+          <input 
+            type="text" 
+            placeholder="Buscar producto..." 
+            class="w-full border p-2 rounded"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            (keyup.enter)="onSearch()"
+          >
+        </div>
+        
+        <div class="w-full md:w-64">
+          <select 
+            [ngModel]="selectedCategoryId()" 
+            (ngModelChange)="onCategoryChange($event)"
+            class="w-full border p-2 rounded bg-white"
+          >
+            <option [ngValue]="null">Todas las Categorías</option>
+            <option *ngFor="let cat of categories()" [ngValue]="cat.id_categoria">
+              {{ cat.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <button (click)="onSearch()" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 w-full md:w-auto">Buscar</button>
       </div>
 
       <!-- Desktop View (Table) -->
@@ -40,6 +58,7 @@ import { environment } from '../../../../../environments/environment';
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
@@ -61,6 +80,9 @@ import { environment } from '../../../../../environments/environment';
                 <div class="text-sm text-gray-500">{{ product.codigo_sku }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ product.category?.nombre || 'Sin categoría' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 S/. {{ product.precio }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -72,12 +94,22 @@ import { environment } from '../../../../../environments/environment';
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button (click)="openModal(product)" class="text-indigo-600 hover:text-indigo-900 mr-4">Editar</button>
-                <button (click)="deleteProduct(product.id_producto!)" class="text-red-600 hover:text-red-900">Eliminar</button>
+                <div class="flex space-x-2">
+                  <button (click)="openModal(product)" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 p-2 rounded-full transition-colors" title="Editar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button (click)="deleteProduct(product.id_producto!)" class="bg-red-50 text-red-600 hover:bg-red-100 p-2 rounded-full transition-colors" title="Eliminar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
               </td>
             </tr>
             <tr *ngIf="products().length === 0">
-              <td colspan="6" class="px-6 py-4 text-center text-gray-500">No hay productos encontrados.</td>
+              <td colspan="7" class="px-6 py-4 text-center text-gray-500">No hay productos encontrados.</td>
             </tr>
           </tbody>
         </table>
@@ -101,6 +133,7 @@ import { environment } from '../../../../../environments/environment';
                 </span>
               </div>
               <p class="text-xs text-gray-500 mt-1">SKU: {{ product.codigo_sku }}</p>
+              <p class="text-xs text-gray-500">{{ product.category?.nombre }}</p>
               <p class="text-lg font-bold text-gray-900 mt-2">S/. {{ product.precio }}</p>
             </div>
           </div>
@@ -110,14 +143,81 @@ import { environment } from '../../../../../environments/environment';
                Stock: <span class="font-medium text-gray-900">{{ product.stock }}</span>
              </div>
              <div class="flex space-x-3">
-               <button (click)="openModal(product)" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Editar</button>
-               <button (click)="deleteProduct(product.id_producto!)" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
+               <button (click)="openModal(product)" class="flex items-center space-x-1 bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-indigo-100 transition-colors">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                 </svg>
+                 <span>Editar</span>
+               </button>
+               <button (click)="deleteProduct(product.id_producto!)" class="flex items-center space-x-1 bg-red-50 text-red-600 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-red-100 transition-colors">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                 </svg>
+                 <span>Eliminar</span>
+               </button>
              </div>
           </div>
         </div>
         
         <div *ngIf="products().length === 0" class="text-center py-8 text-gray-500 bg-white rounded-lg shadow">
           No hay productos encontrados.
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded shadow" *ngIf="totalItems() > 0">
+        <div class="flex flex-1 justify-between sm:hidden">
+          <button 
+            [disabled]="currentPage() === 1"
+            (click)="changePage(currentPage() - 1)"
+            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Anterior
+          </button>
+          <button 
+            [disabled]="currentPage() === totalPages()"
+            (click)="changePage(currentPage() + 1)"
+            class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Siguiente
+          </button>
+        </div>
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm text-gray-700">
+              Mostrando <span class="font-medium">{{ (currentPage() - 1) * itemsPerPage() + 1 }}</span> a <span class="font-medium">{{ Math.min(currentPage() * itemsPerPage(), totalItems()) }}</span> de <span class="font-medium">{{ totalItems() }}</span> resultados
+            </p>
+          </div>
+          <div>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+              <button 
+                [disabled]="currentPage() === 1"
+                (click)="changePage(currentPage() - 1)"
+                class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+              >
+                <span class="sr-only">Anterior</span>
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              
+              <!-- Simple pagination: just show current page for now to keep it simple -->
+              <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
+                Página {{ currentPage() }} de {{ totalPages() }}
+              </span>
+
+              <button 
+                [disabled]="currentPage() === totalPages()"
+                (click)="changePage(currentPage() + 1)"
+                class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+              >
+                <span class="sr-only">Siguiente</span>
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </nav>
+          </div>
         </div>
       </div>
     </div>
@@ -260,13 +360,24 @@ export class ProductListComponent implements OnInit {
   private productsService = inject(ProductsService);
   private categoriesService = inject(CategoriesService);
   private brandsService = inject(BrandsService);
+  private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
   
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
   brands = signal<Brand[]>([]);
   
-  searchTerm = '';
+  // Filter Signals
+  searchTerm = signal('');
+  selectedCategoryId = signal<number | null>(null);
+  
+  // Pagination Signals
+  currentPage = signal(1);
+  itemsPerPage = signal(10);
+  totalItems = signal(0);
+  totalPages = signal(0);
+  Math = Math; // Make Math available in template
+
   apiUrl = environment.apiUrl;
   imageBaseUrl = environment.imageBaseUrl;
 
@@ -296,12 +407,53 @@ export class ProductListComponent implements OnInit {
   }
 
   loadProducts() {
-    this.productsService.getAll({ search: this.searchTerm }).subscribe({
-      next: (res) => {
-        this.products.set(res.products);
+    const params: any = {
+      page: this.currentPage(),
+      limit: this.itemsPerPage(),
+    };
+
+    if (this.searchTerm()) {
+      params.search = this.searchTerm();
+    }
+
+    if (this.selectedCategoryId()) {
+      params.category = this.selectedCategoryId();
+    }
+
+    this.productsService.getAll(params).subscribe({
+      next: (res: any) => {
+        // Handle response from backend (can be array or object with pagination)
+        if (res.products && Array.isArray(res.products)) {
+           this.products.set(res.products);
+           this.totalItems.set(res.total || res.products.length);
+           this.totalPages.set(res.totalPages || 1);
+        } else if (Array.isArray(res)) {
+           // Fallback for old API response
+           this.products.set(res);
+           this.totalItems.set(res.length);
+           this.totalPages.set(1);
+        }
       },
       error: (err) => console.error(err)
     });
+  }
+
+  onSearch() {
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  onCategoryChange(categoryId: number | null) {
+    this.selectedCategoryId.set(categoryId);
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  changePage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      this.loadProducts();
+    }
   }
 
   loadDependencies() {
@@ -313,7 +465,7 @@ export class ProductListComponent implements OnInit {
     if (product.images && product.images.length > 0) {
       return this.getImageUrl(product.images[0].url);
     }
-    return 'assets/img/placeholder.png'; // Asegurarse de tener un placeholder
+    return 'assets/img/placeholder.png';
   }
 
   getImageUrl(url: string): string {
@@ -341,13 +493,6 @@ export class ProductListComponent implements OnInit {
       this.isEditing = true;
       this.currentId = product.id_producto;
       
-      // Load full product details to get images if they aren't fully populated in list
-      // But since we have them in the list, we can use them. 
-      // However, if we need fresh data, we should fetch. 
-      // For now, let's use what we have or fetch if needed.
-      // Actually, list might not have all details if paginated/simplified.
-      // Let's fetch to be safe, or just use what passed if sufficient.
-      // The previous implementation fetched by ID.
       this.productsService.getById(product.id_producto!).subscribe(fullProduct => {
         this.productForm.patchValue({
           nombre: fullProduct.nombre,
@@ -399,7 +544,6 @@ export class ProductListComponent implements OnInit {
     if (confirm('¿Eliminar imagen?')) {
       this.productsService.deleteImage(imageId).subscribe(() => {
         this.existingImages = this.existingImages.filter(img => img.id_imagen !== imageId);
-        // Also update the list view if needed
         this.loadProducts(); 
       });
     }
@@ -411,8 +555,9 @@ export class ProductListComponent implements OnInit {
     this.isSubmitting = true;
     const formData = new FormData();
     
-    Object.keys(this.productForm.value).forEach(key => {
-      formData.append(key, this.productForm.get(key)?.value);
+    Object.keys(this.productForm.controls).forEach(key => {
+      const value = this.productForm.get(key)?.value;
+      formData.append(key, value);
     });
 
     this.selectedFiles.forEach(file => {
@@ -422,27 +567,29 @@ export class ProductListComponent implements OnInit {
     if (this.isEditing && this.currentId) {
       this.productsService.update(this.currentId, formData).subscribe({
         next: () => {
-          this.loadProducts();
+          this.toastService.show('Producto actualizado correctamente', 'success');
           this.closeModal();
+          this.loadProducts();
           this.isSubmitting = false;
         },
         error: (err) => {
           console.error(err);
+          this.toastService.show('Error al actualizar el producto', 'error');
           this.isSubmitting = false;
-          alert('Error al actualizar producto');
         }
       });
     } else {
       this.productsService.create(formData).subscribe({
         next: () => {
-          this.loadProducts();
+          this.toastService.show('Producto creado correctamente', 'success');
           this.closeModal();
+          this.loadProducts();
           this.isSubmitting = false;
         },
         error: (err) => {
           console.error(err);
+          this.toastService.show('Error al crear el producto', 'error');
           this.isSubmitting = false;
-          alert('Error al crear producto');
         }
       });
     }
@@ -452,9 +599,13 @@ export class ProductListComponent implements OnInit {
     if (confirm('¿Estás seguro de eliminar este producto?')) {
       this.productsService.delete(id).subscribe({
         next: () => {
+          this.toastService.show('Producto eliminado correctamente', 'success');
           this.loadProducts();
         },
-        error: (err) => alert('Error al eliminar producto')
+        error: (err) => {
+          console.error(err);
+          this.toastService.show('Error al eliminar el producto', 'error');
+        }
       });
     }
   }

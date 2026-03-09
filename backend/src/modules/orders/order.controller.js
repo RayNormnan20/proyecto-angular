@@ -3,6 +3,8 @@ const { Order, OrderItem, Product, User, ProductImage, PaymentMethod } = require
 const { sendOrderConfirmation } = require('../../utils/email.utils');
 const { generateOrderPDF } = require('../../utils/pdf.utils');
 
+const { Op } = require('sequelize');
+
 const createOrder = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -140,6 +142,9 @@ const createOrder = async (req, res) => {
 const getOrders = async (req, res) => {
   try {
     const { role, id } = req.user;
+    const { page = 1, limit = 10, startDate, endDate, status } = req.query;
+    const offset = (page - 1) * limit;
+
     const whereClause = {};
 
     // If not admin/staff, only show own orders
@@ -147,8 +152,30 @@ const getOrders = async (req, res) => {
       whereClause.usuario_id = id;
     }
 
-    const orders = await Order.findAll({
+    // Date Filters
+    if (startDate && endDate) {
+      whereClause.fecha = {
+        [Op.between]: [new Date(startDate), new Date(endDate)]
+      };
+    } else if (startDate) {
+      whereClause.fecha = {
+        [Op.gte]: new Date(startDate)
+      };
+    } else if (endDate) {
+      whereClause.fecha = {
+        [Op.lte]: new Date(endDate)
+      };
+    }
+
+    // Status Filter
+    if (status) {
+      whereClause.estado = status;
+    }
+
+    const { count, rows } = await Order.findAndCountAll({
       where: whereClause,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
       include: [
         { 
           model: User, 
@@ -168,10 +195,16 @@ const getOrders = async (req, res) => {
           ]
         }
       ],
-      order: [['fecha', 'DESC']]
+      order: [['fecha', 'DESC']],
+      distinct: true
     });
 
-    res.json(orders);
+    res.json({
+      total: count,
+      totalPages: Math.ceil(count / limit),
+      currentPage: parseInt(page),
+      orders: rows
+    });
   } catch (error) {
     console.error('Error fetching orders:', error);
     res.status(500).json({ message: 'Error al obtener las órdenes' });

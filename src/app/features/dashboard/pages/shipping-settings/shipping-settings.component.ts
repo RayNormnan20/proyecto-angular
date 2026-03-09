@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SettingsService } from '../../../../core/services/settings.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-shipping-settings',
@@ -13,10 +14,10 @@ import { AuthService } from '../../../../core/services/auth.service';
 export class ShippingSettingsComponent {
   private settingsService = inject(SettingsService);
   public authService = inject(AuthService);
+  private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
   
   isSaving = signal(false);
-  message = signal('');
   
   // Shipping Costs
   shippingCosts = signal<{district: string, cost: number}[]>([]);
@@ -77,10 +78,11 @@ export class ShippingSettingsComponent {
 
     const { district, cost } = this.shippingForm.value;
     const newCost = { district, cost: Number(cost) };
+    const isEditing = this.currentEditIndex() !== null;
 
     this.shippingCosts.update(costs => {
       const updatedCosts = [...costs];
-      if (this.currentEditIndex() !== null) {
+      if (isEditing) {
         // Edit existing
         updatedCosts[this.currentEditIndex()!] = newCost;
       } else {
@@ -90,20 +92,19 @@ export class ShippingSettingsComponent {
       return updatedCosts;
     });
 
-    this.saveSettings();
+    this.saveSettings(isEditing ? 'Costo actualizado correctamente' : 'Costo agregado correctamente');
     this.closeModal();
   }
 
   deleteCost(index: number) {
     if (confirm('¿Estás seguro de eliminar este costo de envío?')) {
       this.shippingCosts.update(costs => costs.filter((_, i) => i !== index));
-      this.saveSettings();
+      this.saveSettings('Costo eliminado correctamente');
     }
   }
 
-  saveSettings() {
+  saveSettings(successMessage: string = 'Configuración actualizada') {
     this.isSaving.set(true);
-    this.message.set('');
     
     const dataToUpdate = {
       shipping_costs: JSON.stringify(this.shippingCosts())
@@ -112,12 +113,11 @@ export class ShippingSettingsComponent {
     this.settingsService.updateSettings(dataToUpdate).subscribe({
       next: () => {
         this.isSaving.set(false);
-        this.message.set('Configuración actualizada');
-        setTimeout(() => this.message.set(''), 3000);
+        this.toastService.show(successMessage, 'success');
       },
       error: (err) => {
         console.error('Error saving settings', err);
-        this.message.set('Error al guardar configuración');
+        this.toastService.show('Error al guardar configuración', 'error');
         this.isSaving.set(false);
       }
     });

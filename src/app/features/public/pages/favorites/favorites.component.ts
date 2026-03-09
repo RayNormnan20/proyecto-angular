@@ -22,7 +22,7 @@ import { environment } from '../../../../../environments/environment';
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
         <p class="text-xl text-gray-600 mb-4">No tienes productos en favoritos</p>
-        <a routerLink="/" class="text-blue-600 hover:text-blue-800 font-medium">
+        <a routerLink="/" class="text-indigo-600 hover:text-indigo-800 font-medium">
           Explorar productos
         </a>
       </div>
@@ -50,7 +50,7 @@ import { environment } from '../../../../../environments/environment';
           <!-- Product Info -->
           <div class="p-4">
             <h3 class="text-lg font-semibold text-gray-800 mb-1 truncate">
-              <a [routerLink]="['/product', product.id_producto]" class="hover:text-blue-600">
+              <a [routerLink]="['/product', product.id_producto]" class="hover:text-indigo-600">
                 {{ product.nombre }}
               </a>
             </h3>
@@ -60,7 +60,7 @@ import { environment } from '../../../../../environments/environment';
               <span class="text-xl font-bold text-gray-900">S/. {{ product.precio }}</span>
               <a 
                 [routerLink]="['/product', product.id_producto]" 
-                class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                class="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700 transition-colors"
               >
                 Ver Detalle
               </a>

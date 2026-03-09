@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth.service';
 import { OrderService, Order } from '../../../../core/services/order.service';
+import { FavoriteService } from '../../../favorites/services/favorite.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -11,7 +12,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <div class="bg-gray-50 min-h-screen pb-12">
       <!-- Header / Banner -->
-      <div class="h-48 bg-gradient-to-r from-blue-600 to-indigo-700 w-full relative overflow-hidden">
+      <div class="h-48 bg-gradient-to-r from-indigo-600 to-indigo-800 w-full relative overflow-hidden">
          <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
       </div>
 
@@ -24,21 +25,21 @@ import { RouterLink } from '@angular/router';
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
               <div class="p-6 text-center border-b border-gray-100">
                 <div class="w-32 h-32 mx-auto bg-white p-1 rounded-full shadow-lg -mt-16 mb-4 relative">
-                   <div class="w-full h-full rounded-full bg-blue-100 flex items-center justify-center text-4xl font-bold text-blue-600 border-4 border-white">
+                   <div class="w-full h-full rounded-full bg-indigo-100 flex items-center justify-center text-4xl font-bold text-indigo-600 border-4 border-white">
                      {{ (currentUser()?.nombre || 'U').charAt(0).toUpperCase() }}
                    </div>
                 </div>
                 
                 <h2 class="text-xl font-bold text-gray-800">{{ currentUser()?.nombre }}</h2>
                 <p class="text-sm text-gray-500 mb-2">{{ currentUser()?.email }}</p>
-                <span class="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold uppercase tracking-wide">
+                <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-semibold uppercase tracking-wide">
                   {{ currentUser()?.role || 'Usuario' }}
                 </span>
               </div>
               
               <div class="p-4">
                 <nav class="space-y-1">
-                  <a class="flex items-center px-4 py-2 text-gray-700 bg-gray-50 rounded-md font-medium border-l-4 border-blue-600 cursor-pointer">
+                  <a class="flex items-center px-4 py-2 text-gray-700 bg-gray-50 rounded-md font-medium border-l-4 border-indigo-600 cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -51,44 +52,44 @@ import { RouterLink } from '@angular/router';
 
           <!-- Main Area: Details -->
           <div class="w-full md:w-2/3 lg:w-3/4">
-            <!-- Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-               <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center">
-                  <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                     </svg>
-                  </div>
-                  <div>
-                     <div class="text-2xl font-bold text-gray-800">{{ activeOrdersCount() }}</div>
-                     <div class="text-xs text-gray-500 uppercase font-medium">Pedidos Activos</div>
-                  </div>
-               </div>
-               
-               <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center">
-                  <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                     </svg>
-                  </div>
-                  <div>
-                     <div class="text-2xl font-bold text-gray-800">0</div>
-                     <div class="text-xs text-gray-500 uppercase font-medium">Favoritos</div>
-                  </div>
-               </div>
-
-               <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center">
-                  <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                     </svg>
-                  </div>
-                  <div>
-                     <div class="text-2xl font-bold text-gray-800">0</div>
-                     <div class="text-xs text-gray-500 uppercase font-medium">Puntos</div>
-                  </div>
-               </div>
+          <!-- Stats Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
+              <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500 font-medium">Pedidos Totales</p>
+                <p class="text-2xl font-bold text-gray-800">{{ stats().totalOrders }}</p>
+              </div>
             </div>
+            
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
+              <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500 font-medium">Favoritos</p>
+                <p class="text-2xl font-bold text-gray-800">{{ stats().wishlistCount }}</p>
+              </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
+              <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500 font-medium">Puntos Nova</p>
+                <p class="text-2xl font-bold text-gray-800">{{ stats().points }}</p>
+              </div>
+            </div>
+          </div>
 
             <!-- Profile Info -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -128,7 +129,7 @@ import { RouterLink } from '@angular/router';
               <div *ngIf="orders().length === 0" class="text-center py-8 text-gray-500">
                 No tienes pedidos registrados.
                 <div class="mt-4">
-                  <a routerLink="/products" class="text-blue-600 hover:underline">Ir a comprar</a>
+                  <a routerLink="/products" class="text-indigo-600 hover:underline">Ir a comprar</a>
                 </div>
               </div>
 
@@ -143,7 +144,7 @@ import { RouterLink } from '@angular/router';
                        <span [ngClass]="{
                         'bg-yellow-100 text-yellow-800': order.estado === 'pendiente',
                         'bg-green-100 text-green-800': order.estado === 'pagado' || order.estado === 'entregado',
-                        'bg-blue-100 text-blue-800': order.estado === 'enviado',
+                        'bg-indigo-100 text-indigo-800': order.estado === 'enviado',
                         'bg-red-100 text-red-800': order.estado === 'cancelado'
                       }" class="px-3 py-1 text-xs font-semibold rounded-full capitalize">
                         {{ order.estado }}
@@ -180,6 +181,7 @@ import { RouterLink } from '@angular/router';
 export class ProfileComponent {
   private authService = inject(AuthService);
   private orderService = inject(OrderService);
+  private favoriteService = inject(FavoriteService);
   
   currentUser = this.authService.currentUser;
   today = new Date();
@@ -187,8 +189,15 @@ export class ProfileComponent {
   
   activeOrdersCount = signal(0);
 
+  stats = computed(() => ({
+    totalOrders: this.orders().length,
+    wishlistCount: this.favoriteService.favoritesCount(),
+    points: Math.floor(this.orders().reduce((acc, order) => acc + Number(order.total || 0), 0) * 0.1) // 1 point per 10 currency units
+  }));
+
   constructor() {
     this.loadOrders();
+    this.favoriteService.loadFavoritesCount();
   }
 
   loadOrders() {

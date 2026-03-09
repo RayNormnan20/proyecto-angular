@@ -106,6 +106,15 @@ import { environment } from '../../../../../environments/environment';
                     <div class="mt-1" *ngIf="order.notas">
                        <p><span class="font-bold">Notas:</span> {{ order.notas }}</p>
                     </div>
+                    
+                    <div class="mt-4 pt-3 border-t border-gray-200">
+                        <button (click)="downloadOrderPDF(order.id_orden)" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm transition-colors">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                           </svg>
+                           Descargar PDF del Pedido
+                        </button>
+                    </div>
                     </div>
                   </td>
                 </tr>
@@ -203,6 +212,15 @@ import { environment } from '../../../../../environments/environment';
                <span class="font-bold text-xs text-gray-500 uppercase block">Notas</span>
                <p class="italic text-gray-600">{{ order.notas }}</p>
             </div>
+
+            <div class="mt-4 pt-3 border-t border-gray-200">
+                <button (click)="downloadOrderPDF(order.id_orden)" class="w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm transition-colors">
+                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                   </svg>
+                   Descargar PDF
+                </button>
+            </div>
           </div>
         </div>
 
@@ -261,6 +279,23 @@ export class OrdersListComponent {
         // Revert change if needed or show alert
         alert('Error al actualizar el estado');
         this.loadOrders(); // Reload to revert UI
+      }
+    });
+  }
+
+  downloadOrderPDF(orderId: number) {
+    this.orderService.downloadPDF(orderId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Orden-${orderId}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error al descargar PDF:', err);
+        alert('Error al descargar el comprobante PDF');
       }
     });
   }

@@ -24,8 +24,8 @@ import { AuthApiService } from '../../services/auth-api.service';
       <div class="flex w-full items-center justify-center lg:w-1/2 overflow-y-auto py-10">
         <div class="w-full max-w-lg px-8 py-10 bg-white shadow-2xl rounded-xl mx-4 my-auto">
           <div class="text-center mb-8">
-            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 mb-4">
-              <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 mb-4">
+              <svg class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
               </svg>
             </div>
@@ -46,7 +46,7 @@ import { AuthApiService } from '../../services/auth-api.service';
                     </svg>
                   </div>
                   <input
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500': registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched}"
                     id="nombre" type="text" formControlName="nombre" placeholder="Juan"
                   />
@@ -66,7 +66,7 @@ import { AuthApiService } from '../../services/auth-api.service';
                     </svg>
                   </div>
                   <input
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500': registerForm.get('apellidos')?.invalid && registerForm.get('apellidos')?.touched}"
                     id="apellidos" type="text" formControlName="apellidos" placeholder="Pérez"
                   />
@@ -88,7 +88,7 @@ import { AuthApiService } from '../../services/auth-api.service';
                     </svg>
                   </div>
                   <input
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500': registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched}"
                     id="telefono" type="tel" formControlName="telefono" placeholder="987654321"
                   />
@@ -109,7 +109,7 @@ import { AuthApiService } from '../../services/auth-api.service';
                     </svg>
                   </div>
                   <input
-                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500': registerForm.get('direccion')?.invalid && registerForm.get('direccion')?.touched}"
                     id="direccion" type="text" formControlName="direccion" placeholder="Av. Principal 123"
                   />
@@ -130,7 +130,7 @@ import { AuthApiService } from '../../services/auth-api.service';
                   </svg>
                 </div>
                 <input
-                  class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500': registerForm.get('email')?.invalid && registerForm.get('email')?.touched}"
                   id="email" type="email" formControlName="email" placeholder="ejemplo@empresa.com"
                 />
@@ -150,7 +150,7 @@ import { AuthApiService } from '../../services/auth-api.service';
                   </svg>
                 </div>
                 <input
-                  class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-2.5 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500': registerForm.get('password')?.invalid && registerForm.get('password')?.touched}"
                   id="password" type="password" formControlName="password" placeholder="••••••••"
                 />
@@ -162,12 +162,12 @@ import { AuthApiService } from '../../services/auth-api.service';
 
             <div class="pt-2">
               <button
-                class="group relative flex w-full justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out shadow-lg hover:shadow-xl"
+                class="group relative flex w-full justify-center rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out shadow-lg hover:shadow-xl"
                 type="submit"
                 [disabled]="registerForm.invalid || isLoading"
               >
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <svg *ngIf="!isLoading" class="h-5 w-5 text-blue-500 group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg *ngIf="!isLoading" class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                   </svg>
                   <svg *ngIf="isLoading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -218,7 +218,7 @@ import { AuthApiService } from '../../services/auth-api.service';
           <div class="mt-6 text-center">
             <p class="text-sm text-gray-600">
               ¿Ya tienes una cuenta?
-              <a routerLink="/auth/login" class="font-medium text-blue-600 hover:text-blue-500">Inicia sesión aquí</a>
+              <a routerLink="/auth/login" class="font-medium text-indigo-600 hover:text-indigo-500">Inicia sesión aquí</a>
             </p>
           </div>
         </div>

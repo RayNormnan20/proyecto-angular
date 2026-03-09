@@ -24,8 +24,8 @@ import { AuthService } from '../../../core/services/auth.service';
       <!-- Logo Area -->
       <div class="flex items-center justify-between h-16 px-6 bg-[#1a1c23] border-b border-gray-800 shrink-0">
         <div class="flex items-center space-x-2">
-            <!-- Orange Icon like reference -->
-            <div class="text-orange-500">
+            <!-- Indigo Icon like reference -->
+            <div class="text-indigo-500">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                 </svg>
@@ -43,7 +43,7 @@ import { AuthService } from '../../../core/services/auth.service';
         
         <a 
             routerLink="/dashboard" 
-            routerLinkActive="bg-[#252830] text-white border-l-4 border-orange-500" 
+            routerLinkActive="bg-[#252830] text-white border-l-4 border-indigo-500" 
             [routerLinkActiveOptions]="{exact: true}" 
             (click)="close.emit()"
             class="flex items-center px-4 py-3 text-gray-400 hover:bg-[#252830] hover:text-white transition-all duration-200 group rounded-r-md"
@@ -57,7 +57,7 @@ import { AuthService } from '../../../core/services/auth.service';
         <!-- Pedidos -->
         <a 
             routerLink="/dashboard/orders" 
-            routerLinkActive="bg-[#252830] text-white border-l-4 border-orange-500" 
+            routerLinkActive="bg-[#252830] text-white border-l-4 border-indigo-500" 
             (click)="close.emit()"
             class="flex items-center px-4 py-3 text-gray-400 hover:bg-[#252830] hover:text-white transition-all duration-200 group rounded-r-md"
         >
@@ -68,7 +68,7 @@ import { AuthService } from '../../../core/services/auth.service';
         </a>
 
         <!-- Configuración (Desplegable) -->
-        <ng-container *ngIf="authService.hasRole('admin') || authService.hasPermission('VER_CONFIGURACION') || authService.hasPermission('VER_ENVIOS')">
+        <ng-container *ngIf="authService.hasRole('admin') || authService.hasPermission('VER_CONFIGURACION') || authService.hasPermission('VER_ENVIOS') || authService.hasPermission('VER_LOGS_EMAIL') || authService.hasPermission('VER_TESTIMONIOS') || authService.hasPermission('VER_METODOS_PAGO')">
             <!-- Botón Padre -->
             <button 
                 (click)="toggleSettingsMenu()"
@@ -97,9 +97,9 @@ import { AuthService } from '../../../core/services/auth.service';
                 class="bg-[#15171e] overflow-hidden transition-all duration-300"
             >
                 <a 
-                    *ngIf="authService.hasRole('admin') || authService.hasPermission('GESTIONAR_CONFIGURACION')"
+                    *ngIf="authService.hasRole('admin') || authService.hasPermission('GESTIONAR_CONFIGURACION') || authService.hasPermission('VER_METODOS_PAGO')"
                     routerLink="/dashboard/payment-settings" 
-                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
                     (click)="close.emit()"
                     class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
                 >
@@ -112,40 +112,40 @@ import { AuthService } from '../../../core/services/auth.service';
                 <a 
                     *ngIf="authService.hasRole('admin') || authService.hasPermission('VER_ENVIOS')"
                     routerLink="/dashboard/shipping-settings" 
-                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
                     (click)="close.emit()"
                     class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
                 >
                     <span class="mr-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 10-4 0 2 2 0 004 0zm10 0a2 2 0 10-4 0 2 2 0 004 0z" /></svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </span>
-                    Costo Envíos
+                    Config. Envíos
                 </a>
 
                 <a 
-                    *ngIf="authService.hasRole('admin') || authService.hasPermission('GESTIONAR_CONFIGURACION')"
-                    routerLink="/dashboard/email-settings" 
-                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
-                    (click)="close.emit()"
-                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
-                >
-                    <span class="mr-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                    </span>
-                    Configuración Correo
-                </a>
-
-                <a 
-                    *ngIf="authService.hasRole('admin') || authService.hasPermission('GESTIONAR_CONFIGURACION')"
+                    *ngIf="authService.hasRole('admin') || authService.hasPermission('VER_TESTIMONIOS')"
                     routerLink="/dashboard/testimonial-settings" 
-                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
                     (click)="close.emit()"
                     class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
                 >
                     <span class="mr-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                     </span>
-                    Clientes Satisfechos
+                    Testimonios
+                </a>
+
+                <a 
+                    *ngIf="authService.hasRole('admin') || authService.hasPermission('VER_LOGS_EMAIL')"
+                    routerLink="/dashboard/email-settings" 
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
+                    (click)="close.emit()"
+                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
+                >
+                    <span class="mr-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    </span>
+                    Config. Email
                 </a>
             </div>
         </ng-container>
@@ -183,7 +183,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 <a 
                     *ngIf="authService.hasPermission('VER_PRODUCTOS')"
                     routerLink="/dashboard/products" 
-                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
                     (click)="close.emit()"
                     class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
                 >
@@ -196,7 +196,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 <a 
                     *ngIf="authService.hasPermission('VER_CATEGORIAS')"
                     routerLink="/dashboard/categories" 
-                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
                     (click)="close.emit()"
                     class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
                 >
@@ -209,7 +209,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 <a 
                     *ngIf="authService.hasPermission('VER_MARCAS')"
                     routerLink="/dashboard/brands" 
-                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
                     (click)="close.emit()"
                     class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
                 >
@@ -256,7 +256,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 <a 
                     *ngIf="authService.hasPermission('VER_USUARIOS')"
                     routerLink="/dashboard/users" 
-                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
                     (click)="close.emit()"
                     class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
                 >
@@ -269,7 +269,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 <a 
                     *ngIf="authService.hasPermission('VER_ROLES')"
                     routerLink="/dashboard/roles" 
-                    routerLinkActive="text-white border-l-4 border-orange-500 bg-[#252830]"
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
                     (click)="close.emit()"
                     class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
                 >

@@ -1,6 +1,7 @@
 const { sequelize } = require('../../config/database');
 const { Order, OrderItem, Product, User, ProductImage, PaymentMethod } = require('../associations');
 const { sendOrderConfirmation } = require('../../utils/email.utils');
+const { generateOrderPDF } = require('../../utils/pdf.utils');
 
 const createOrder = async (req, res) => {
   const t = await sequelize.transaction();
@@ -115,8 +116,16 @@ const createOrder = async (req, res) => {
 
     // Send confirmation email asynchronously
     if (createdOrder && createdOrder.user) {
-      sendOrderConfirmation(createdOrder, createdOrder.user, createdOrder.items)
-        .catch(err => console.error('Error sending confirmation email:', err));
+      try {
+        const pdfBuffer = await generateOrderPDF(createdOrder, createdOrder.items);
+        sendOrderConfirmation(createdOrder, createdOrder.user, createdOrder.items, pdfBuffer)
+          .catch(err => console.error('Error sending confirmation email:', err));
+      } catch (pdfError) {
+        console.error('Error generating PDF for email:', pdfError);
+        // Fallback: send email without PDF
+        sendOrderConfirmation(createdOrder, createdOrder.user, createdOrder.items)
+          .catch(err => console.error('Error sending confirmation email fallback:', err));
+      }
     }
 
     res.status(201).json(createdOrder);
@@ -234,9 +243,49 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const downloadOrderPDF = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    const order = await Order.findByPk(id, {
+      include: [
+        { model: User, as: 'user' },
+        { model: PaymentMethod, as: 'paymentMethod' },
+        {
+          model: OrderItem,
+          as: 'items',
+          include: [{ model: Product, as: 'product' }]
+        }
+      ]
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: 'Orden no encontrada' });
+    }
+
+    // Check permissions
+    if (userRole !== 'admin' && userRole !== 'supervisor' && userRole !== 'trabajador' && order.usuario_id !== userId) {
+      return res.status(403).json({ message: 'No tiene permiso para descargar este comprobante' });
+    }
+
+    const pdfBuffer = await generateOrderPDF(order, order.items);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=Orden-${order.id_orden}.pdf`);
+    res.send(pdfBuffer);
+
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(500).json({ message: 'Error al generar el PDF' });
+  }
+};
+
 module.exports = {
   createOrder,
   getOrders,
   getOrderById,
-  updateOrderStatus
+  updateOrderStatus,
+  downloadOrderPDF
 };

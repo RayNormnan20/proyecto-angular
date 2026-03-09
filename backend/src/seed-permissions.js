@@ -10,7 +10,13 @@ const seedPermissions = async () => {
     await sequelize.getQueryInterface().dropTable('roles_permisos'); // Potential default name
     await sequelize.getQueryInterface().dropTable('permisos');
 
-    await sequelize.sync({ alter: true }); // Ensure tables exist and match models
+    // await sequelize.sync({ alter: true }); // Ensure tables exist and match models
+    await Permission.sync({ force: true });
+    await Role.sync(); 
+    // Sync the through table
+    if (sequelize.models.role_permissions) {
+      await sequelize.models.role_permissions.sync({ force: true });
+    }
 
     // 0. Ensure Roles Exist
     const roles = ['admin', 'trabajador', 'supervisor', 'usuario'];
@@ -57,6 +63,18 @@ const seedPermissions = async () => {
       { nombre: 'CREAR_ENVIO', descripcion: 'Puede agregar nuevos costos de envío' },
       { nombre: 'EDITAR_ENVIO', descripcion: 'Puede editar costos de envío' },
       { nombre: 'ELIMINAR_ENVIO', descripcion: 'Puede eliminar costos de envío' },
+      // Testimonios
+      { nombre: 'VER_TESTIMONIOS', descripcion: 'Puede ver la lista de testimonios' },
+      { nombre: 'GESTIONAR_TESTIMONIOS', descripcion: 'Puede aprobar o editar testimonios' },
+      { nombre: 'ELIMINAR_TESTIMONIO', descripcion: 'Puede eliminar testimonios' },
+      // Logs de Email
+      { nombre: 'VER_LOGS_EMAIL', descripcion: 'Puede ver el historial de correos enviados' },
+      // Métodos de Pago
+      { nombre: 'VER_METODOS_PAGO', descripcion: 'Puede ver métodos de pago configurados' },
+      { nombre: 'GESTIONAR_METODOS_PAGO', descripcion: 'Puede agregar o editar métodos de pago' },
+      { nombre: 'ELIMINAR_METODO_PAGO', descripcion: 'Puede eliminar métodos de pago' },
+      // Dashboard
+      { nombre: 'VER_DASHBOARD', descripcion: 'Puede ver el panel principal y estadísticas' },
     ];
 
     for (const perm of permissions) {
@@ -97,7 +115,12 @@ const seedPermissions = async () => {
                     'VER_CATEGORIAS', 'CREAR_CATEGORIA', 'EDITAR_CATEGORIA',
                     'VER_MARCAS', 'CREAR_MARCA', 'EDITAR_MARCA',
                     'VER_PEDIDOS', 'GESTIONAR_PEDIDOS',
-                    'VER_CONFIGURACION'
+                    'VER_ENVIOS', 'CREAR_ENVIO', 'EDITAR_ENVIO',
+                    'VER_CONFIGURACION',
+                    'VER_TESTIMONIOS', 'GESTIONAR_TESTIMONIOS',
+                    'VER_LOGS_EMAIL',
+                    'VER_METODOS_PAGO', 'GESTIONAR_METODOS_PAGO',
+                    'VER_DASHBOARD'
                 ]
              }
          });

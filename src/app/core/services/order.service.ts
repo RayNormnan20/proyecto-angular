@@ -67,4 +67,8 @@ export class OrderService {
   updateOrderStatus(id: number, estado: string): Observable<Order> {
     return this.http.put<Order>(`${this.apiUrl}/${id}/status`, { estado });
   }
+
+  downloadPDF(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/pdf`, { responseType: 'blob' });
+  }
 }

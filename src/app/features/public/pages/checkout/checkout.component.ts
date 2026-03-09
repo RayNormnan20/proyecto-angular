@@ -30,10 +30,10 @@ import { environment } from '../../../../../environments/environment';
             </div>
             <div class="w-12 h-0.5 bg-gray-200 mx-2 sm:mx-4 rounded-full"></div>
             <div class="flex items-center">
-              <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold shadow-sm ring-4 ring-blue-50 text-sm">
+              <div class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-bold shadow-sm ring-4 ring-indigo-50 text-sm">
                 2
               </div>
-              <span class="ml-2 font-bold text-blue-600 text-sm hidden sm:inline">Pago y Envío</span>
+              <span class="ml-2 font-bold text-indigo-600 text-sm hidden sm:inline">Pago y Envío</span>
             </div>
             <div class="w-12 h-0.5 bg-gray-200 mx-2 sm:mx-4 rounded-full"></div>
             <div class="flex items-center">
@@ -48,7 +48,7 @@ import { environment } from '../../../../../environments/environment';
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
           <h1 class="text-2xl font-bold text-gray-900">Finalizar Compra</h1>
-          <a routerLink="/cart" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center transition-colors">
+          <a routerLink="/cart" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -67,7 +67,7 @@ import { environment } from '../../../../../environments/environment';
               <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
                 <div class="p-6 border-b border-gray-100 bg-gray-50/50">
                   <h2 class="text-lg font-semibold text-gray-800 flex items-center">
-                    <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mr-3 text-sm font-bold shadow-sm">1</span>
+                    <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mr-3 text-sm font-bold shadow-sm">1</span>
                     Método de Entrega
                   </h2>
                 </div>
@@ -75,13 +75,13 @@ import { environment } from '../../../../../environments/environment';
                 <div class="p-6 space-y-4">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Opción Recojo en Tienda -->
-                    <label class="relative border-2 rounded-xl p-4 cursor-pointer hover:border-blue-200 transition-all duration-200 group"
-                           [class.border-blue-500]="deliveryMethod() === 'pickup'"
-                           [class.bg-blue-50]="deliveryMethod() === 'pickup'"
+                    <label class="relative border-2 rounded-xl p-4 cursor-pointer hover:border-indigo-200 transition-all duration-200 group"
+                           [class.border-indigo-500]="deliveryMethod() === 'pickup'"
+                           [class.bg-indigo-50]="deliveryMethod() === 'pickup'"
                            [class.border-gray-200]="deliveryMethod() !== 'pickup'">
                       <input type="radio" formControlName="metodo_entrega" value="pickup" class="sr-only">
                       <div class="flex items-center">
-                        <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 mr-3">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-3">
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                           </svg>
@@ -91,7 +91,7 @@ import { environment } from '../../../../../environments/environment';
                           <span class="text-xs text-gray-500">Gratis - Sin costo de envío</span>
                         </div>
                       </div>
-                      <div *ngIf="deliveryMethod() === 'pickup'" class="absolute top-4 right-4 text-blue-500">
+                      <div *ngIf="deliveryMethod() === 'pickup'" class="absolute top-4 right-4 text-indigo-500">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
@@ -99,13 +99,13 @@ import { environment } from '../../../../../environments/environment';
                     </label>
 
                     <!-- Opción Delivery -->
-                    <label class="relative border-2 rounded-xl p-4 cursor-pointer hover:border-blue-200 transition-all duration-200 group"
-                           [class.border-blue-500]="deliveryMethod() === 'delivery'"
-                           [class.bg-blue-50]="deliveryMethod() === 'delivery'"
+                    <label class="relative border-2 rounded-xl p-4 cursor-pointer hover:border-indigo-200 transition-all duration-200 group"
+                           [class.border-indigo-500]="deliveryMethod() === 'delivery'"
+                           [class.bg-indigo-50]="deliveryMethod() === 'delivery'"
                            [class.border-gray-200]="deliveryMethod() !== 'delivery'">
                       <input type="radio" formControlName="metodo_entrega" value="delivery" class="sr-only">
                       <div class="flex items-center">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-3">
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                           </svg>
@@ -115,7 +115,7 @@ import { environment } from '../../../../../environments/environment';
                           <span class="text-xs text-gray-500">Costo depende del distrito</span>
                         </div>
                       </div>
-                      <div *ngIf="deliveryMethod() === 'delivery'" class="absolute top-4 right-4 text-blue-500">
+                      <div *ngIf="deliveryMethod() === 'delivery'" class="absolute top-4 right-4 text-indigo-500">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
@@ -129,7 +129,7 @@ import { environment } from '../../../../../environments/environment';
               <div *ngIf="deliveryMethod() === 'delivery'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6 animate-fade-in">
                 <div class="p-6 border-b border-gray-100 bg-gray-50/50">
                   <h2 class="text-lg font-semibold text-gray-800 flex items-center">
-                    <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mr-3 text-sm font-bold shadow-sm">2</span>
+                    <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mr-3 text-sm font-bold shadow-sm">2</span>
                     Información de Envío
                   </h2>
                 </div>
@@ -139,7 +139,7 @@ import { environment } from '../../../../../environments/environment';
                   <div>
                     <label for="distrito" class="block text-sm font-medium text-gray-700 mb-2">Distrito</label>
                     <select id="distrito" formControlName="distrito" 
-                            class="w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                            class="w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                             [class.border-red-300]="isFieldInvalid('distrito')">
                       <option value="" disabled selected>Selecciona tu distrito</option>
                       <option *ngFor="let item of shippingCosts()" [value]="item.district">
@@ -162,7 +162,7 @@ import { environment } from '../../../../../environments/environment';
                         </svg>
                       </div>
                       <textarea id="address" formControlName="direccion_envio" rows="2" 
-                                class="w-full pl-10 pr-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                                class="w-full pl-10 pr-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                                 placeholder="Ej: Av. Javier Prado Este 1234, Dpto 501"
                                 [class.border-red-300]="isFieldInvalid('direccion_envio')"></textarea>
                     </div>
@@ -175,7 +175,7 @@ import { environment } from '../../../../../environments/environment';
                   <div>
                     <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Referencia / Notas (Opcional)</label>
                     <textarea id="notes" formControlName="notas" rows="2" 
-                              class="w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-colors"
+                              class="w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                               placeholder="Referencia de ubicación, quién recibe, horario preferido..."></textarea>
                   </div>
                 </div>
@@ -185,7 +185,7 @@ import { environment } from '../../../../../environments/environment';
               <div *ngIf="deliveryMethod()" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
                 <div class="p-6 border-b border-gray-100 bg-gray-50/50">
                   <h2 class="text-lg font-semibold text-gray-800 flex items-center">
-                    <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mr-3 text-sm font-bold shadow-sm">
+                    <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center mr-3 text-sm font-bold shadow-sm">
                       {{ deliveryMethod() === 'delivery' ? '3' : '2' }}
                     </span>
                     Método de Pago
@@ -196,7 +196,7 @@ import { environment } from '../../../../../environments/environment';
                   <!-- Dynamic Payment Methods -->
                   <div class="space-y-3">
                     <div *ngFor="let method of paymentMethods()" class="border rounded-xl overflow-hidden"
-                         [class.border-blue-500]="selectedPaymentMethod()?.id_metodo_pago === method.id_metodo_pago"
+                         [class.border-indigo-500]="selectedPaymentMethod()?.id_metodo_pago === method.id_metodo_pago"
                          [class.border-gray-200]="selectedPaymentMethod()?.id_metodo_pago !== method.id_metodo_pago">
                       
                       <label class="flex items-center justify-between p-4 cursor-pointer bg-white hover:bg-gray-50 transition-colors">
@@ -205,7 +205,7 @@ import { environment } from '../../../../../environments/environment';
                                  name="paymentMethod"
                                  [checked]="selectedPaymentMethod()?.id_metodo_pago === method.id_metodo_pago"
                                  (change)="selectPaymentMethod(method)"
-                                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                 class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
                           <span class="ml-3 font-bold text-gray-900">{{ method.nombre }}</span>
                         </div>
                         <!-- Icon based on method image or name -->
@@ -257,15 +257,15 @@ import { environment } from '../../../../../environments/environment';
                   <!-- Transaction Code Input -->
                   <div class="mt-6 pt-6 border-t border-gray-200" *ngIf="selectedPaymentMethod()?.requiere_comprobante">
                     
-                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+                    <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-4">
                       <div class="flex">
                         <div class="flex-shrink-0">
-                          <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                          <svg class="h-5 w-5 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                           </svg>
                         </div>
                         <div class="ml-3">
-                          <p class="text-sm text-blue-700">
+                          <p class="text-sm text-indigo-700">
                             Realiza tu pago directamente en nuestra cuenta bancarias. Completa el pedido, y sube el comprobante de pago al finalizar el pedido. El producto no se enviará hasta que se verifique el comprobante de pago y el depósito en nuestras cuentas. Puede subir su comprobante en la parte inferior.
                           </p>
                         </div>
@@ -276,7 +276,7 @@ import { environment } from '../../../../../environments/environment';
                       Código de Operación / Nro. de Pedido (Opcional)
                     </label>
                     <input type="text" id="operation-code" formControlName="codigo_operacion" 
-                           class="w-full pl-4 pr-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono tracking-wider"
+                           class="w-full pl-4 pr-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono tracking-wider"
                            placeholder="Ej: 12345678">
                     
                     <div class="mt-4">
@@ -285,7 +285,7 @@ import { environment } from '../../../../../environments/environment';
                         <span class="text-red-500">*</span>
                       </label>
                       <input type="file" (change)="onFileSelected($event)" accept="image/*" 
-                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                              [class.border-red-300]="showFileError()">
                       <p *ngIf="showFileError()" class="text-red-500 text-xs mt-1 ml-1">
                         Debes subir una imagen del comprobante de pago.
@@ -344,7 +344,7 @@ import { environment } from '../../../../../environments/environment';
               <!-- Submit Button -->
               <button (click)="onSubmit()" 
                       [disabled]="checkoutForm.invalid || isProcessing()"
-                      class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-200 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none flex justify-center items-center">
+                      class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-indigo-200 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none flex justify-center items-center">
                 <svg *ngIf="isProcessing()" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

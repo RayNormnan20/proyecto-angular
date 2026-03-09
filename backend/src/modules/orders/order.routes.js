@@ -11,6 +11,7 @@ const upload = createUploadMiddleware('comprobantes');
 // Public routes (authenticated users)
 router.post('/', authenticateToken, upload.single('comprobante_pago'), orderController.createOrder);
 router.get('/', authenticateToken, orderController.getOrders); // Logic inside controller filters by ownership
+router.get('/:id/pdf', authenticateToken, orderController.downloadOrderPDF);
 router.get('/:id', authenticateToken, orderController.getOrderById);
 
 // Admin/Staff routes

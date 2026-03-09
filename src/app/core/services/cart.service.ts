@@ -1,5 +1,6 @@
-import { Injectable, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Product } from '../../features/products/models/product.model';
+import { ToastService } from './toast.service';
 
 export interface CartItem {
   product: Product;
@@ -10,6 +11,7 @@ export interface CartItem {
   providedIn: 'root'
 })
 export class CartService {
+  private toastService = inject(ToastService);
   cartItems = signal<CartItem[]>([]);
 
   cartTotal = computed(() => 
@@ -63,12 +65,14 @@ export class CartService {
     this.cartItems.update(items => {
       const existingItem = items.find(item => item.product.id_producto === product.id_producto);
       if (existingItem) {
+        this.toastService.show('Producto actualizado en el carrito', 'success');
         return items.map(item => 
           item.product.id_producto === product.id_producto 
             ? { ...item, quantity: item.quantity + quantity } 
             : item
         );
       }
+      this.toastService.show('Producto agregado al carrito', 'success');
       return [...items, { product, quantity }];
     });
   }

@@ -43,7 +43,7 @@ import { environment } from '../../../../../environments/environment';
               <img 
                 *ngFor="let img of product()!.images" 
                 [src]="imageBaseUrl + img.url" 
-                class="w-20 h-20 object-cover rounded cursor-pointer border hover:border-blue-500"
+                class="w-20 h-20 object-cover rounded cursor-pointer border hover:border-indigo-500"
                 (click)="setCurrentImage(imageBaseUrl + img.url)"
               >
             </div>
@@ -51,12 +51,12 @@ import { environment } from '../../../../../environments/environment';
 
           <!-- Product Info -->
           <div class="md:w-1/2 p-8">
-            <div class="uppercase tracking-wide text-sm text-blue-600 font-bold">{{ product()!.brand?.nombre }}</div>
+            <div class="uppercase tracking-wide text-sm text-indigo-600 font-bold">{{ product()!.brand?.nombre }}</div>
             <h1 class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               {{ product()!.nombre }}
             </h1>
             <div class="mt-4">
-              <span class="text-3xl font-bold text-gray-900">\${{ product()!.precio }}</span>
+              <span class="text-3xl font-bold text-gray-900">\S/.{{ product()!.precio }}</span>
               <span *ngIf="product()!.stock > 0" class="ml-4 text-sm text-green-600 bg-green-100 px-2 py-1 rounded">En Stock ({{ product()!.stock }})</span>
               <span *ngIf="product()!.stock === 0" class="ml-4 text-sm text-red-600 bg-red-100 px-2 py-1 rounded">Agotado</span>
             </div>

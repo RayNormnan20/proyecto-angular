@@ -24,8 +24,8 @@ import { AuthService } from '../../../../core/services/auth.service';
       <div class="flex w-full items-center justify-center lg:w-1/2">
         <div class="w-full max-w-md px-8 py-10 bg-white shadow-2xl rounded-xl mx-4">
           <div class="text-center mb-8">
-            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 mb-4">
-              <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 mb-4">
+              <svg class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
@@ -46,7 +46,7 @@ import { AuthService } from '../../../../core/services/auth.service';
                   </svg>
                 </div>
                 <input
-                  class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-3 text-gray-900 focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition duration-150 ease-in-out"
+                  class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-3 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition duration-150 ease-in-out"
                   [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}"
                   id="email"
                   type="email"
@@ -70,7 +70,7 @@ import { AuthService } from '../../../../core/services/auth.service';
                   </svg>
                 </div>
                 <input
-                  class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-3 text-gray-900 focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition duration-150 ease-in-out"
+                  class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 p-3 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition duration-150 ease-in-out"
                   [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"
                   id="password"
                   type="password"
@@ -85,22 +85,22 @@ import { AuthService } from '../../../../core/services/auth.service';
 
             <div class="flex items-center justify-between">
               <div class="flex items-center">
-                <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                 <label for="remember-me" class="ml-2 block text-sm text-gray-900">Recordarme</label>
               </div>
               <div class="text-sm">
-                <a href="#" class="font-medium text-blue-600 hover:text-blue-500">¿Olvidaste tu contraseña?</a>
+                <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">¿Olvidaste tu contraseña?</a>
               </div>
             </div>
 
             <div>
               <button
-                class="group relative flex w-full justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out shadow-lg hover:shadow-xl"
+                class="group relative flex w-full justify-center rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out shadow-lg hover:shadow-xl"
                 type="submit"
                 [disabled]="loginForm.invalid || isLoading"
               >
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <svg *ngIf="!isLoading" class="h-5 w-5 text-blue-500 group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg *ngIf="!isLoading" class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                   </svg>
                    <svg *ngIf="isLoading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -134,7 +134,7 @@ import { AuthService } from '../../../../core/services/auth.service';
           <div class="mt-6 text-center">
             <p class="text-sm text-gray-600">
               ¿No tienes una cuenta?
-              <a href="/auth/register" class="font-medium text-blue-600 hover:text-blue-500">Regístrate aquí</a>
+              <a href="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500">Regístrate aquí</a>
             </p>
           </div>
         </div>

@@ -1,5 +1,6 @@
 const EmailLog = require('./email-log.model');
 const { sendOrderConfirmation, sendWelcomeEmail } = require('../../utils/email.utils');
+const { generateOrderPDF } = require('../../utils/pdf.utils');
 const Order = require('../orders/order.model');
 const User = require('../users/user.model');
 const OrderItem = require('../orders/order-item.model');
@@ -73,7 +74,16 @@ const resendEmail = async (req, res) => {
         return res.status(404).json({ message: 'Orden original no encontrada' });
       }
 
-      await sendOrderConfirmation(order, order.user, order.items);
+      // Generar PDF para adjuntar
+      let pdfBuffer = null;
+      try {
+        pdfBuffer = await generateOrderPDF(order, order.items);
+      } catch (pdfError) {
+        console.error('Error al generar PDF para reenvío:', pdfError);
+        // Continuamos sin PDF si falla, o podríamos retornar error
+      }
+
+      await sendOrderConfirmation(order, order.user, order.items, pdfBuffer);
       return res.json({ message: 'Correo de orden reenviado correctamente' });
 
     } else if (log.tipo === 'bienvenida' && log.referencia_id) {

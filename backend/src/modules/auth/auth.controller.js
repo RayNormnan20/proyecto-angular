@@ -1,7 +1,5 @@
 const authService = require('./auth.service');
-const User = require('../users/user.model');
-const Role = require('../roles/role.model');
-const Permission = require('../permissions/permission.model');
+const { User, Role, Permission } = require('../associations');
 const { hashPassword } = require('../../utils/password.utils');
 
 const register = async (req, res) => {

@@ -165,7 +165,15 @@ const refreshToken = async (token) => {
   if (!decoded) throw new Error('Refresh token inválido o expirado');
 
   const user = await User.findByPk(decoded.id, {
-    include: [{ model: Role, as: 'role' }]
+    include: [{ 
+      model: Role, 
+      as: 'role',
+      include: [{
+        model: Permission,
+        as: 'permissions',
+        through: { attributes: [] }
+      }]
+    }]
   });
 
   if (!user) throw new Error('Usuario no encontrado');

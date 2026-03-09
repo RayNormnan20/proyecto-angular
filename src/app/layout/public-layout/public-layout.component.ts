@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ToastComponent } from '../../shared/components/toast/toast.component';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { FavoriteService } from '../../features/favorites/services/favorite.service';
@@ -13,52 +14,44 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-public-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, FormsModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, FormsModule, ToastComponent],
   template: `
+    <app-toast></app-toast>
     <div class="min-h-screen flex flex-col font-roboto">
       
       <!-- Topbar -->
       <div class="hidden lg:block bg-gray-100 py-2 px-4">
         <div class="container mx-auto flex justify-between items-center">
           <div class="flex gap-4 text-sm text-gray-600">
-            <a routerLink="/about" class="hover:text-yellow-500 transition-colors">Sobre Nosotros</a>
-            <a routerLink="/contact" class="hover:text-yellow-500 transition-colors">Contacto</a>
-            <a routerLink="/help" class="hover:text-yellow-500 transition-colors">Ayuda</a>
-            <a routerLink="/faq" class="hover:text-yellow-500 transition-colors">FAQs</a>
+            <a routerLink="/about" class="hover:text-indigo-600 transition-colors">Sobre Nosotros</a>
+            <a routerLink="/contact" class="hover:text-indigo-600 transition-colors">Contacto</a>
+            <a routerLink="/help" class="hover:text-indigo-600 transition-colors">Ayuda</a>
+            <a routerLink="/faq" class="hover:text-indigo-600 transition-colors">FAQs</a>
           </div>
           <div class="flex gap-4 text-sm text-gray-600">
             <ng-container *ngIf="authService.currentUser() as user; else authLinks">
-                <div class="relative group cursor-pointer hover:text-yellow-500 transition-colors">
+                <div class="relative group cursor-pointer hover:text-indigo-600 transition-colors">
                     <span class="flex items-center gap-1">Hola, {{ user.nombre }} <i class="fas fa-angle-down"></i></span>
                     <div class="absolute right-0 top-full pt-2 w-48 z-50 hidden group-hover:block">
                         <div class="bg-white shadow-lg rounded-md py-1 border border-gray-100">
-                            <a routerLink="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-yellow-500">Mi Perfil</a>
-                            <a *ngIf="['admin', 'trabajador', 'supervisor'].includes(user.role || '')" routerLink="/dashboard" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-yellow-500">Dashboard</a>
+                            <a routerLink="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600">Mi Perfil</a>
+                            <a *ngIf="['admin', 'trabajador', 'supervisor'].includes(user.role || '')" routerLink="/dashboard" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600">Dashboard</a>
                             <button (click)="logout()" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">Cerrar Sesión</button>
                         </div>
                     </div>
                 </div>
             </ng-container>
             <ng-template #authLinks>
-                <div class="relative group cursor-pointer hover:text-yellow-500 transition-colors">
+                <div class="relative group cursor-pointer hover:text-indigo-600 transition-colors">
                     <span class="flex items-center gap-1">Mi Cuenta <i class="fas fa-angle-down"></i></span>
                     <div class="absolute right-0 top-full pt-2 w-48 z-50 hidden group-hover:block">
                         <div class="bg-white shadow-lg rounded-md py-1 border border-gray-100">
-                            <a routerLink="/auth/login" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-yellow-500">Iniciar Sesión</a>
-                            <a routerLink="/auth/register" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-yellow-500">Registrarse</a>
+                            <a routerLink="/auth/login" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600">Iniciar Sesión</a>
+                            <a routerLink="/auth/register" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600">Registrarse</a>
                         </div>
                     </div>
                 </div>
             </ng-template>
-            
-            <!-- 
-            <div class="relative group cursor-pointer hover:text-yellow-500 transition-colors hidden md:block">
-              <span class="flex items-center gap-1">PEN <i class="fas fa-angle-down"></i></span>
-            </div>
-            <div class="relative group cursor-pointer hover:text-yellow-500 transition-colors hidden md:block">
-              <span class="flex items-center gap-1">ES <i class="fas fa-angle-down"></i></span>
-            </div> 
-            -->
           </div>
         </div>
       </div>
@@ -68,8 +61,8 @@ import { environment } from '../../../environments/environment';
         <div class="container mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
           <!-- Logo -->
           <a (click)="goHome()" class="text-decoration-none block lg:w-1/3 text-center lg:text-left no-underline hover:no-underline cursor-pointer">
-            <span class="uppercase text-yellow-500 bg-gray-900 px-3 py-1 font-bold text-3xl lg:text-4xl border border-gray-900">NOVA</span>
-            <span class="uppercase text-gray-900 bg-yellow-500 px-3 py-1 font-bold text-3xl lg:text-4xl ml-[-5px] border border-yellow-500">VAM 3D</span>
+            <span class="uppercase text-white bg-gray-900 px-3 py-1 font-bold text-3xl lg:text-4xl border border-gray-900">NOVA</span>
+            <span class="uppercase text-white bg-indigo-600 px-3 py-1 font-bold text-3xl lg:text-4xl ml-[-5px] border border-indigo-600">VAM 3D</span>
           </a>
 
           <!-- Search -->
@@ -77,13 +70,13 @@ import { environment } from '../../../environments/environment';
             <form (submit)="$event.preventDefault()" class="relative z-50">
               <div class="flex">
                 <input type="text" 
-                       class="w-full border border-gray-300 py-2.5 px-4 focus:outline-none focus:border-yellow-500 text-gray-600" 
+                       class="w-full border border-gray-300 py-2.5 px-4 focus:outline-none focus:border-indigo-600 text-gray-600" 
                        placeholder="Buscar productos"
                        [ngModel]="searchTerm()"
                        (ngModelChange)="onSearchInput($event)"
                        name="search"
                        autocomplete="off">
-                <button class="bg-transparent border border-gray-300 border-l-0 px-4 text-yellow-500 hover:bg-gray-50 transition-colors">
+                <button class="bg-transparent border border-gray-300 border-l-0 px-4 text-indigo-600 hover:bg-gray-50 transition-colors">
                   <i class="fa fa-search"></i>
                 </button>
               </div>
@@ -104,7 +97,7 @@ import { environment } from '../../../environments/environment';
                             <h6 class="text-sm font-medium text-gray-800 m-0 line-clamp-1">{{ product.nombre }}</h6>
                             <div class="flex items-center justify-between mt-1">
                                 <span class="text-xs text-gray-500">{{ product.category?.nombre || 'Sin categoría' }}</span>
-                                <span class="text-sm font-bold text-yellow-600">S/. {{ product.precio }}</span>
+                                <span class="text-sm font-bold text-indigo-700">S/. {{ product.precio }}</span>
                             </div>
                         </div>
                     </div>
@@ -134,14 +127,14 @@ import { environment } from '../../../environments/environment';
           <div class="flex flex-wrap items-center justify-between">
             <!-- Categories Button (Mobile/Desktop) -->
             <div class="hidden lg:block w-[25%] relative group z-50">
-                <a class="flex items-center justify-between bg-yellow-500 w-full px-8 py-3 text-gray-900 font-bold cursor-pointer h-[65px] hover:bg-yellow-400 transition-colors no-underline">
+                <a class="flex items-center justify-between bg-indigo-600 w-full px-8 py-3 text-white font-bold cursor-pointer h-[65px] hover:bg-indigo-500 transition-colors no-underline">
                   <span><i class="fas fa-bars mr-2"></i>Categorías</span>
                   <i class="fas fa-angle-down"></i>
                 </a>
                 <!-- Dropdown Menu -->
                 <nav class="absolute top-full left-0 w-full bg-white border border-gray-200 shadow-lg hidden group-hover:block z-50">
                     <div class="flex flex-col py-2">
-                        <a *ngFor="let cat of categories()" (click)="selectCategory(cat.id_categoria!)" class="px-6 py-2 hover:bg-gray-100 hover:text-yellow-500 text-gray-800 transition-colors border-b border-gray-100 last:border-0 no-underline cursor-pointer">
+                        <a *ngFor="let cat of categories()" (click)="selectCategory(cat.id_categoria!)" class="px-6 py-2 hover:bg-gray-100 hover:text-indigo-600 text-gray-800 transition-colors border-b border-gray-100 last:border-0 no-underline cursor-pointer">
                             {{ cat.nombre }}
                         </a>
                         <div *ngIf="categories().length === 0" class="px-6 py-2 text-gray-500 text-sm italic">
@@ -155,10 +148,10 @@ import { environment } from '../../../environments/environment';
             <div class="w-full lg:w-[75%]">
               <nav class="flex items-center justify-between py-3 lg:py-0 px-0 lg:px-8">
                   <div class="hidden lg:flex space-x-8">
-                    <a (click)="goHome()" class="text-white hover:text-yellow-500 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Inicio</a>
-                    <a (click)="goHome()" class="text-white hover:text-yellow-500 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Catálogo</a>
-                    <a routerLink="/testimonials" class="text-white hover:text-yellow-500 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Clientes Satisfechos</a>
-                    <a routerLink="/contact" class="text-white hover:text-yellow-500 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Contacto</a>
+                    <a (click)="goHome()" class="text-white hover:text-indigo-400 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Inicio</a>
+                    <a (click)="goHome()" class="text-white hover:text-indigo-400 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Catálogo</a>
+                    <a routerLink="/testimonials" class="text-white hover:text-indigo-400 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Clientes Satisfechos</a>
+                    <a routerLink="/contact" class="text-white hover:text-indigo-400 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Contacto</a>
                   </div>
                   
                   <!-- Mobile Menu Button -->
@@ -169,11 +162,11 @@ import { environment } from '../../../environments/environment';
                   <!-- Cart/Favorites Icons -->
                   <div class="flex items-center space-x-4 lg:ml-auto py-0">
                     <a routerLink="/favorites" class="btn px-0 relative group">
-                        <i class="fas fa-heart text-yellow-500 text-xl group-hover:text-yellow-400 transition-colors"></i>
+                        <i class="fas fa-heart text-indigo-600 text-xl group-hover:text-indigo-400 transition-colors"></i>
                         <span *ngIf="favoriteService.favoritesCount() > 0" class="absolute -top-2 -right-2 bg-transparent text-white border border-gray-500 rounded-full text-xs h-5 w-5 flex items-center justify-center">{{ favoriteService.favoritesCount() }}</span>
                     </a>
                     <a routerLink="/cart" class="btn px-0 ml-3 relative group">
-                        <i class="fas fa-shopping-cart text-yellow-500 text-xl group-hover:text-yellow-400 transition-colors"></i>
+                        <i class="fas fa-shopping-cart text-indigo-600 text-xl group-hover:text-indigo-400 transition-colors"></i>
                         <span *ngIf="cartService.cartCount() > 0" class="absolute -top-2 -right-2 bg-transparent text-white border border-gray-500 rounded-full text-xs h-5 w-5 flex items-center justify-center">{{ cartService.cartCount() }}</span>
                     </a>
                   </div>
@@ -186,10 +179,10 @@ import { environment } from '../../../environments/environment';
         <div class="lg:hidden bg-gray-800 border-t border-gray-700" *ngIf="isMobileMenuOpen()">
           <div class="container mx-auto px-4 py-4">
             <nav class="flex flex-col space-y-4">
-              <a (click)="goHome(); isMobileMenuOpen.set(false)" class="text-white hover:text-yellow-500 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Inicio</a>
-              <a (click)="goHome(); isMobileMenuOpen.set(false)" class="text-white hover:text-yellow-500 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Catálogo</a>
-              <a routerLink="/testimonials" (click)="isMobileMenuOpen.set(false)" class="text-white hover:text-yellow-500 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Clientes Satisfechos</a>
-              <a routerLink="/contact" (click)="isMobileMenuOpen.set(false)" class="text-white hover:text-yellow-500 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Contacto</a>
+              <a (click)="goHome(); isMobileMenuOpen.set(false)" class="text-white hover:text-indigo-400 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Inicio</a>
+              <a (click)="goHome(); isMobileMenuOpen.set(false)" class="text-white hover:text-indigo-400 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Catálogo</a>
+              <a routerLink="/testimonials" (click)="isMobileMenuOpen.set(false)" class="text-white hover:text-indigo-400 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Clientes Satisfechos</a>
+              <a routerLink="/contact" (click)="isMobileMenuOpen.set(false)" class="text-white hover:text-indigo-400 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Contacto</a>
               
               <div class="border-t border-gray-700 pt-4 mt-2">
                 <h6 class="text-gray-400 text-xs uppercase font-bold mb-2">Categorías</h6>
@@ -212,9 +205,9 @@ import { environment } from '../../../environments/environment';
                 <div class="mb-5">
                     <h5 class="text-white uppercase font-bold mb-4 text-lg tracking-wider">CONTÁCTANOS</h5>
                     <p class="mb-4 text-gray-400 leading-relaxed">Tu tienda de confianza para encontrar todo lo que necesitas con la mejor calidad y precio.</p>
-                    <p class="mb-2 flex items-center"><i class="fas fa-map-marker-alt text-yellow-500 mr-3 w-5 text-center"></i>123 Calle Principal, Lima, Perú</p>
-                    <p class="mb-2 flex items-center"><i class="fas fa-envelope text-yellow-500 mr-3 w-5 text-center"></i>info@multishop.com</p>
-                    <p class="mb-0 flex items-center"><i class="fas fa-phone-alt text-yellow-500 mr-3 w-5 text-center"></i>+51 999 999 999</p>
+                    <p class="mb-2 flex items-center"><i class="fas fa-map-marker-alt text-indigo-600 mr-3 w-5 text-center"></i>123 Calle Principal, Lima, Perú</p>
+                    <p class="mb-2 flex items-center"><i class="fas fa-envelope text-indigo-600 mr-3 w-5 text-center"></i>info@multishop.com</p>
+                    <p class="mb-0 flex items-center"><i class="fas fa-phone-alt text-indigo-600 mr-3 w-5 text-center"></i>+51 999 999 999</p>
                 </div>
                 <div class="mb-5">
                     <h5 class="text-white uppercase font-bold mb-4 text-lg tracking-wider">ENLACES RÁPIDOS</h5>
@@ -232,15 +225,15 @@ import { environment } from '../../../environments/environment';
                     <form action="">
                         <div class="flex">
                             <input type="text" class="w-full px-4 py-2 text-gray-900 focus:outline-none placeholder-gray-500" placeholder="Tu Email">
-                            <button class="bg-yellow-500 text-gray-900 px-4 py-2 font-bold hover:bg-yellow-400 transition-colors">Suscribirse</button>
+                            <button class="bg-indigo-600 text-white px-4 py-2 font-bold hover:bg-indigo-500 transition-colors">Suscribirse</button>
                         </div>
                     </form>
                     <h6 class="text-white uppercase mt-6 mb-3 font-bold tracking-wider">SÍGUENOS</h6>
                     <div class="flex space-x-2">
-                        <a class="bg-yellow-500 text-gray-900 w-10 h-10 flex items-center justify-center hover:bg-yellow-400 transition-colors" href="#"><i class="fab fa-twitter"></i></a>
-                        <a class="bg-yellow-500 text-gray-900 w-10 h-10 flex items-center justify-center hover:bg-yellow-400 transition-colors" href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a class="bg-yellow-500 text-gray-900 w-10 h-10 flex items-center justify-center hover:bg-yellow-400 transition-colors" href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a class="bg-yellow-500 text-gray-900 w-10 h-10 flex items-center justify-center hover:bg-yellow-400 transition-colors" href="#"><i class="fab fa-instagram"></i></a>
+                        <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors" href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors" href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors" href="#"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
             </div>
@@ -248,7 +241,7 @@ import { environment } from '../../../environments/environment';
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="text-center md:text-left mb-4 md:mb-0">
                         <p class="text-gray-400 m-0">
-                            &copy; <a class="text-yellow-500 hover:underline no-underline" href="#">NovaVam3D</a>. Todos los derechos reservados.
+                            &copy; <a class="text-indigo-600 hover:underline no-underline" href="#">NovaVam3D</a>. Todos los derechos reservados.
                         </p>
                     </div>
                     <div class="text-center md:text-right">

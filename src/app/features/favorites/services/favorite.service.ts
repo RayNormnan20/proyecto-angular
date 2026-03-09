@@ -3,12 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { Observable, tap } from 'rxjs';
 import { Product } from '../../products/models/product.model';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FavoriteService {
   private http = inject(HttpClient);
+  private toastService = inject(ToastService);
   private apiUrl = `${environment.apiUrl}/favorites`;
   
   favoritesCount = signal<number>(0);
@@ -23,13 +25,19 @@ export class FavoriteService {
 
   addFavorite(productId: number): Observable<any> {
     return this.http.post(this.apiUrl, { producto_id: productId }).pipe(
-      tap(() => this.favoritesCount.update(c => c + 1))
+      tap(() => {
+        this.favoritesCount.update(c => c + 1);
+        this.toastService.show('Producto agregado a lista de deseos', 'success');
+      })
     );
   }
 
   removeFavorite(productId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${productId}`).pipe(
-      tap(() => this.favoritesCount.update(c => Math.max(0, c - 1)))
+      tap(() => {
+        this.favoritesCount.update(c => Math.max(0, c - 1));
+        this.toastService.show('Producto eliminado de lista de deseos', 'info');
+      })
     );
   }
 

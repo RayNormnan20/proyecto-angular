@@ -13,7 +13,7 @@ import { Product } from '../../../products/models/product.model';
     <div class="min-h-screen bg-gray-50 py-8 sm:py-12 font-sans">
       <div class="container mx-auto px-3 sm:px-4 max-w-6xl">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           Carrito de Compras
@@ -21,14 +21,14 @@ import { Product } from '../../../products/models/product.model';
 
         <!-- Empty State -->
         <div *ngIf="cartService.cartItems().length === 0" class="text-center py-12 sm:py-16 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100">
-          <div class="bg-blue-50 w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 sm:h-12 sm:w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="bg-indigo-50 w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 sm:h-12 sm:w-12 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
           </div>
           <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Tu carrito está vacío</h2>
           <p class="text-gray-500 text-base sm:text-lg mb-8 max-w-md mx-auto px-4">Parece que aún no has añadido ningún producto. ¡Explora nuestro catálogo y encuentra lo que buscas!</p>
-          <a routerLink="/products" class="inline-flex items-center justify-center bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg shadow-blue-200 text-sm sm:text-base">
+          <a routerLink="/products" class="inline-flex items-center justify-center bg-indigo-600 text-white px-8 py-3 rounded-full font-bold hover:bg-indigo-700 transition-all transform hover:scale-105 shadow-lg shadow-indigo-200 text-sm sm:text-base">
             Explorar Productos
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -44,7 +44,7 @@ import { Product } from '../../../products/models/product.model';
             <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm overflow-hidden mb-6 border border-gray-100">
               <div class="p-4 sm:p-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                 <h2 class="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded-full">{{ cartService.cartCount() }}</span>
+                  <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded-full">{{ cartService.cartCount() }}</span>
                   Productos en tu carro
                 </h2>
                 <span class="text-xs sm:text-sm text-gray-500 hidden sm:block">Vendido y enviado por <span class="font-medium text-gray-900">Mi Tienda</span></span>
@@ -67,7 +67,7 @@ import { Product } from '../../../products/models/product.model';
                       <div class="flex justify-between items-start gap-2 mb-2">
                         <div class="flex-1 min-w-0 pr-2">
                           <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-1 leading-tight line-clamp-2">
-                            <a [routerLink]="['/product', item.product.id_producto]" class="hover:text-blue-600 transition-colors">
+                            <a [routerLink]="['/product', item.product.id_producto]" class="hover:text-indigo-600 transition-colors">
                               {{ item.product.nombre }}
                             </a>
                           </h3>
@@ -94,7 +94,7 @@ import { Product } from '../../../products/models/product.model';
                          <!-- Quantity Controls -->
                          <div class="flex items-center border border-gray-200 rounded-lg bg-white shadow-sm h-8 sm:h-9">
                           <button (click)="decreaseQuantity(item.product.id_producto!, item.quantity)" 
-                                  class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-l-lg focus:outline-none disabled:opacity-30 transition-colors"
+                                  class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-l-lg focus:outline-none disabled:opacity-30 transition-colors"
                                   [disabled]="item.quantity <= 1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
@@ -104,7 +104,7 @@ import { Product } from '../../../products/models/product.model';
                             {{ item.quantity }}
                           </div>
                           <button (click)="increaseQuantity(item.product.id_producto!, item.quantity, item.product.stock)" 
-                                  class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-r-lg focus:outline-none disabled:opacity-30 transition-colors"
+                                  class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-r-lg focus:outline-none disabled:opacity-30 transition-colors"
                                   [disabled]="item.quantity >= item.product.stock">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -160,7 +160,7 @@ import { Product } from '../../../products/models/product.model';
                 </div>
               </div>
 
-              <button routerLink="/checkout" class="w-full bg-blue-600 text-white py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-200 flex items-center justify-center gap-2 group">
+              <button routerLink="/checkout" class="w-full bg-indigo-600 text-white py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 group">
                 <span>Ir a Pagar</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -175,7 +175,7 @@ import { Product } from '../../../products/models/product.model';
               </div>
               
               <div class="mt-6 text-center">
-                 <a routerLink="/products" class="text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors">Continuar comprando</a>
+                 <a routerLink="/products" class="text-sm text-indigo-600 hover:text-indigo-800 hover:underline font-medium transition-colors">Continuar comprando</a>
               </div>
             </div>
           </div>

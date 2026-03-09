@@ -41,7 +41,7 @@ const getTransporter = async () => {
   }
 };
 
-const sendOrderConfirmation = async (order, user, items) => {
+const sendOrderConfirmation = async (order, user, items, pdfBuffer = null) => {
   const emailConfig = await getTransporter();
 
   if (!emailConfig) {
@@ -63,6 +63,15 @@ const sendOrderConfirmation = async (order, user, items) => {
   // Construcción de instrucciones de pago dinámicas
   let paymentInstructions = '';
   const attachments = [];
+
+  // Agregar PDF si existe
+  if (pdfBuffer) {
+    attachments.push({
+      filename: `Orden-${order.id_orden}.pdf`,
+      content: pdfBuffer,
+      contentType: 'application/pdf'
+    });
+  }
 
   // Helper para adjuntar imágenes
   const addImageAttachment = (relativePath, cid) => {

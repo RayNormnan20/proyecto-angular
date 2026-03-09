@@ -49,7 +49,7 @@ import { FormsModule } from '@angular/forms';
               <button *ngFor="let slide of slides(); let i = index" 
                       (click)="currentSlide.set(i)"
                       class="w-3 h-3 rounded-full transition-colors"
-                      [class.bg-[#FFD333]]="currentSlide() === i"
+                      [class.bg-indigo-600]="currentSlide() === i"
                       [class.bg-white]="currentSlide() !== i">
               </button>
             </div>
@@ -64,7 +64,7 @@ import { FormsModule } from '@angular/forms';
             <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
               <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
               <h3 class="text-white text-2xl font-bold mb-3">Oferta Especial</h3>
-              <a (click)="filterByCategory(null, $event)" class="inline-block px-4 py-2 bg-[#FFD333] text-gray-900 text-sm font-bold uppercase hover:bg-yellow-400 transition-colors cursor-pointer">Comprar</a>
+              <a (click)="filterByCategory(null, $event)" class="inline-block px-4 py-2 bg-indigo-600 text-white text-sm font-bold uppercase hover:bg-indigo-500 transition-colors cursor-pointer">Comprar</a>
             </div>
           </div>
           <div class="relative h-[200px] bg-gray-200 overflow-hidden group flex-1">
@@ -73,7 +73,7 @@ import { FormsModule } from '@angular/forms';
             <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
               <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
               <h3 class="text-white text-2xl font-bold mb-3">Oferta Especial</h3>
-              <a (click)="filterByCategory(null, $event)" class="inline-block px-4 py-2 bg-[#FFD333] text-gray-900 text-sm font-bold uppercase hover:bg-yellow-400 transition-colors cursor-pointer">Comprar</a>
+              <a (click)="filterByCategory(null, $event)" class="inline-block px-4 py-2 bg-indigo-500 text-white text-sm font-bold uppercase hover:bg-indigo-400 transition-colors cursor-pointer">Comprar</a>
             </div>
           </div>
         </div>
@@ -84,19 +84,19 @@ import { FormsModule } from '@angular/forms';
     <div class="container mx-auto px-4 py-10">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
         <div class="flex flex-col md:flex-row items-center justify-center md:justify-start p-3 md:p-6 bg-white shadow-sm border border-gray-100 text-center md:text-left h-full">
-          <svg class="w-8 h-8 md:w-10 md:h-10 text-yellow-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-indigo-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
           <h5 class="font-bold text-gray-800 m-0 text-sm md:text-base leading-tight">Calidad Garantizada</h5>
         </div>
         <div class="flex flex-col md:flex-row items-center justify-center md:justify-start p-3 md:p-6 bg-white shadow-sm border border-gray-100 text-center md:text-left h-full">
-          <svg class="w-8 h-8 md:w-10 md:h-10 text-yellow-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-indigo-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
           <h5 class="font-bold text-gray-800 m-0 text-sm md:text-base leading-tight">Envío Gratis</h5>
         </div>
         <div class="flex flex-col md:flex-row items-center justify-center md:justify-start p-3 md:p-6 bg-white shadow-sm border border-gray-100 text-center md:text-left h-full">
-          <svg class="w-8 h-8 md:w-10 md:h-10 text-yellow-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-indigo-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
           <h5 class="font-bold text-gray-800 m-0 text-sm md:text-base leading-tight">Devolución 14 días</h5>
         </div>
         <div class="flex flex-col md:flex-row items-center justify-center md:justify-start p-3 md:p-6 bg-white shadow-sm border border-gray-100 text-center md:text-left h-full">
-          <svg class="w-8 h-8 md:w-10 md:h-10 text-yellow-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-indigo-600 mb-2 md:mb-0 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
           <h5 class="font-bold text-gray-800 m-0 text-sm md:text-base leading-tight">Soporte 24/7</h5>
         </div>
       </div>
@@ -113,7 +113,7 @@ import { FormsModule } from '@angular/forms';
       <div class="relative px-8">
         <!-- Left Button -->
         <button (click)="scrollCategories(-1)" 
-                class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center text-gray-600 hover:bg-yellow-400 hover:text-white transition-colors border border-gray-100 opacity-0 group-hover:opacity-100">
+                class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center text-gray-600 hover:bg-indigo-600 hover:text-white transition-colors border border-gray-100 opacity-0 group-hover:opacity-100">
           <i class="fas fa-chevron-left"></i>
         </button>
 
@@ -128,9 +128,9 @@ import { FormsModule } from '@angular/forms';
             
             <div class="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100 h-full group/cat" 
                  [class.ring-2]="productsService.selectedCategoryId() === cat.id_categoria"
-                 [class.ring-yellow-400]="productsService.selectedCategoryId() === cat.id_categoria">
+                 [class.ring-indigo-500]="productsService.selectedCategoryId() === cat.id_categoria">
               
-              <div class="w-[100px] h-[100px] md:w-[150px] md:h-[150px] overflow-hidden rounded-full bg-gray-100 mb-3 border-4 border-transparent group-hover/cat:border-yellow-100 transition-colors">
+              <div class="w-[100px] h-[100px] md:w-[150px] md:h-[150px] overflow-hidden rounded-full bg-gray-100 mb-3 border-4 border-transparent group-hover/cat:border-indigo-100 transition-colors">
                  <img class="w-full h-full object-cover transition-transform duration-500 group-hover/cat:scale-110" 
                       [src]="getCategoryImage(cat)" 
                       [alt]="cat.nombre"
@@ -138,7 +138,7 @@ import { FormsModule } from '@angular/forms';
               </div>
               
               <div class="text-center w-full">
-                  <h6 class="text-sm md:text-base font-bold text-gray-800 m-0 truncate group-hover/cat:text-[#C9A84C] transition-colors">{{cat.nombre}}</h6>
+                  <h6 class="text-sm md:text-base font-bold text-gray-800 m-0 truncate group-hover/cat:text-indigo-600 transition-colors">{{cat.nombre}}</h6>
                   <small class="text-xs text-gray-500 block mt-1">{{ cat.productos_count || 'Ver' }} Productos</small>
               </div>
             </div>
@@ -148,7 +148,7 @@ import { FormsModule } from '@angular/forms';
 
         <!-- Right Button -->
         <button (click)="scrollCategories(1)" 
-                class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center text-gray-600 hover:bg-yellow-400 hover:text-white transition-colors border border-gray-100 opacity-0 group-hover:opacity-100">
+                class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-md rounded-full items-center justify-center text-gray-600 hover:bg-indigo-600 hover:text-white transition-colors border border-gray-100 opacity-0 group-hover:opacity-100">
           <i class="fas fa-chevron-right"></i>
         </button>
       </div>
@@ -193,11 +193,11 @@ import { FormsModule } from '@angular/forms';
             </div>
             
             <div class="text-center py-4 px-3">
-              <a [routerLink]="['/product', product.id_producto]" class="block text-lg font-medium text-gray-800 hover:text-[#C9A84C] truncate mb-1 transition-colors">{{product.nombre}}</a>
+              <a [routerLink]="['/product', product.id_producto]" class="block text-lg font-medium text-gray-800 hover:text-indigo-600 truncate mb-1 transition-colors">{{product.nombre}}</a>
               <div class="flex justify-center items-center gap-2 mb-2">
                   <h5 class="text-lg font-bold text-gray-900 m-0">S/. {{product.precio}}</h5>
               </div>
-              <div class="flex justify-center text-[#C9A84C] text-xs items-center">
+              <div class="flex justify-center text-indigo-600 text-xs items-center">
                   <small class="fa fa-star mr-1"></small>
                   <small class="fa fa-star mr-1"></small>
                   <small class="fa fa-star mr-1"></small>

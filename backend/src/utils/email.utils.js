@@ -292,4 +292,94 @@ const sendWelcomeEmail = async (user) => {
   }
 };
 
-module.exports = { sendOrderConfirmation, sendWelcomeEmail };
+const sendContactEmail = async (contactData) => {
+  const emailConfig = await getTransporter();
+
+  if (!emailConfig) {
+    console.warn('Omitiendo envío de correo de contacto por falta de configuración.');
+    return;
+  }
+
+  const { transporter, from, settingsMap } = emailConfig;
+  const empresaNombre = settingsMap['app_name'] || 'Nova Vam 3D';
+  // El correo de contacto de la empresa (a donde llegan los mensajes)
+  const contactEmail = settingsMap['contact_email'] || process.env.CONTACT_EMAIL || from;
+
+  const html = `
+    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      <!-- Header -->
+      <div style="background-color: #4f46e5; color: white; padding: 30px 20px; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">Nuevo Mensaje de Contacto</h1>
+        <p style="margin: 10px 0 0; opacity: 0.9; font-size: 14px;">${empresaNombre}</p>
+      </div>
+
+      <!-- Content -->
+      <div style="padding: 30px;">
+        <div style="margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">
+          <h2 style="margin: 0 0 15px; color: #1f2937; font-size: 18px;">Detalles del Remitente</h2>
+          <p style="margin: 5px 0; color: #4b5563;"><strong>Nombre:</strong> ${contactData.name}</p>
+          <p style="margin: 5px 0; color: #4b5563;"><strong>Email:</strong> <a href="mailto:${contactData.email}" style="color: #4f46e5; text-decoration: none;">${contactData.email}</a></p>
+          <p style="margin: 5px 0; color: #4b5563;"><strong>Asunto:</strong> ${contactData.subject}</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h2 style="margin: 0 0 15px; color: #1f2937; font-size: 18px;">Mensaje</h2>
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; border-left: 4px solid #4f46e5; color: #374151; line-height: 1.6;">
+            <p style="white-space: pre-wrap; margin: 0;">${contactData.message}</p>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="mailto:${contactData.email}?subject=Re: ${contactData.subject}" style="display: inline-block; background-color: #4f46e5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">Responder al Cliente</a>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+        <p style="margin: 0; font-size: 12px; color: #6b7280;">
+          Este mensaje fue enviado desde el formulario de contacto de <strong>${empresaNombre}</strong>.
+        </p>
+        <p style="margin: 5px 0 0; font-size: 12px; color: #9ca3af;">
+          &copy; ${new Date().getFullYear()} ${empresaNombre}. Todos los derechos reservados.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    // Enviar correo a la empresa
+    await transporter.sendMail({
+      from: `"Formulario de Contacto" <${from}>`,
+      to: contactEmail,
+      replyTo: contactData.email,
+      subject: `[Contacto] ${contactData.subject}`,
+      html: html
+    });
+    console.log(`Correo de contacto enviado a ${contactEmail}`);
+
+    // Log success
+    await EmailLog.create({
+      destinatario: contactEmail,
+      asunto: `[Contacto] ${contactData.subject}`,
+      contenido: `De: ${contactData.name} (${contactData.email})\nMensaje: ${contactData.message}`,
+      tipo: 'otro', // Podríamos agregar 'contacto' al ENUM si fuera necesario
+      estado: 'enviado'
+    });
+
+  } catch (error) {
+    console.error('Error al enviar correo de contacto:', error);
+
+    // Log failure
+    await EmailLog.create({
+      destinatario: contactEmail,
+      asunto: `[Contacto] ${contactData.subject}`,
+      contenido: `Error al enviar contacto: ${error.message}`,
+      tipo: 'otro',
+      estado: 'fallido',
+      error_mensaje: error.message
+    });
+    throw error; // Re-throw to handle in controller
+  }
+};
+
+module.exports = { sendOrderConfirmation, sendWelcomeEmail, sendContactEmail };

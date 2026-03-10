@@ -1,84 +1,157 @@
-<div class="container mx-auto px-4 py-10">
-    <div class="relative mb-8 text-center">
-        <h2 class="text-3xl font-bold uppercase text-gray-800 inline-block px-4 bg-indigo-50 relative z-10">Contáctanos</h2>
-        <div class="absolute top-1/2 left-0 w-full h-[1px] bg-gray-300 -z-0"></div>
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Section with Background Pattern -->
+    <div class="relative bg-indigo-900 text-white py-20 overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M0 100 C 20 0 50 0 100 100 Z" fill="currentColor"/>
+            </svg>
+        </div>
+        <div class="container mx-auto px-4 relative z-10 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Contáctanos</h1>
+            <p class="text-xl text-indigo-200 max-w-2xl mx-auto">Estamos aquí para ayudarte. Cuéntanos qué necesitas y nos pondremos en contacto contigo lo antes posible.</p>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <!-- Contact Info -->
-        <div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-6">Información de Contacto</h3>
-            <p class="text-gray-600 mb-8">
-                Estamos aquí para ayudarte. Si tienes alguna pregunta sobre nuestros productos, pedidos o servicios, no dudes en ponerte en contacto con nosotros.
-            </p>
-
-            <div class="space-y-6">
-                <div class="flex items-start">
-                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-4 flex-shrink-0">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-gray-800">Dirección</h4>
-                        <p class="text-gray-600">Av. Principal 123, Lima, Perú</p>
+    <div class="container mx-auto px-4 -mt-16 pb-16 relative z-20">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Contact Info Cards -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Card 1: Address -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transform transition duration-300 hover:-translate-y-1 hover:shadow-xl border-t-4 border-indigo-500">
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 mr-4 flex-shrink-0 shadow-sm">
+                            <i class="fas fa-map-marker-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800 mb-1">Visítanos</h3>
+                            <p class="text-gray-600 leading-relaxed">Av. Principal 123<br>Lima, Perú</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex items-start">
-                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-4 flex-shrink-0">
-                        <i class="fas fa-phone-alt"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-gray-800">Teléfono</h4>
-                        <p class="text-gray-600">+51 123 456 789</p>
+                <!-- Card 2: Phone -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transform transition duration-300 hover:-translate-y-1 hover:shadow-xl border-t-4 border-indigo-500">
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 mr-4 flex-shrink-0 shadow-sm">
+                            <i class="fas fa-phone-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800 mb-1">Llámanos</h3>
+                            <p class="text-gray-600 mb-2">Lun-Vie de 9am a 6pm</p>
+                            <a href="tel:+51123456789" class="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors">+51 123 456 789</a>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex items-start">
-                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-4 flex-shrink-0">
-                        <i class="fas fa-envelope"></i>
+                <!-- Card 3: Email -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transform transition duration-300 hover:-translate-y-1 hover:shadow-xl border-t-4 border-indigo-500">
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 mr-4 flex-shrink-0 shadow-sm">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800 mb-1">Escríbenos</h3>
+                            <p class="text-gray-600 mb-2">Respondemos en 24h</p>
+                            <a href="mailto:contacto@tienda.com" class="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors">contacto&#64;tienda.com</a>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-gray-800">Email</h4>
-                        <p class="text-gray-600">contacto@tienda.com</p>
-                    </div>
+                </div>
+
+                <!-- Map Widget -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden h-64 border border-gray-100">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.964446453086!2d-77.04279308518737!3d-12.046373091467468!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c8b59828236f%3A0x629555627237c41!2sLima!5e0!3m2!1sen!2spe!4v1629827362811!5m2!1sen!2spe"
+                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
+                    </iframe>
                 </div>
             </div>
 
-            <!-- Map Placeholder -->
-            <div class="mt-8 h-[250px] bg-gray-200 w-full rounded-lg overflow-hidden relative">
-                 <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.964446453086!2d-77.04279308518737!3d-12.046373091467468!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c8b59828236f%3A0x629555627237c41!2sLima!5e0!3m2!1sen!2spe!4v1629827362811!5m2!1sen!2spe" 
-                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
-                </iframe>
-            </div>
-        </div>
+            <!-- Contact Form -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-xl p-8 md:p-10 border border-gray-100">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Envíanos un mensaje</h2>
+                        <p class="text-gray-500">Completa el formulario y te responderemos a la brevedad.</p>
+                    </div>
 
-        <!-- Contact Form -->
-        <div class="bg-white p-8 shadow-sm border border-gray-100 rounded-lg">
-            <h3 class="text-2xl font-bold text-gray-800 mb-6">Envíanos un mensaje</h3>
-            <form (submit)="submitForm($event)">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Nombre Completo</label>
-                    <input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" id="name" type="text" placeholder="Tu nombre" required>
+                    <form [formGroup]="contactForm" (ngSubmit)="submitForm()">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- Name Field -->
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2 flex items-center" for="name">
+                                    <i class="fas fa-user text-indigo-400 mr-2"></i> Nombre Completo
+                                </label>
+                                <input formControlName="name"
+                                       [class.border-red-500]="contactForm.get('name')?.touched && contactForm.get('name')?.invalid"
+                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                                       id="name" type="text" placeholder="Ej. Juan Pérez">
+                                <div *ngIf="contactForm.get('name')?.touched && contactForm.get('name')?.invalid" class="text-red-500 text-xs mt-1 animate-pulse">
+                                    <i class="fas fa-exclamation-circle mr-1"></i> El nombre es requerido
+                                </div>
+                            </div>
+
+                            <!-- Email Field -->
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2 flex items-center" for="email">
+                                    <i class="fas fa-at text-indigo-400 mr-2"></i> Email
+                                </label>
+                                <input formControlName="email"
+                                       [class.border-red-500]="contactForm.get('email')?.touched && contactForm.get('email')?.invalid"
+                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                                       id="email" type="email" placeholder="Ej. juan@correo.com">
+                                <div *ngIf="contactForm.get('email')?.touched && contactForm.get('email')?.invalid" class="text-red-500 text-xs mt-1 animate-pulse">
+                                    <i class="fas fa-exclamation-circle mr-1"></i> Ingrese un email válido
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subject Field -->
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2 flex items-center" for="subject">
+                                <i class="fas fa-tag text-indigo-400 mr-2"></i> Asunto
+                            </label>
+                            <input formControlName="subject"
+                                   [class.border-red-500]="contactForm.get('subject')?.touched && contactForm.get('subject')?.invalid"
+                                   class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                                   id="subject" type="text" placeholder="Ej. Consulta sobre pedido #1234">
+                            <div *ngIf="contactForm.get('subject')?.touched && contactForm.get('subject')?.invalid" class="text-red-500 text-xs mt-1 animate-pulse">
+                                <i class="fas fa-exclamation-circle mr-1"></i> El asunto es requerido
+                            </div>
+                        </div>
+
+                        <!-- Message Field -->
+                        <div class="mb-8">
+                            <label class="block text-gray-700 text-sm font-bold mb-2 flex items-center" for="message">
+                                <i class="fas fa-comment-alt text-indigo-400 mr-2"></i> Mensaje
+                            </label>
+                            <textarea formControlName="message"
+                                      [class.border-red-500]="contactForm.get('message')?.touched && contactForm.get('message')?.invalid"
+                                      class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200 bg-gray-50 focus:bg-white h-40 resize-none"
+                                      id="message" placeholder="¿En qué podemos ayudarte hoy?"></textarea>
+                            <div *ngIf="contactForm.get('message')?.touched && contactForm.get('message')?.invalid" class="text-red-500 text-xs mt-1 animate-pulse">
+                                <i class="fas fa-exclamation-circle mr-1"></i> El mensaje es requerido
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex items-center justify-end pt-4 border-t border-gray-100">
+                            <button [disabled]="contactForm.invalid || isSubmitting"
+                                    [class.opacity-50]="contactForm.invalid || isSubmitting"
+                                    [class.cursor-not-allowed]="contactForm.invalid || isSubmitting"
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 transform hover:-translate-y-1 shadow-md hover:shadow-lg flex items-center text-lg w-full md:w-auto justify-center"
+                                    type="submit">
+                                <span *ngIf="isSubmitting" class="mr-3">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                                <span *ngIf="!isSubmitting" class="mr-2">
+                                    <i class="fas fa-paper-plane"></i>
+                                </span>
+                                {{ isSubmitting ? 'Enviando Mensaje...' : 'Enviar Mensaje' }}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
-                    <input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" id="email" type="email" placeholder="tu@email.com" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="subject">Asunto</label>
-                    <input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" id="subject" type="text" placeholder="Asunto del mensaje" required>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="message">Mensaje</label>
-                    <textarea class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors h-32" id="message" placeholder="Escribe tu mensaje aquí..." required></textarea>
-                </div>
-                <div class="flex items-center justify-end">
-                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline transition-colors uppercase tracking-wider" type="submit">
-                        Enviar Mensaje
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

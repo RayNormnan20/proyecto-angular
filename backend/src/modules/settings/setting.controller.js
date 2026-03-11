@@ -8,7 +8,17 @@ const getSettings = async (req, res) => {
       acc[curr.clave] = curr.valor;
       return acc;
     }, {});
-    res.json(settingsMap);
+    const publicSettings = Object.fromEntries(
+      Object.entries(settingsMap).filter(([key]) => {
+        const k = String(key).toLowerCase();
+        if (k.includes('pass')) return false;
+        if (k.includes('password')) return false;
+        if (k.includes('secret')) return false;
+        if (k.includes('token')) return false;
+        return true;
+      })
+    );
+    res.json(publicSettings);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener configuraciones', error });
   }

@@ -75,7 +75,7 @@ import { environment } from '../../../../../environments/environment';
 
               <div class="mt-8 space-y-4">
                 <button 
-                  (click)="addToCart(product()!)"
+                  (click)="addToCart(product()!, $event)"
                   [disabled]="product()!.stock === 0"
                   class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
@@ -189,9 +189,9 @@ export class ProductDetailComponent implements OnInit {
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   }
 
-  addToCart(product: Product) {
+  addToCart(product: Product, event?: MouseEvent) {
     if (product.stock > 0) {
-      this.cartService.addToCart(product);
+      this.cartService.addToCart(product, 1, event);
     }
   }
 }

@@ -890,7 +890,7 @@ featuredProducts = signal<Product[]>([]);
   addToCart(product: Product, event: Event) {
     event.stopPropagation(); // Prevenir navegación al detalle
     if (product.stock > 0) {
-      this.cartService.addToCart(product);
+      this.cartService.addToCart(product, 1, event as MouseEvent);
       // Opcional: Mostrar feedback visual (toast, animación, etc.)
     }
   }

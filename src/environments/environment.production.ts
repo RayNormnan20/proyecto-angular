@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://TU_BACKEND.vercel.app/api',
-  imageBaseUrl: 'https://TU_BACKEND.vercel.app'
+  apiUrl: 'https://proyecto-angular-topaz.vercel.app/api',
+  imageBaseUrl: 'https://proyecto-angular-topaz.vercel.app'
 };

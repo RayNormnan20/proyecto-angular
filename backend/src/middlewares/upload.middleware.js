@@ -11,20 +11,38 @@ const createUploadMiddleware = (folderName) => {
   // Use Cloudinary if enabled via env var and configured for specific folders
   const useCloudinary = process.env.USE_CLOUDINARY === 'true' && 
                         process.env.CLOUDINARY_CLOUD_NAME && 
-                        (folderName === 'products' || folderName === 'payments' || folderName === 'categories' || folderName === 'settings' || folderName === 'testimonials');
+                        (folderName === 'products' || folderName === 'payments' || folderName === 'categories' || folderName === 'settings' || folderName === 'testimonials' || folderName === 'banners');
 
   if (useCloudinary) {
     storage = new CloudinaryStorage({
       cloudinary: cloudinary,
-      params: {
-        folder: folderName,
-        allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-        public_id: (req, file) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-          return file.fieldname + '-' + uniqueSuffix;
-        },
-        // Redimensionar imágenes de productos a 500x500
-        transformation: folderName === 'products' ? [{ width: 500, height: 500, crop: 'pad' }] : undefined
+      params: (req, file) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+
+        let transformation;
+        if (folderName === 'products') {
+          transformation = [{ width: 500, height: 500, crop: 'pad' }];
+        }
+
+        if (folderName === 'banners') {
+          const placement = String(req?.body?.placement || 'carousel');
+          if (placement === 'offer_small') {
+            transformation = [{ width: 800, height: 400, crop: 'fill', gravity: 'auto' }];
+          } else if (placement === 'offer_large') {
+            transformation = [{ width: 1200, height: 600, crop: 'fill', gravity: 'auto' }];
+          } else if (placement === 'vendor') {
+            transformation = [{ width: 300, height: 200, crop: 'pad' }];
+          } else {
+            transformation = [{ width: 1200, height: 430, crop: 'fill', gravity: 'auto' }];
+          }
+        }
+
+        return {
+          folder: folderName,
+          allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+          public_id: `${file.fieldname}-${uniqueSuffix}`,
+          transformation
+        };
       }
     });
   } else {

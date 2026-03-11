@@ -68,7 +68,7 @@ import { AuthService } from '../../../core/services/auth.service';
         </a>
 
         <!-- Configuración (Desplegable) -->
-        <ng-container *ngIf="authService.hasRole('admin') || authService.hasPermission('VER_CONFIGURACION') || authService.hasPermission('VER_ENVIOS') || authService.hasPermission('VER_LOGS_EMAIL') || authService.hasPermission('VER_TESTIMONIOS') || authService.hasPermission('VER_METODOS_PAGO')">
+        <ng-container *ngIf="authService.hasRole('admin') || authService.hasPermission('VER_CONFIGURACION') || authService.hasPermission('VER_ENVIOS') || authService.hasPermission('VER_LOGS_EMAIL') || authService.hasPermission('VER_TESTIMONIOS') || authService.hasPermission('VER_METODOS_PAGO') || authService.hasPermission('GESTIONAR_BANNERS_HOME')">
             <!-- Botón Padre -->
             <button 
                 (click)="toggleSettingsMenu()"
@@ -120,6 +120,19 @@ import { AuthService } from '../../../core/services/auth.service';
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </span>
                     Config. Envíos
+                </a>
+
+                <a 
+                    *ngIf="authService.hasRole('admin') || authService.hasPermission('GESTIONAR_BANNERS_HOME')"
+                    routerLink="/dashboard/home-banners-settings" 
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
+                    (click)="close.emit()"
+                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
+                >
+                    <span class="mr-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                    </span>
+                    Imágenes Home
                 </a>
 
                 <a 

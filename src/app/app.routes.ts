@@ -21,6 +21,7 @@ import { PaymentSettingsComponent } from './features/dashboard/pages/payment-set
 import { ShippingSettingsComponent } from './features/dashboard/pages/shipping-settings/shipping-settings.component';
 import { EmailSettingsComponent } from './features/dashboard/pages/email-settings/email-settings.component';
 import { TestimonialSettingsComponent } from './features/dashboard/pages/testimonial-settings/testimonial-settings.component';
+import { HomeBannersSettingsComponent } from './features/dashboard/pages/home-banners-settings/home-banners-settings.component';
 
 // Público
 import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
@@ -92,7 +93,8 @@ export const routes: Routes = [
       // Configuración Correo
       { path: 'email-settings', component: EmailSettingsComponent },
       // Configuración Testimonios (Clientes Satisfechos)
-      { path: 'testimonial-settings', component: TestimonialSettingsComponent }
+      { path: 'testimonial-settings', component: TestimonialSettingsComponent },
+      { path: 'home-banners-settings', component: HomeBannersSettingsComponent }
     ]
   },
   

@@ -9,6 +9,37 @@ import { FavoriteService } from '../../../favorites/services/favorite.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
 import { FormsModule } from '@angular/forms';
+import { HomeBannerService } from '../../../../core/services/home-banner.service';
+
+type CarouselSlide = {
+  img: string;
+  title: string;
+  desc: string;
+  link: string;
+  buttonText?: string;
+};
+
+type OfferSmall = {
+  img: string;
+  kicker: string;
+  title: string;
+  buttonText: string;
+  buttonClass: string;
+  link: string;
+};
+
+type OfferLarge = {
+  img: string;
+  kicker: string;
+  title: string;
+  buttonText: string;
+  link: string;
+};
+
+type VendorLogo = {
+  name: string;
+  img: string;
+};
 
 @Component({
   selector: 'app-home',
@@ -32,7 +63,7 @@ import { FormsModule } from '@angular/forms';
               <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
                 <h1 class="text-4xl md:text-6xl text-white font-bold mb-3 uppercase animate-fade-in-down">{{ slide.title }}</h1>
                 <p class="text-white text-lg mb-4 mx-auto max-w-lg animate-bounce-in">{{ slide.desc }}</p>
-                <a (click)="filterByCategory(null, $event)" class="inline-block px-6 py-2 border-2 border-white text-white font-medium hover:bg-white hover:text-gray-900 transition-colors uppercase tracking-wider animate-fade-in-up cursor-pointer">Comprar Ahora</a>
+                <a (click)="goToBannerLink(slide.link, $event)" class="inline-block px-6 py-2 border-2 border-white text-white font-medium hover:bg-white hover:text-gray-900 transition-colors uppercase tracking-wider animate-fade-in-up cursor-pointer">{{ slide.buttonText || 'Comprar Ahora' }}</a>
               </div>
             </div>
 
@@ -57,23 +88,14 @@ import { FormsModule } from '@angular/forms';
         </div>
 
         <!-- Special Offers -->
-        <div class="lg:col-span-1 flex flex-col gap-8 h-full">
-          <div class="relative h-[200px] bg-gray-200 overflow-hidden group flex-1">
-            <img src="assets/img/offer-1.jpg" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+        <div class="lg:col-span-1 flex flex-col gap-8">
+          <div *ngFor="let offer of offersSmall(); let idx = index" class="relative h-[200px] bg-gray-200 overflow-hidden group">
+            <img [src]="offer.img" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                  onerror="this.onerror=null;this.src='assets/img/offer-1.jpg'">
             <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
-              <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
-              <h3 class="text-white text-2xl font-bold mb-3">Oferta Especial</h3>
-              <a (click)="filterByCategory(null, $event)" class="inline-block px-4 py-2 bg-indigo-600 text-white text-sm font-bold uppercase hover:bg-indigo-500 transition-colors cursor-pointer">Comprar</a>
-            </div>
-          </div>
-          <div class="relative h-[200px] bg-gray-200 overflow-hidden group flex-1">
-            <img src="assets/img/offer-2.jpg" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                 onerror="this.onerror=null;this.src='assets/img/offer-2.jpg'">
-            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
-              <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
-              <h3 class="text-white text-2xl font-bold mb-3">Oferta Especial</h3>
-              <a (click)="filterByCategory(null, $event)" class="inline-block px-4 py-2 bg-indigo-500 text-white text-sm font-bold uppercase hover:bg-indigo-400 transition-colors cursor-pointer">Comprar</a>
+              <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">{{ offer.kicker }}</h6>
+              <h3 class="text-white text-2xl font-bold mb-3">{{ offer.title }}</h3>
+              <a (click)="goToBannerLink(offer.link, $event)" [class]="'inline-block px-4 py-2 text-white text-sm font-bold uppercase transition-colors cursor-pointer ' + offer.buttonClass">{{ offer.buttonText }}</a>
             </div>
           </div>
         </div>
@@ -213,22 +235,13 @@ import { FormsModule } from '@angular/forms';
       <!-- OFFER BANNERS -->
       <div class="container mx-auto px-4 py-10">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="relative h-[300px] bg-gray-200 overflow-hidden group">
-            <img src="assets/img/offer-1.jpg" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+          <div *ngFor="let offer of offersLarge(); let idx = index" class="relative h-[300px] bg-gray-200 overflow-hidden group">
+            <img [src]="offer.img" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                  onerror="this.onerror=null;this.src='assets/img/offer-1.jpg'">
             <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
-              <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
-              <h3 class="text-white text-3xl font-bold mb-3">Oferta Especial</h3>
-              <a (click)="filterByCategory(null, $event)" class="inline-block px-6 py-2 bg-[#FFD333] text-gray-900 font-bold uppercase hover:bg-yellow-400 transition-colors cursor-pointer">Comprar Ahora</a>
-            </div>
-          </div>
-          <div class="relative h-[300px] bg-gray-200 overflow-hidden group">
-            <img src="assets/img/offer-2.jpg" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                 onerror="this.onerror=null;this.src='assets/img/offer-2.jpg'">
-            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
-              <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">Ahorra 20%</h6>
-              <h3 class="text-white text-3xl font-bold mb-3">Oferta Especial</h3>
-              <a (click)="filterByCategory(null, $event)" class="inline-block px-6 py-2 bg-[#FFD333] text-gray-900 font-bold uppercase hover:bg-yellow-400 transition-colors cursor-pointer">Comprar Ahora</a>
+              <h6 class="text-white text-uppercase font-medium tracking-wider mb-2">{{ offer.kicker }}</h6>
+              <h3 class="text-white text-3xl font-bold mb-3">{{ offer.title }}</h3>
+              <a (click)="goToBannerLink(offer.link, $event)" class="inline-block px-6 py-2 bg-[#FFD333] text-gray-900 font-bold uppercase hover:bg-yellow-400 transition-colors cursor-pointer">{{ offer.buttonText }}</a>
             </div>
           </div>
         </div>
@@ -294,12 +307,12 @@ import { FormsModule } from '@angular/forms';
            <!-- Scroll Container -->
            <div class="flex gap-6 animate-marquee whitespace-nowrap hover:pause-animation">
               <!-- Original Vendors -->
-              <div *ngFor="let vendor of vendors()" class="inline-block flex-shrink-0 bg-white p-4 shadow-sm border border-gray-100 w-[150px] h-[100px] flex items-center justify-center grayscale hover:grayscale-0 transition-all">
+              <div *ngFor="let vendor of vendors()" class="inline-block flex-shrink-0 bg-white p-4 shadow-sm border border-gray-100 w-[150px] h-[100px] flex items-center justify-center transition-all">
                   <img [src]="vendor.img" [alt]="vendor.name" class="max-w-full max-h-full object-contain"
                        onerror="this.onerror=null;this.src='assets/img/vendor-1.jpg'">
               </div>
               <!-- Duplicate for Infinite Loop -->
-              <div *ngFor="let vendor of vendors()" class="inline-block flex-shrink-0 bg-white p-4 shadow-sm border border-gray-100 w-[150px] h-[100px] flex items-center justify-center grayscale hover:grayscale-0 transition-all">
+              <div *ngFor="let vendor of vendors()" class="inline-block flex-shrink-0 bg-white p-4 shadow-sm border border-gray-100 w-[150px] h-[100px] flex items-center justify-center transition-all">
                   <img [src]="vendor.img" [alt]="vendor.name" class="max-w-full max-h-full object-contain"
                        onerror="this.onerror=null;this.src='assets/img/vendor-1.jpg'">
               </div>
@@ -432,28 +445,68 @@ export class HomeComponent implements OnInit {
   private categoriesService = inject(CategoriesService);
   private cartService = inject(CartService);
   private favoriteService = inject(FavoriteService);
+  private homeBannerService = inject(HomeBannerService);
   public authService = inject(AuthService);
   private router = inject(Router);
   apiUrl = environment.apiUrl;
   imageBaseUrl = environment.imageBaseUrl;
 
-  slides = signal([
+  slides = signal<CarouselSlide[]>([
     {
       img: 'assets/img/carousel-1.jpg',
       title: 'Moda Masculina',
       desc: 'Descubre las últimas tendencias en ropa para hombres.',
-      link: '/products'
+      link: '/products',
+      buttonText: 'Comprar Ahora'
     },
     {
       img: 'assets/img/carousel-2.jpg',
       title: 'Moda Femenina',
       desc: 'Elegancia y estilo para cada ocasión.',
-      link: '/products'
+      link: '/products',
+      buttonText: 'Comprar Ahora'
     },
     {
       img: 'assets/img/carousel-3.jpg',
       title: 'Moda Infantil',
       desc: 'Ropa cómoda y divertida para los más pequeños.',
+      link: '/products',
+      buttonText: 'Comprar Ahora'
+    }
+  ]);
+
+  offersSmall = signal<OfferSmall[]>([
+    {
+      img: 'assets/img/offer-1.jpg',
+      kicker: 'Ahorra 20%',
+      title: 'Oferta Especial',
+      buttonText: 'Comprar',
+      buttonClass: 'bg-indigo-600 hover:bg-indigo-500',
+      link: '/products'
+    },
+    {
+      img: 'assets/img/offer-2.jpg',
+      kicker: 'Ahorra 20%',
+      title: 'Oferta Especial',
+      buttonText: 'Comprar',
+      buttonClass: 'bg-indigo-500 hover:bg-indigo-400',
+      link: '/products'
+    }
+  ]);
+
+  offersLarge = signal<OfferLarge[]>([
+    {
+      img: 'assets/img/offer-1.jpg',
+      kicker: 'Ahorra 20%',
+      title: 'Oferta Especial',
+      buttonText: 'Comprar Ahora',
+      link: '/products'
+    },
+    {
+      img: 'assets/img/offer-2.jpg',
+      kicker: 'Ahorra 20%',
+      title: 'Oferta Especial',
+      buttonText: 'Comprar Ahora',
       link: '/products'
     }
   ]);
@@ -484,7 +537,7 @@ featuredProducts = signal<Product[]>([]);
   totalPages = signal(0);
   
   // Vendors Logic
-  vendors = signal([
+  vendors = signal<VendorLogo[]>([
     { name: 'Vendor 1', img: 'assets/img/vendor-1.jpg' },
     { name: 'Vendor 2', img: 'assets/img/vendor-2.jpg' },
     { name: 'Vendor 3', img: 'assets/img/vendor-3.jpg' },
@@ -516,6 +569,8 @@ featuredProducts = signal<Product[]>([]);
     this.loadCategories();
     this.loadFeaturedProducts();
     this.loadRecentProducts();
+    this.loadHomeBanners();
+    this.loadVendorLogos();
     if (this.authService.isAuthenticated()) {
       this.loadFavorites();
     }
@@ -531,11 +586,160 @@ featuredProducts = signal<Product[]>([]);
   }
 
   prevSlide() {
-    this.currentSlide.update(curr => (curr === 0 ? this.slides().length - 1 : curr - 1));
+    const count = this.slides().length;
+    if (count <= 1) return;
+    this.currentSlide.update(curr => (curr === 0 ? count - 1 : curr - 1));
   }
 
   nextSlide() {
-    this.currentSlide.update(curr => (curr === this.slides().length - 1 ? 0 : curr + 1));
+    const count = this.slides().length;
+    if (count <= 1) return;
+    this.currentSlide.update(curr => (curr === count - 1 ? 0 : curr + 1));
+  }
+
+  loadHomeBanners() {
+    this.homeBannerService.getAll({ activeOnly: true, placement: 'carousel' }).subscribe({
+      next: (banners) => {
+        const mapped: CarouselSlide[] = (banners || []).map(b => ({
+          img: this.getHomeBannerImage(b.image_url),
+          title: b.title || '',
+          desc: b.description || '',
+          link: b.button_link || '/products',
+          buttonText: b.button_text || 'Comprar Ahora'
+        }));
+        if (mapped.length === 0) return;
+
+        const fallback: CarouselSlide[] = [
+          {
+            img: 'assets/img/carousel-1.jpg',
+            title: 'Moda Masculina',
+            desc: 'Descubre las últimas tendencias en ropa para hombres.',
+            link: '/products',
+            buttonText: 'Comprar Ahora'
+          },
+          {
+            img: 'assets/img/carousel-2.jpg',
+            title: 'Moda Femenina',
+            desc: 'Elegancia y estilo para cada ocasión.',
+            link: '/products',
+            buttonText: 'Comprar Ahora'
+          },
+          {
+            img: 'assets/img/carousel-3.jpg',
+            title: 'Moda Infantil',
+            desc: 'Ropa cómoda y divertida para los más pequeños.',
+            link: '/products',
+            buttonText: 'Comprar Ahora'
+          }
+        ];
+
+        const max = Math.max(fallback.length, mapped.length);
+        const merged = Array.from({ length: max }).map((_, i) => mapped[i] ?? fallback[i]) as CarouselSlide[];
+        this.slides.set(merged);
+        this.currentSlide.set(0);
+      },
+      error: (err) => console.error('Error loading home carousel banners', err)
+    });
+
+    this.homeBannerService.getAll({ activeOnly: true, placement: 'offer_small' }).subscribe({
+      next: (banners) => {
+        const apply = (items: any[]) => {
+          const fallback = this.offersSmall();
+          const mapped: OfferSmall[] = (items || []).slice(0, 2).map((b: any, idx: number) => ({
+            img: this.getHomeBannerImage(b.image_url),
+            kicker: b.title || 'Oferta',
+            title: b.description || 'Oferta Especial',
+            buttonText: b.button_text || 'Comprar',
+            buttonClass: idx === 0 ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-indigo-500 hover:bg-indigo-400',
+            link: b.button_link || '/products'
+          }));
+          const merged: OfferSmall[] = [mapped[0] ?? fallback[0], mapped[1] ?? fallback[1]];
+          this.offersSmall.set(merged);
+        };
+
+        const list = banners || [];
+        if (list.length === 0) {
+          this.homeBannerService.getAll({ activeOnly: true, placement: 'offer' as any }).subscribe({
+            next: (legacy) => apply(legacy || []),
+            error: (err) => console.error('Error loading home offer banners', err)
+          });
+          return;
+        }
+
+        apply(list);
+      },
+      error: (err) => console.error('Error loading home offer banners', err)
+    });
+
+    this.homeBannerService.getAll({ activeOnly: true, placement: 'offer_large' }).subscribe({
+      next: (banners) => {
+        const smallFallback = this.offersSmall();
+        const fallback = this.offersLarge();
+        const mapped: OfferLarge[] = (banners || []).slice(0, 2).map((b) => ({
+          img: this.getHomeBannerImage(b.image_url),
+          kicker: b.title || 'Ahorra 20%',
+          title: b.description || 'Oferta Especial',
+          buttonText: b.button_text || 'Comprar Ahora',
+          link: b.button_link || '/products'
+        }));
+
+        const small0 = smallFallback[0]
+          ? { img: smallFallback[0].img, kicker: smallFallback[0].kicker, title: smallFallback[0].title, buttonText: 'Comprar Ahora', link: smallFallback[0].link }
+          : undefined;
+        const small1 = smallFallback[1]
+          ? { img: smallFallback[1].img, kicker: smallFallback[1].kicker, title: smallFallback[1].title, buttonText: 'Comprar Ahora', link: smallFallback[1].link }
+          : undefined;
+
+        const merged: OfferLarge[] = [
+          mapped[0] ?? fallback[0] ?? small0,
+          mapped[1] ?? fallback[1] ?? small1
+        ].filter((x): x is OfferLarge => !!x);
+
+        this.offersLarge.set(merged);
+      },
+      error: (err) => console.error('Error loading home large offer banners', err)
+    });
+  }
+
+  loadVendorLogos() {
+    const fallback = this.vendors();
+    this.homeBannerService.getAll({ activeOnly: true, placement: 'vendor' }).subscribe({
+      next: (items) => {
+        const mapped: VendorLogo[] = (items || []).map((b, idx) => ({
+          name: (b.title && b.title.trim().length > 0) ? b.title : `Logo ${idx + 1}`,
+          img: this.getHomeBannerImage(b.image_url)
+        }));
+        if (mapped.length > 0) this.vendors.set(mapped);
+        else this.vendors.set(fallback);
+      },
+      error: (err) => {
+        console.error('Error loading vendor logos', err);
+        this.vendors.set(fallback);
+      }
+    });
+  }
+
+  getHomeBannerImage(url: string): string {
+    if (!url) return 'assets/img/carousel-1.jpg';
+    if (url.startsWith('http')) return url;
+    return `${this.imageBaseUrl}${url.startsWith('/') ? url : '/' + url}`;
+  }
+
+  goToBannerLink(link: string | undefined, event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (!link) {
+      this.filterByCategory(null, event);
+      return;
+    }
+
+    if (link.startsWith('http')) {
+      window.location.href = link;
+      return;
+    }
+
+    this.router.navigateByUrl(link);
   }
 
   loadFeaturedProducts() {

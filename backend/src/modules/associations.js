@@ -14,6 +14,7 @@ const Favorite = require('./favorites/favorite.model');
 const PaymentMethod = require('./payment-methods/payment-method.model');
 const EmailLog = require('./email-logs/email-log.model');
 const Testimonial = require('./testimonials/testimonial.model');
+const HomeBanner = require('./home-banners/home-banner.model');
 
 // Role-Permission associations (Many-to-Many)
 if (!Role.associations.permissions) {
@@ -100,5 +101,6 @@ module.exports = {
   Favorite,
   PaymentMethod,
   EmailLog,
-  Testimonial
+  Testimonial,
+  HomeBanner
 };

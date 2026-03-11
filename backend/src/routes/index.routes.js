@@ -14,6 +14,7 @@ const paymentMethodRoutes = require('../modules/payment-methods/payment-method.r
 const emailLogRoutes = require('../modules/email-logs/email-log.routes');
 const testimonialRoutes = require('../modules/testimonials/testimonial.routes');
 const contactRoutes = require('../modules/contact/contact.routes');
+const homeBannerRoutes = require('../modules/home-banners/home-banner.routes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -29,6 +30,7 @@ router.use('/payment-methods', paymentMethodRoutes);
 router.use('/email-logs', emailLogRoutes);
 router.use('/testimonials', testimonialRoutes);
 router.use('/contact', contactRoutes);
+router.use('/home-banners', homeBannerRoutes);
 
 
 // Ejemplo de ruta protegida para verificar el token

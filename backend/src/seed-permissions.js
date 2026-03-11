@@ -73,6 +73,9 @@ const seedPermissions = async () => {
       { nombre: 'VER_METODOS_PAGO', descripcion: 'Puede ver métodos de pago configurados' },
       { nombre: 'GESTIONAR_METODOS_PAGO', descripcion: 'Puede agregar o editar métodos de pago' },
       { nombre: 'ELIMINAR_METODO_PAGO', descripcion: 'Puede eliminar métodos de pago' },
+      // Banners Home
+      { nombre: 'GESTIONAR_BANNERS_HOME', descripcion: 'Puede agregar o editar imágenes del home' },
+      { nombre: 'ELIMINAR_BANNER_HOME', descripcion: 'Puede eliminar imágenes del home' },
       // Dashboard
       { nombre: 'VER_DASHBOARD', descripcion: 'Puede ver el panel principal y estadísticas' },
     ];
@@ -120,6 +123,7 @@ const seedPermissions = async () => {
                     'VER_TESTIMONIOS', 'GESTIONAR_TESTIMONIOS',
                     'VER_LOGS_EMAIL',
                     'VER_METODOS_PAGO', 'GESTIONAR_METODOS_PAGO',
+                    'GESTIONAR_BANNERS_HOME',
                     'VER_DASHBOARD'
                 ]
              }

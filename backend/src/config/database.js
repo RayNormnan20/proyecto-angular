@@ -3,6 +3,8 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const isServerless = Boolean(process.env.VERCEL);
+
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -40,7 +42,10 @@ const connectDB = async () => {
     await seedSettings();
   } catch (error) {
     console.error('❌ Error al conectar con la base de datos:', error);
-    process.exit(1);
+    if (!isServerless) {
+      process.exit(1);
+    }
+    throw error;
   }
 };
 

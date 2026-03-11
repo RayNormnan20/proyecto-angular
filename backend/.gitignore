@@ -96,3 +96,5 @@ temp/
 *.swo
 .DS_Store
 Thumbs.db
+
+/public/uploads/

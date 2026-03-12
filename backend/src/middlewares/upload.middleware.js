@@ -1,4 +1,5 @@
 const multer = require('multer');
+const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
@@ -9,9 +10,16 @@ const createUploadMiddleware = (folderName) => {
   let storage;
 
   // Use Cloudinary if enabled via env var and configured for specific folders
-  const useCloudinary = process.env.USE_CLOUDINARY === 'true' && 
-                        process.env.CLOUDINARY_CLOUD_NAME && 
-                        (folderName === 'products' || folderName === 'payments' || folderName === 'categories' || folderName === 'settings' || folderName === 'testimonials' || folderName === 'banners');
+  const isServerless = Boolean(process.env.VERCEL);
+  const cloudinaryAvailable = Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+  );
+  const useCloudinary = cloudinaryAvailable && (
+    process.env.USE_CLOUDINARY === 'true' ||
+    isServerless
+  );
 
   if (useCloudinary) {
     storage = new CloudinaryStorage({
@@ -49,13 +57,20 @@ const createUploadMiddleware = (folderName) => {
     // Fallback to local storage
     storage = multer.diskStorage({
       destination: function (req, file, cb) {
-        const uploadPath = path.join(__dirname, `../../public/uploads/${folderName}`);
-        // Asegurar que el directorio existe
-        if (!fs.existsSync(uploadPath)) {
-          console.log(`Creating directory: ${uploadPath}`);
-          fs.mkdirSync(uploadPath, { recursive: true });
+        try {
+          const baseUploadPath = isServerless
+            ? path.join(os.tmpdir(), 'uploads')
+            : path.join(__dirname, '../../public/uploads');
+          const uploadPath = path.join(baseUploadPath, folderName);
+
+          if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+          }
+
+          cb(null, uploadPath);
+        } catch (err) {
+          cb(err);
         }
-        cb(null, uploadPath);
       },
       filename: function (req, file, cb) {
         // Nombre único: timestamp + numero aleatorio + extension
@@ -73,7 +88,7 @@ const createUploadMiddleware = (folderName) => {
     }
   };
 
-  return multer({ 
+  return multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {

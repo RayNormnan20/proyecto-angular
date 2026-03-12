@@ -136,8 +136,8 @@ import { environment } from '../../../../../environments/environment';
                     <div class="mt-3" *ngIf="order.comprobante_pago">
                       <p><span class="font-bold">Comprobante de Pago:</span></p>
                       <div class="mt-2">
-                        <a [href]="imageBaseUrl + order.comprobante_pago" target="_blank" rel="noopener noreferrer">
-                          <img [src]="imageBaseUrl + order.comprobante_pago" alt="Comprobante de Pago" class="max-w-xs max-h-48 object-contain border border-gray-200 rounded shadow-sm hover:opacity-90 transition-opacity">
+                        <a [href]="getComprobanteUrl(order)" target="_blank" rel="noopener noreferrer">
+                          <img [src]="getComprobanteUrl(order)" alt="Comprobante de Pago" class="max-w-xs max-h-48 object-contain border border-gray-200 rounded shadow-sm hover:opacity-90 transition-opacity">
                         </a>
                       </div>
                     </div>
@@ -347,6 +347,12 @@ export class OrdersListComponent {
 
   constructor() {
     this.loadOrders();
+  }
+
+  getComprobanteUrl(order: Order): string {
+    const value = order.comprobante_pago || '';
+    if (value.startsWith('http://') || value.startsWith('https://')) return value;
+    return this.imageBaseUrl + value;
   }
 
   loadOrders() {

@@ -23,8 +23,7 @@ const createOrder = async (req, res) => {
     // Handle file upload
     let comprobantePath = null;
     if (req.file) {
-      // Store relative path
-      comprobantePath = `/uploads/comprobantes/${req.file.filename}`;
+      comprobantePath = req.file.path || (req.file.filename ? `/uploads/comprobantes/${req.file.filename}` : null);
     }
 
     if (!items || items.length === 0) {

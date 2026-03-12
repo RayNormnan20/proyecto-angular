@@ -141,13 +141,13 @@ const createOrder = async (req, res) => {
 const getOrders = async (req, res) => {
   try {
     const { role, id } = req.user;
-    const { page = 1, limit = 10, startDate, endDate, status } = req.query;
+    const { page = 1, limit = 10, startDate, endDate, status, isProfile = false } = req.query;
     const offset = (page - 1) * limit;
 
     const whereClause = {};
 
-    // If not admin/staff, only show own orders
-    if (!['admin', 'trabajador', 'supervisor'].includes(role)) {
+    // Si es una solicitud desde el perfil o no es un rol administrativo, solo mostrar sus propios pedidos
+    if (String(isProfile) === 'true' || !['admin', 'trabajador', 'supervisor'].includes(role)) {
       whereClause.usuario_id = id;
     }
 

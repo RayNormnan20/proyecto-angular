@@ -4,6 +4,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { OrderService, Order } from '../../../../core/services/order.service';
 import { FavoriteService } from '../../../favorites/services/favorite.service';
 import { RouterLink } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -39,11 +40,23 @@ import { RouterLink } from '@angular/router';
               
               <div class="p-4">
                 <nav class="space-y-1">
-                  <a class="flex items-center px-4 py-2 text-gray-700 bg-gray-50 rounded-md font-medium border-l-4 border-indigo-600 cursor-pointer">
+                  <a (click)="activeTab.set('info')" 
+                     [class.bg-gray-50]="activeTab() === 'info'"
+                     [class.border-indigo-600]="activeTab() === 'info'"
+                     class="flex items-center px-4 py-2 text-gray-700 rounded-md font-medium border-l-4 cursor-pointer hover:bg-gray-50 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     Información Personal
+                  </a>
+                  <a (click)="activeTab.set('orders')" 
+                     [class.bg-gray-50]="activeTab() === 'orders'"
+                     [class.border-indigo-600]="activeTab() === 'orders'"
+                     class="flex items-center px-4 py-2 text-gray-700 rounded-md font-medium border-l-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    Mis Pedidos
                   </a>
                 </nav>
               </div>
@@ -52,47 +65,47 @@ import { RouterLink } from '@angular/router';
 
           <!-- Main Area: Details -->
           <div class="w-full md:w-2/3 lg:w-3/4">
-          <!-- Stats Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
-              <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
+                <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500 font-medium">Pedidos Totales</p>
+                  <p class="text-2xl font-bold text-gray-800">{{ stats().totalOrders }}</p>
+                </div>
               </div>
-              <div>
-                <p class="text-sm text-gray-500 font-medium">Pedidos Totales</p>
-                <p class="text-2xl font-bold text-gray-800">{{ stats().totalOrders }}</p>
+              
+              <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
+                <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500 font-medium">Favoritos</p>
+                  <p class="text-2xl font-bold text-gray-800">{{ stats().wishlistCount }}</p>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
+                <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500 font-medium">Puntos Nova</p>
+                  <p class="text-2xl font-bold text-gray-800">{{ stats().points }}</p>
+                </div>
               </div>
             </div>
-            
-            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
-              <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500 font-medium">Favoritos</p>
-                <p class="text-2xl font-bold text-gray-800">{{ stats().wishlistCount }}</p>
-              </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
-              <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500 font-medium">Puntos Nova</p>
-                <p class="text-2xl font-bold text-gray-800">{{ stats().points }}</p>
-              </div>
-            </div>
-          </div>
 
-            <!-- Profile Info -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <!-- Profile Info Tab -->
+            <div *ngIf="activeTab() === 'info'" class="bg-white rounded-lg shadow-md p-6 mb-6 animate-fade-in">
               <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
                 <h3 class="text-xl font-bold text-gray-800">Información de Perfil</h3>
               </div>
@@ -122,49 +135,91 @@ import { RouterLink } from '@angular/router';
               </div>
             </div>
 
-            <!-- Orders History -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-              <h3 class="text-xl font-bold text-gray-800 mb-6 pb-4 border-b border-gray-100">Historial de Pedidos</h3>
+            <!-- Orders History Tab -->
+            <div *ngIf="activeTab() === 'orders'" class="bg-white rounded-lg shadow-md p-6 animate-fade-in">
+              <h3 class="text-xl font-bold text-gray-800 mb-6 pb-4 border-b border-gray-100">Mi Historial de Pedidos</h3>
               
-              <div *ngIf="orders().length === 0" class="text-center py-8 text-gray-500">
-                No tienes pedidos registrados.
+              <div *ngIf="orders().length === 0" class="text-center py-12 text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-200 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                No tienes pedidos registrados todavía.
                 <div class="mt-4">
-                  <a routerLink="/products" class="text-indigo-600 hover:underline">Ir a comprar</a>
+                  <a routerLink="/products" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+                    Explorar productos
+                  </a>
                 </div>
               </div>
 
-              <div *ngIf="orders().length > 0" class="space-y-6">
-                <div *ngFor="let order of orders()" class="border border-gray-200 rounded-lg overflow-hidden">
+              <div *ngIf="orders().length > 0" class="space-y-4">
+                <div *ngFor="let order of orders()" class="border border-gray-200 rounded-lg overflow-hidden transition-all hover:shadow-md">
                   <div class="bg-gray-50 px-4 py-3 flex justify-between items-center border-b border-gray-200">
-                    <div>
-                      <span class="font-medium text-gray-900">Pedido #{{ order.id_orden }}</span>
-                      <span class="text-gray-500 text-sm ml-2">{{ order.fecha | date:'short' }}</span>
+                    <div class="flex items-center">
+                      <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-3">
+                        #
+                      </div>
+                      <div>
+                        <span class="font-bold text-gray-900 block">Pedido #{{ order.id_orden }}</span>
+                        <span class="text-gray-500 text-xs">{{ order.fecha | date:'medium' }}</span>
+                      </div>
                     </div>
-                    <div>
+                    <div class="flex flex-col items-end gap-2">
                        <span [ngClass]="{
                         'bg-yellow-100 text-yellow-800': order.estado === 'pendiente',
                         'bg-green-100 text-green-800': order.estado === 'pagado' || order.estado === 'entregado',
                         'bg-indigo-100 text-indigo-800': order.estado === 'enviado',
                         'bg-red-100 text-red-800': order.estado === 'cancelado'
-                      }" class="px-3 py-1 text-xs font-semibold rounded-full capitalize">
+                      }" class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-tighter">
                         {{ order.estado }}
                       </span>
+                      <button (click)="toggleOrderDetails(order.id_orden)" class="text-indigo-600 text-xs font-medium hover:underline">
+                        {{ expandedOrderId() === order.id_orden ? 'Ocultar detalles' : 'Ver detalles' }}
+                      </button>
                     </div>
                   </div>
+                  
                   <div class="p-4">
-                    <div class="flex justify-between items-center mb-2">
+                    <div class="flex justify-between items-center">
                       <div class="text-sm text-gray-600">
-                        <span class="font-medium">Método de Pago:</span> <span class="capitalize">{{ order.paymentMethod?.nombre || 'Desconocido' }}</span>
+                        <span class="font-medium">Total:</span> <span class="text-lg font-bold text-gray-900 ml-1">S/ {{ order.total }}</span>
                       </div>
-                      <div class="text-lg font-bold text-gray-900">
-                        Total: S/ {{ order.total }}
+                      <div class="text-xs text-gray-500">
+                        {{ order.items?.length || 0 }} productos
                       </div>
                     </div>
-                    <!-- Order Items Preview -->
-                    <div class="space-y-2 mt-3">
-                      <div *ngFor="let item of order.items" class="flex justify-between text-sm">
-                        <span class="text-gray-600">{{ item.cantidad }}x {{ item.product?.nombre || 'Producto' }}</span>
-                        <span class="text-gray-900">S/ {{ item.subtotal }}</span>
+
+                    <!-- Order Details Accordion -->
+                    <div *ngIf="expandedOrderId() === order.id_orden" class="mt-4 pt-4 border-t border-gray-100 animate-fade-in">
+                      <div class="space-y-3">
+                        <div *ngFor="let item of order.items" class="flex gap-3 items-center">
+                          <div class="w-12 h-12 rounded bg-gray-50 flex-shrink-0 border border-gray-100 flex items-center justify-center overflow-hidden">
+                            <img *ngIf="item.product?.images?.[0]?.url" [src]="resolveImageUrl(item.product.images[0].url)" class="w-full h-full object-contain">
+                            <span *ngIf="!item.product?.images?.[0]?.url" class="text-[10px] text-gray-400 text-center">Sin imagen</span>
+                          </div>
+                          <div class="flex-grow">
+                            <p class="text-sm font-medium text-gray-800">{{ item.product?.nombre || 'Producto' }}</p>
+                            <p class="text-xs text-gray-500">{{ item.cantidad }} unidad(es) x S/ {{ item.precio_unitario }}</p>
+                          </div>
+                          <div class="text-sm font-bold text-gray-900">
+                            S/ {{ item.subtotal }}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="mt-6 p-3 bg-gray-50 rounded-md text-xs space-y-2">
+                        <p><span class="font-bold text-gray-700">Dirección de envío:</span> {{ order.direccion_envio || 'No especificada' }}</p>
+                        <p><span class="font-bold text-gray-700">Método de pago:</span> {{ order.paymentMethod?.nombre || 'No especificado' }}</p>
+                        <p *ngIf="order.notas"><span class="font-bold text-gray-700">Notas:</span> {{ order.notas }}</p>
+                        <p *ngIf="order.codigo_operacion"><span class="font-bold text-gray-700">Cód. Operación:</span> {{ order.codigo_operacion }}</p>
+                      </div>
+                      
+                      <div class="mt-4 flex justify-end gap-2">
+                        <button (click)="downloadInvoice(order.id_orden)" class="text-xs flex items-center gap-1 text-gray-600 hover:text-indigo-600 transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          Descargar Recibo
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -176,7 +231,16 @@ import { RouterLink } from '@angular/router';
         </div>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `]
 })
 export class ProfileComponent {
   private authService = inject(AuthService);
@@ -186,6 +250,8 @@ export class ProfileComponent {
   currentUser = this.authService.currentUser;
   today = new Date();
   orders = signal<Order[]>([]);
+  activeTab = signal<'info' | 'orders'>('info');
+  expandedOrderId = signal<number | null>(null);
   
   activeOrdersCount = signal(0);
 
@@ -201,7 +267,8 @@ export class ProfileComponent {
   }
 
   loadOrders() {
-    this.orderService.getOrders({ limit: 50 }).subscribe({
+    // Pasar isProfile: true para que el backend filtre solo los pedidos del usuario actual
+    this.orderService.getOrders({ limit: 50, isProfile: true }).subscribe({
       next: (res: any) => {
         const ordersList = res.orders || (Array.isArray(res) ? res : []);
         this.orders.set(ordersList);
@@ -210,6 +277,30 @@ export class ProfileComponent {
         );
       },
       error: (err) => console.error('Error loading orders', err)
+    });
+  }
+
+  toggleOrderDetails(orderId: number) {
+    this.expandedOrderId.update(current => current === orderId ? null : orderId);
+  }
+
+  resolveImageUrl(url: string): string {
+    if (!url) return 'assets/img/placeholder.png';
+    if (url.startsWith('http')) return url;
+    return `${environment.imageBaseUrl}${url}`;
+  }
+
+  downloadInvoice(orderId: number) {
+    this.orderService.downloadPDF(orderId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `pedido-${orderId}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => console.error('Error downloading PDF', err)
     });
   }
 }

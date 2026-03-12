@@ -255,7 +255,7 @@ import { environment } from '../../../environments/environment';
                         </a>
                       <!-- WhatsApp -->
                       <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors"
-                        href="https://wa.me/51962281036" target="_blank">
+                        href="https://api.whatsapp.com/send?phone=%2B51993261553&token=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyNSJ9.eyJleHAiOjE3NzM0MzIxMzYsInBob25lIjoiKzUxOTkzMjYxNTUzIiwiY29udGV4dCI6IkFmZkZ2Ym1jc0l6ZHFJMm5ZUG1La0thYi1wNGNQREE2SjhTXzliZ1Fsem1ZbGVmcDRTQ015MHpGVDFPM0xiTzhvNGlTQ25ISWk3b2dzeDNGZ2RGMDVFb0JHMmZjRkM5Z3B3VmNXcEk1QjhfVEVRdy1sTG9IWG1palBtYVhDZDNQVDNXUG0zSW1KRmlJSWRpWTBqMG1KZnFTa1EiLCJzb3VyY2UiOiJGQl9QYWdlIiwiYXBwIjoiZmFjZWJvb2siLCJlbnRyeV9wb2ludCI6InBhZ2VfY3RhIn0.cRnmgne5kX_iAWiDiaNVuHc-h-Sf8_7_qTdfgifSXmuFsbg9RoQ1_NimC81-ng3q31fxpZikQ7SPSZyCVbnZlQ&fbclid=IwY2xjawQf-yNleHRuA2FlbQIxMABicmlkETFuWnU0OFliV2ZDQnFKRm16c3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHjXjz7gLp5jufiZXWo9qBRNiqc17TdVvnCLkACtMa9CEqN3zX52asL__eS2k_aem_rSS0DWCPVaIx5_KbMlNXBA" target="_blank">
                         <i class="fab fa-whatsapp"></i>
                       </a>
                   </div>

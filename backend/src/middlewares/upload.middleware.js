@@ -27,9 +27,18 @@ const createUploadMiddleware = (folderName) => {
       params: (req, file) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
 
-        let transformation;
+        let cloudinaryFolder = `${folderName}gaby`;
         if (folderName === 'products') {
+          cloudinaryFolder = 'productosgaby';
           transformation = [{ width: 500, height: 500, crop: 'pad' }];
+        }
+
+        if (folderName === 'categories') {
+          cloudinaryFolder = 'categoriasgaby';
+        }
+
+        if (folderName === 'payment-methods') {
+          cloudinaryFolder = 'metodospagogaby';
         }
 
         if (folderName === 'banners') {
@@ -46,7 +55,7 @@ const createUploadMiddleware = (folderName) => {
         }
 
         return {
-          folder: folderName,
+          folder: cloudinaryFolder,
           allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
           public_id: `${file.fieldname}-${uniqueSuffix}`,
           transformation

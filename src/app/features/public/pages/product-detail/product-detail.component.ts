@@ -42,9 +42,10 @@ import { environment } from '../../../../../environments/environment';
             <div class="flex gap-2 overflow-x-auto">
               <img 
                 *ngFor="let img of product()!.images" 
-                [src]="imageBaseUrl + img.url" 
+                [src]="resolveUrl(img.url)" 
                 class="w-20 h-20 object-cover rounded cursor-pointer border hover:border-indigo-500"
-                (click)="setCurrentImage(imageBaseUrl + img.url)"
+                (click)="setCurrentImage(resolveUrl(img.url))"
+                onerror="this.onerror=null;this.src='assets/img/placeholder.png'"
               >
             </div>
           </div>
@@ -172,11 +173,18 @@ export class ProductDetailComponent implements OnInit {
 
   getProductImage(product: Product): string {
     if (product.images && product.images.length > 0) {
-      const url = product.images[0].url;
-      if (url.startsWith('http')) return url;
-      return `${this.imageBaseUrl}${url}`;
+      return this.resolveUrl(product.images[0].url);
     }
     return 'assets/img/placeholder.png';
+  }
+
+  resolveUrl(url: string): string {
+    if (!url) return 'assets/img/placeholder.png';
+    if (url.startsWith('http')) return url;
+    
+    // Remove leading slash if present to avoid double slash with base URL
+    const cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+    return `${this.imageBaseUrl}/${cleanUrl}`;
   }
 
   setCurrentImage(url: string) {

@@ -230,11 +230,35 @@ import { environment } from '../../../environments/environment';
                     </form>
                     <h6 class="text-white uppercase mt-6 mb-3 font-bold tracking-wider">SÍGUENOS</h6>
                     <div class="flex space-x-2">
-                        <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors" href="#"><i class="fab fa-twitter"></i></a>
-                        <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors" href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors" href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors" href="#"><i class="fab fa-instagram"></i></a>
-                    </div>
+                      <!-- Facebook -->
+                      <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors"
+                        href="https://www.facebook.com/profile.php?id=61584139117009" target="_blank">
+                        <i class="fab fa-facebook-f"></i>
+                      </a>
+
+                      <!-- Instagram -->
+                      <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors"
+                        href="https://www.instagram.com/novavam.3d?fbclid=IwY2xjawQf-gRleHRuA2FlbQIxMABicmlkETFiMGdoODFsSGRDd1k3THQ5c3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHhbEEe1D7haFBjsmghDIm9Pz-YeEnORDtSMTbQin4BaUlfq1syk4-S7F-6Ik_aem_XGbA4ClLRXjI81OIaImarA" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                      </a>
+
+                      <!-- TikTok -->
+                      <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors"
+                          href="https://www.tiktok.com/@novavam3d?is_from_webapp=1&sender_device=pc" target="_blank">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="18" fill="white">
+                        <path d="M448,209.9a210.1,210.1,0,0,1-122.8-39.2v178.7A162.6,162.6,0,1,1,162.6,186.8v89.1
+                        a74.7,74.7,0,1,0,52.6,71.5V0h88a121.2,121.2,0,0,0,1.9,22.2
+                        A122.2,122.2,0,0,0,448,109.8Z"/>
+                        </svg>
+
+                        </a>
+                      <!-- WhatsApp -->
+                      <a class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center hover:bg-indigo-500 transition-colors"
+                        href="https://wa.me/51962281036" target="_blank">
+                        <i class="fab fa-whatsapp"></i>
+                      </a>
+                  </div>
                 </div>
             </div>
             <div class="border-t border-gray-700 py-6 px-4">

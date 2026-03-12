@@ -27,6 +27,7 @@ const createUploadMiddleware = (folderName) => {
       params: (req, file) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
 
+        let transformation;
         let cloudinaryFolder = `${folderName}gaby`;
         if (folderName === 'products') {
           cloudinaryFolder = 'productosgaby';

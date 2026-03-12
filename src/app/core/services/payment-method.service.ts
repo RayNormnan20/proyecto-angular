@@ -32,6 +32,10 @@ export class PaymentMethodService {
     return this.http.put<PaymentMethod>(`${this.apiUrl}/${id}`, data);
   }
 
+  create(data: Partial<PaymentMethod>): Observable<PaymentMethod> {
+    return this.http.post<PaymentMethod>(this.apiUrl, data);
+  }
+
   uploadImage(id: number, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('image', file);

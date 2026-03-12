@@ -51,7 +51,7 @@ import { ToastService } from '../../../../core/services/toast.service';
           </div>
         </div>
         
-        <div class="overflow-x-auto">
+        <div class="hidden md:block overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
@@ -120,6 +120,44 @@ import { ToastService } from '../../../../core/services/toast.service';
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div class="md:hidden p-4 space-y-4">
+          <div *ngFor="let log of filteredLogs()" class="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden">
+            <div class="p-4 space-y-2">
+              <div class="flex items-start justify-between gap-2">
+                <div class="text-sm text-gray-500">{{ log.fecha_envio | date:'medium' }}</div>
+                <span [ngClass]="{
+                  'bg-green-100 text-green-800': log.estado === 'enviado',
+                  'bg-red-100 text-red-800': log.estado === 'fallido'
+                }" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize">
+                  {{ log.estado }}
+                </span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 capitalize">
+                  {{ log.tipo || 'General' }}
+                </span>
+                <div class="text-sm font-medium text-gray-900 truncate">{{ log.destinatario }}</div>
+              </div>
+
+              <div class="text-sm text-gray-700 font-medium line-clamp-2">{{ log.asunto }}</div>
+              <div *ngIf="log.estado === 'fallido' && log.error_mensaje" class="text-xs text-red-600 line-clamp-2">{{ log.error_mensaje }}</div>
+            </div>
+            <div class="px-4 pb-4 flex justify-end">
+              <button (click)="resendEmail(log)" 
+                      [disabled]="isResending() === log.id || !canResend(log)"
+                      [title]="canResend(log) ? 'Reenviar este correo' : 'No se puede reenviar este tipo de correo'"
+                      class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 text-sm">
+                {{ isResending() === log.id ? 'Reenviando...' : 'Reenviar' }}
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="filteredLogs().length === 0 && !isLoadingLogs()" class="bg-white border border-gray-100 rounded-lg shadow-sm p-6 text-center text-gray-500">
+            No hay registros con los filtros actuales.
+          </div>
         </div>
       </div>
     </div>

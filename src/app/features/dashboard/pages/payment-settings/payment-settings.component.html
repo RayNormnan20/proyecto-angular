@@ -1,6 +1,9 @@
 <div class="p-4 md:p-6">
-  <div class="flex justify-between items-center mb-6">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
     <h1 class="text-2xl font-bold text-gray-800">Métodos de Pago</h1>
+    <button *ngIf="canCreate()" (click)="openCreateModal()" class="w-full md:w-auto bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2 transition-colors shadow-md">
+      <span class="text-xl">+</span> Agregar Método
+    </button>
   </div>
 
   <div class="grid grid-cols-1 gap-6">
@@ -107,6 +110,60 @@
                  </label>
             </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showCreateModal" class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+    <div class="fixed inset-0 transition-opacity" style="background-color: rgba(0, 0, 0, 0.5);" aria-hidden="true" (click)="closeCreateModal()"></div>
+
+    <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-lg">
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="flex justify-between items-center mb-5">
+          <h3 class="text-xl font-semibold text-gray-900">Nuevo Método de Pago</h3>
+          <button (click)="closeCreateModal()" class="text-gray-400 hover:text-gray-500">
+            <span class="text-2xl">&times;</span>
+          </button>
+        </div>
+
+        <form (ngSubmit)="createMethod()" #form="ngForm">
+          <div class="grid grid-cols-1 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+              <input [(ngModel)]="newMethod.nombre" name="nombre" required type="text" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" placeholder="Ej: Yape / Plin" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Descripción (Corta)</label>
+              <input [(ngModel)]="newMethod.descripcion" name="descripcion" type="text" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" placeholder="Ej: Escanea el QR o usa el número" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Instrucciones</label>
+              <textarea [(ngModel)]="newMethod.instrucciones" name="instrucciones" rows="4" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" placeholder="Ej: Número: ...&#10;Titular: ..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label class="flex items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" [(ngModel)]="newMethod.activo" name="activo" class="h-4 w-4">
+                Activo
+              </label>
+              <label class="flex items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" [(ngModel)]="newMethod.requiere_comprobante" name="requiere_comprobante" class="h-4 w-4">
+                Requiere comprobante
+              </label>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row justify-end gap-2 pt-4">
+            <button type="button" (click)="closeCreateModal()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Cancelar</button>
+            <button type="submit" [disabled]="isCreating" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+              {{ isCreating ? 'Creando...' : 'Crear' }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

@@ -191,20 +191,20 @@ type VendorLogo = {
               <img class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
                    [src]="getProductImage(product)" [alt]="product.nombre">
               
-              <div class="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div class="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
                 <button (click)="addToCart(product, $event)" 
-                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-0" 
+                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-0 opacity-100 sm:translate-y-8 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 delay-0" 
                         title="Agregar al carrito">
                    <i class="fa fa-shopping-cart"></i>
                 </button>
                 <button (click)="toggleFavorite(product, $event)" 
-                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-100" 
+                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-0 opacity-100 sm:translate-y-8 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 delay-100" 
                         [class.text-red-500]="isFavorite(product.id_producto)"
                         [class.border-red-500]="isFavorite(product.id_producto)">
                    <i [class]="isFavorite(product.id_producto) ? 'fas fa-heart' : 'far fa-heart'"></i>
                 </button>
                 <a [routerLink]="['/product', product.id_producto]" 
-                   class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-200">
+                   class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-0 opacity-100 sm:translate-y-8 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 delay-200">
                    <i class="fa fa-search"></i>
                 </a>
               </div>
@@ -261,20 +261,20 @@ type VendorLogo = {
               <img class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
                    [src]="getProductImage(product)" [alt]="product.nombre">
               
-              <div class="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div class="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
                 <button (click)="addToCart(product, $event)" 
-                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-0" 
+                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-0 opacity-100 sm:translate-y-8 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 delay-0" 
                         title="Agregar al carrito">
                    <i class="fa fa-shopping-cart"></i>
                 </button>
                 <button (click)="toggleFavorite(product, $event)" 
-                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-100" 
+                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-0 opacity-100 sm:translate-y-8 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 delay-100" 
                         [class.text-red-500]="isFavorite(product.id_producto)"
                         [class.border-red-500]="isFavorite(product.id_producto)">
                    <i [class]="isFavorite(product.id_producto) ? 'fas fa-heart' : 'far fa-heart'"></i>
                 </button>
                 <a [routerLink]="['/product', product.id_producto]" 
-                   class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-200">
+                   class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-0 opacity-100 sm:translate-y-8 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 delay-200">
                    <i class="fa fa-search"></i>
                 </a>
               </div>
@@ -339,20 +339,20 @@ type VendorLogo = {
                <img class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
                         [src]="getProductImage(product)" [alt]="product.nombre">
                     
-                    <div class="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
                     <button (click)="addToCart(product, $event)" 
-                            class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-0" 
+                            class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-0 opacity-100 sm:translate-y-8 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 delay-0" 
                             title="Agregar al carrito">
                         <i class="fa fa-shopping-cart"></i>
                     </button>
                     <button (click)="toggleFavorite(product, $event)" 
-                            class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-100" 
+                            class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-0 opacity-100 sm:translate-y-8 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 delay-100" 
                             [class.text-red-500]="isFavorite(product.id_producto)"
                             [class.border-red-500]="isFavorite(product.id_producto)">
                         <i [class]="isFavorite(product.id_producto) ? 'fas fa-heart' : 'far fa-heart'"></i>
                     </button>
                     <a [routerLink]="['/product', product.id_producto]" 
-                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 delay-200">
+                        class="w-10 h-10 bg-transparent text-gray-800 border border-gray-800 flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all duration-300 translate-y-0 opacity-100 sm:translate-y-8 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 delay-200">
                         <i class="fa fa-search"></i>
                     </a>
                     </div>

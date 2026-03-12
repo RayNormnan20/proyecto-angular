@@ -1,107 +1,161 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
+
+type DashboardStats = {
+  users: { active: number; total: number };
+  products: { total: number };
+  orders: { total: number; pending: number };
+  revenue: { total: number };
+  recentOrders: Array<{
+    id_orden: number;
+    fecha: string;
+    estado: string;
+    total: number;
+    user: null | { id_usuario: number; nombre: string; apellidos: string; email: string };
+  }>;
+  recentUsers: Array<{
+    id_usuario: number;
+    nombre: string;
+    apellidos: string;
+    email: string;
+    estado: string;
+    created_at: string;
+    role: null | { id_rol: number; nombre: string };
+  }>;
+};
 
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
+  imports: [CommonModule],
   template: `
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Card 1 -->
-      <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-700">Usuarios Activos</h3>
-          <span class="text-blue-500 bg-blue-100 p-2 rounded-full">👤</span>
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p class="text-sm text-gray-500">Resumen del sistema</p>
         </div>
-        <p class="text-3xl font-bold text-gray-900">1,245</p>
-        <p class="text-sm text-green-500 mt-2">↑ 12% vs mes anterior</p>
+        <button (click)="loadStats()" [disabled]="isLoading()" class="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+          {{ isLoading() ? 'Actualizando...' : 'Actualizar' }}
+        </button>
       </div>
 
-      <!-- Card 2 -->
-      <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-700">Ingresos Totales</h3>
-          <span class="text-green-500 bg-green-100 p-2 rounded-full">💰</span>
-        </div>
-        <p class="text-3xl font-bold text-gray-900">$45,230</p>
-        <p class="text-sm text-green-500 mt-2">↑ 5% vs mes anterior</p>
-      </div>
-
-      <!-- Card 3 -->
-      <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-700">Tickets Pendientes</h3>
-          <span class="text-yellow-500 bg-yellow-100 p-2 rounded-full">🎫</span>
-        </div>
-        <p class="text-3xl font-bold text-gray-900">23</p>
-        <p class="text-sm text-red-500 mt-2">↓ 2% vs mes anterior</p>
-      </div>
-    </div>
-
-    <div class="mt-8 bg-white rounded-lg shadow-md p-6">
-      <h3 class="text-xl font-bold text-gray-800 mb-4">Actividad Reciente</h3>
-      <div class="hidden md:block overflow-x-auto">
-        <table class="min-w-full leading-normal">
-          <thead>
-            <tr>
-              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Usuario
-              </th>
-              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Rol
-              </th>
-              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Fecha
-              </th>
-              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Estado
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                <div class="flex items-center">
-                  <div class="ml-3">
-                    <p class="text-gray-900 whitespace-no-wrap">Juan Pérez</p>
-                  </div>
-                </div>
-              </td>
-              <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                <p class="text-gray-900 whitespace-no-wrap">Admin</p>
-              </td>
-              <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                <p class="text-gray-900 whitespace-no-wrap">Hace 2 horas</p>
-              </td>
-              <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                <span class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-                  <span aria-hidden class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
-                  <span class="relative">Activo</span>
-                </span>
-              </td>
-            </tr>
-            <!-- Más filas -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Mobile View (Cards) -->
-      <div class="md:hidden space-y-4">
-        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-          <div class="flex justify-between items-start mb-2">
-            <div>
-              <p class="font-bold text-gray-900">Juan Pérez</p>
-              <p class="text-sm text-gray-600">Admin</p>
-            </div>
-            <span class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight text-xs">
-              <span aria-hidden class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
-              <span class="relative">Activo</span>
-            </span>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-medium text-gray-600">Usuarios activos</div>
+            <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">👤</div>
           </div>
-          <div class="text-sm text-gray-500">
-            Hace 2 horas
+          <div class="mt-3 text-3xl font-bold text-gray-900">{{ stats()?.users?.active ?? '—' }}</div>
+          <div class="mt-1 text-xs text-gray-500">Total: {{ stats()?.users?.total ?? '—' }}</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-medium text-gray-600">Ingresos (pagados)</div>
+            <div class="w-10 h-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center">💰</div>
+          </div>
+          <div class="mt-3 text-3xl font-bold text-gray-900">S/ {{ (stats()?.revenue?.total ?? 0) | number:'1.2-2' }}</div>
+          <div class="mt-1 text-xs text-gray-500">Pedidos: {{ stats()?.orders?.total ?? '—' }}</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-medium text-gray-600">Pedidos pendientes</div>
+            <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">🧾</div>
+          </div>
+          <div class="mt-3 text-3xl font-bold text-gray-900">{{ stats()?.orders?.pending ?? '—' }}</div>
+          <div class="mt-1 text-xs text-gray-500">Estado: pendiente</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-medium text-gray-600">Productos</div>
+            <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">📦</div>
+          </div>
+          <div class="mt-3 text-3xl font-bold text-gray-900">{{ stats()?.products?.total ?? '—' }}</div>
+          <div class="mt-1 text-xs text-gray-500">Total de productos</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+          <div class="text-lg font-semibold text-gray-900">Pedidos recientes</div>
+          <div class="text-xs text-gray-500" *ngIf="stats()">Últimos {{ stats()?.recentOrders?.length || 0 }}</div>
+        </div>
+
+        <div class="hidden md:block overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pedido</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let order of stats()?.recentOrders || []" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ order.id_orden }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  {{ order.user?.nombre }} {{ order.user?.apellidos }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.fecha | date:'medium' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">S/ {{ order.total | number:'1.2-2' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">
+                    {{ order.estado }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="(stats()?.recentOrders?.length || 0) === 0 && !isLoading()">
+                <td colspan="5" class="px-6 py-10 text-center text-gray-500">No hay pedidos recientes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="md:hidden p-4 space-y-3">
+          <div *ngFor="let order of stats()?.recentOrders || []" class="border border-gray-100 rounded-lg p-4">
+            <div class="flex items-start justify-between gap-2">
+              <div class="text-sm font-semibold text-gray-900">Pedido #{{ order.id_orden }}</div>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">{{ order.estado }}</span>
+            </div>
+            <div class="mt-2 text-sm text-gray-700">{{ order.user?.nombre }} {{ order.user?.apellidos }}</div>
+            <div class="mt-1 text-xs text-gray-500">{{ order.fecha | date:'medium' }}</div>
+            <div class="mt-2 text-sm font-bold text-gray-900">S/ {{ order.total | number:'1.2-2' }}</div>
+          </div>
+          <div *ngIf="(stats()?.recentOrders?.length || 0) === 0 && !isLoading()" class="text-center text-gray-500 py-6">
+            No hay pedidos recientes.
           </div>
         </div>
       </div>
     </div>
   `
 })
-export class DashboardHomeComponent {}
+export class DashboardHomeComponent implements OnInit {
+  private http = inject(HttpClient);
+
+  stats = signal<DashboardStats | null>(null);
+  isLoading = signal(false);
+
+  ngOnInit() {
+    this.loadStats();
+  }
+
+  loadStats() {
+    this.isLoading.set(true);
+    this.http.get<DashboardStats>(`${environment.apiUrl}/stats`).subscribe({
+      next: (data) => {
+        this.stats.set(data);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      }
+    });
+  }
+}

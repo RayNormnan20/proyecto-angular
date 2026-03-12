@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaymentMethodService, PaymentMethod } from '../../../../core/services/payment-method.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -14,9 +15,20 @@ import { environment } from '../../../../../environments/environment';
 export class PaymentSettingsComponent {
   private paymentMethodService = inject(PaymentMethodService);
   private toastService = inject(ToastService);
+  private authService = inject(AuthService);
   
   paymentMethods = signal<PaymentMethod[]>([]);
   isProcessing = signal<number | null>(null); // Stores ID of method being processed
+  showCreateModal = false;
+  isCreating = false;
+
+  newMethod: Partial<PaymentMethod> = {
+    nombre: '',
+    descripcion: '',
+    instrucciones: '',
+    activo: true,
+    requiere_comprobante: true
+  };
 
   constructor() {
     this.loadPaymentMethods();
@@ -29,6 +41,54 @@ export class PaymentSettingsComponent {
         this.paymentMethods.set(methods.sort((a, b) => a.id_metodo_pago - b.id_metodo_pago));
       },
       error: (err) => console.error('Error loading payment methods', err)
+    });
+  }
+
+  canCreate(): boolean {
+    return this.authService.hasPermission('GESTIONAR_METODOS_PAGO') || this.authService.hasRole('admin');
+  }
+
+  openCreateModal() {
+    this.newMethod = {
+      nombre: '',
+      descripcion: '',
+      instrucciones: '',
+      activo: true,
+      requiere_comprobante: true
+    };
+    this.showCreateModal = true;
+  }
+
+  closeCreateModal() {
+    this.showCreateModal = false;
+    this.isCreating = false;
+  }
+
+  createMethod() {
+    const data = this.newMethod;
+    if (!data.nombre || !String(data.nombre).trim()) {
+      this.toastService.show('El nombre es obligatorio', 'error');
+      return;
+    }
+
+    this.isCreating = true;
+    this.paymentMethodService.create({
+      nombre: String(data.nombre).trim(),
+      descripcion: String(data.descripcion || '').trim(),
+      instrucciones: String(data.instrucciones || '').trim(),
+      activo: data.activo !== false,
+      requiere_comprobante: data.requiere_comprobante !== false
+    }).subscribe({
+      next: (created) => {
+        this.paymentMethods.update(list => [...list, created].sort((a, b) => a.id_metodo_pago - b.id_metodo_pago));
+        this.toastService.show('Método creado correctamente', 'success');
+        this.closeCreateModal();
+      },
+      error: (err) => {
+        console.error('Error creating method', err);
+        this.toastService.show(err.error?.message || 'Error al crear método de pago', 'error');
+        this.isCreating = false;
+      }
     });
   }
 

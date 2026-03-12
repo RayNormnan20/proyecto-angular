@@ -77,22 +77,35 @@ const sendOrderConfirmation = async (order, user, items, pdfBuffer = null) => {
   const addImageAttachment = (relativePath, cid) => {
     try {
         if (!relativePath) return null;
+
+        if (typeof relativePath === 'string' && (relativePath.startsWith('http://') || relativePath.startsWith('https://'))) {
+          attachments.push({
+            filename: `${cid}.jpg`,
+            path: relativePath,
+            cid: cid
+          });
+          return `cid:${cid}`;
+        }
+
         // Eliminar slash inicial si existe para evitar problemas con path.join
         const cleanPath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
         const fullPath = path.join(__dirname, '../../public', cleanPath);
         
         if (fs.existsSync(fullPath)) {
-            attachments.push({
-                filename: path.basename(fullPath),
-                path: fullPath,
-                cid: cid
-            });
-            return `cid:${cid}`;
+          attachments.push({
+            filename: path.basename(fullPath),
+            path: fullPath,
+            cid: cid
+          });
+          return `cid:${cid}`;
         }
     } catch (e) {
         console.error('Error attaching image:', e);
     }
-    return `${process.env.CORS_ORIGIN || 'http://localhost:3000'}${relativePath}`;
+    const base = process.env.CORS_ORIGIN || 'http://localhost:3000';
+    const normalized = String(relativePath || '');
+    if (normalized.startsWith('http://') || normalized.startsWith('https://')) return normalized;
+    return `${base}${normalized.startsWith('/') ? '' : '/'}${normalized}`;
   };
   
   if (order.paymentMethod?.requiere_comprobante) {

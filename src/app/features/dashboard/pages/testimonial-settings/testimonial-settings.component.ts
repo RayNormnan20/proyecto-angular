@@ -10,62 +10,89 @@ import { environment } from '../../../../../environments/environment';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="p-6">
-      <div class="flex justify-between items-center mb-6">
+    <div class="p-4 md:p-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Gestión de Clientes Satisfechos</h1>
-        <button (click)="openModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2 transition-colors shadow-md">
+        <button (click)="openModal()" class="w-full md:w-auto bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2 transition-colors shadow-md">
           <span class="text-xl">+</span> Agregar Testimonio
         </button>
       </div>
 
       <!-- Lista de Testimonios -->
-      <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mensaje</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr *ngFor="let testimonial of testimonials()" class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <img [src]="getImageUrl(testimonial.imagen_url)" alt="Testimonio" class="h-16 w-16 object-cover rounded-md shadow-sm">
-              </td>
-              <td class="px-6 py-4">
-                <div class="text-sm text-gray-500 max-w-xs truncate">{{ testimonial.mensaje || 'Sin mensaje' }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
+      <div class="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mensaje</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let testimonial of testimonials()" class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <img [src]="getImageUrl(testimonial.imagen_url)" alt="Testimonio" class="h-16 w-16 object-cover rounded-md shadow-sm">
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-500 max-w-xs truncate">{{ testimonial.mensaje || 'Sin mensaje' }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <button 
+                    (click)="toggleActive(testimonial)"
+                    [class]="'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors ' + (testimonial.activo ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200')">
+                    {{ testimonial.activo ? 'Activo' : 'Inactivo' }}
+                  </button>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex justify-end space-x-2">
+                    <button (click)="openModal(testimonial)" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 p-2 rounded-full transition-colors" title="Editar">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button (click)="deleteTestimonial(testimonial.id)" class="bg-red-50 text-red-600 hover:bg-red-100 p-2 rounded-full transition-colors" title="Eliminar">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="testimonials().length === 0">
+                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                  No hay testimonios registrados
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="md:hidden space-y-4">
+        <div *ngFor="let testimonial of testimonials()" class="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
+          <div class="p-4 flex gap-3">
+            <img [src]="getImageUrl(testimonial.imagen_url)" alt="Testimonio" class="h-16 w-16 object-cover rounded-md shadow-sm flex-shrink-0">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-start justify-between gap-2">
+                <div class="text-sm text-gray-700 line-clamp-2">{{ testimonial.mensaje || 'Sin mensaje' }}</div>
                 <button 
                   (click)="toggleActive(testimonial)"
-                  [class]="'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors ' + (testimonial.activo ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200')">
+                  [class]="'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors flex-shrink-0 ' + (testimonial.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')">
                   {{ testimonial.activo ? 'Activo' : 'Inactivo' }}
                 </button>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div class="flex justify-end space-x-2">
-                  <button (click)="openModal(testimonial)" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 p-2 rounded-full transition-colors" title="Editar">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                  <button (click)="deleteTestimonial(testimonial.id)" class="bg-red-50 text-red-600 hover:bg-red-100 p-2 rounded-full transition-colors" title="Eliminar">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="testimonials().length === 0">
-              <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                No hay testimonios registrados
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+          </div>
+          <div class="px-4 pb-4 flex justify-end gap-2">
+            <button (click)="openModal(testimonial)" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-2 rounded-lg transition-colors text-sm">Editar</button>
+            <button (click)="deleteTestimonial(testimonial.id)" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors text-sm">Eliminar</button>
+          </div>
+        </div>
+        <div *ngIf="testimonials().length === 0" class="bg-white rounded-lg shadow border border-gray-100 p-6 text-center text-gray-500">
+          No hay testimonios registrados
+        </div>
       </div>
 
       <!-- Modal Formulario -->

@@ -325,6 +325,74 @@ import { environment } from '../../../../../environments/environment';
                       </div>
                     </div>
 
+                    <!-- Precios por Volumen -->
+                    <div class="mb-6 border border-gray-200 rounded-lg p-4">
+                      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                        <div>
+                          <div class="text-sm font-bold text-gray-900">Precios por volumen</div>
+                          <div class="text-xs text-gray-500">Define precios por docena, mayor, millar, etc. Se aplica el mejor precio según la cantidad.</div>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                          <button type="button" (click)="addVolumeTier()" class="px-3 py-1.5 rounded-md bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700">
+                            + Agregar
+                          </button>
+                          <button type="button" (click)="addVolumeTier(12)" class="px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-700 text-xs font-semibold hover:bg-indigo-100">
+                            Docena (12)
+                          </button>
+                          <button type="button" (click)="addVolumeTier(100)" class="px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-700 text-xs font-semibold hover:bg-indigo-100">
+                            Centena (100)
+                          </button>
+                          <button type="button" (click)="addVolumeTier(1000)" class="px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-700 text-xs font-semibold hover:bg-indigo-100">
+                            Millar (1000)
+                          </button>
+                        </div>
+                      </div>
+
+                      <div *ngIf="volumePrices.length === 0" class="text-sm text-gray-500 bg-gray-50 rounded-md p-3">
+                        Sin reglas de precio por volumen. Se usará el precio normal.
+                      </div>
+
+                      <div *ngIf="volumePrices.length > 0" class="space-y-3">
+                        <div class="hidden sm:flex gap-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          <div class="w-[40%]">Desde (cantidad)</div>
+                          <div class="w-[40%]">Precio unitario</div>
+                          <div class="flex-1"></div>
+                        </div>
+
+                        <div *ngFor="let tier of volumePrices; let i = index; trackBy: trackByIndex" class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                          <div class="sm:w-[40%]">
+                            <label class="sm:hidden block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Desde (cantidad)</label>
+                            <input
+                              type="text"
+                              inputmode="numeric"
+                              pattern="[0-9]*"
+                              [name]="'tier_min_' + i"
+                              [(ngModel)]="volumePrices[i].min"
+                              [ngModelOptions]="{ standalone: true }"
+                              class="w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                          </div>
+                          <div class="sm:w-[40%]">
+                            <label class="sm:hidden block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Precio unitario</label>
+                            <input
+                              type="text"
+                              inputmode="decimal"
+                              pattern="^[0-9]*([.,][0-9]{0,2})?$"
+                              [name]="'tier_price_' + i"
+                              [(ngModel)]="volumePrices[i].precio"
+                              [ngModelOptions]="{ standalone: true }"
+                              class="w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                          </div>
+                          <div class="sm:w-auto flex justify-start sm:justify-start">
+                            <button type="button" (click)="removeVolumeTier(i)" class="px-3 py-2 rounded-md bg-red-50 text-red-700 text-xs font-semibold hover:bg-red-100">
+                              Quitar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     <!-- Imágenes -->
                     <div class="mb-6">
                       <label class="block text-sm font-medium text-gray-700 mb-2">Imágenes del Producto (Máx 5)</label>
@@ -388,6 +456,7 @@ export class ProductListComponent implements OnInit {
   isSubmitting = false;
   selectedFiles: File[] = [];
   existingImages: ProductImage[] = [];
+  volumePrices: Array<{ min: number | string; precio: number | string }> = [];
 
   productForm = this.fb.group({
     nombre: ['', Validators.required],
@@ -505,6 +574,19 @@ export class ProductListComponent implements OnInit {
           estado: fullProduct.estado,
           visible_web: fullProduct.visible_web
         });
+        const rawVolume = (fullProduct as any).precios_volumen;
+        if (Array.isArray(rawVolume)) {
+          this.volumePrices = [...rawVolume];
+        } else if (typeof rawVolume === 'string' && rawVolume.trim()) {
+          try {
+            const parsed = JSON.parse(rawVolume);
+            this.volumePrices = Array.isArray(parsed) ? parsed : [];
+          } catch {
+            this.volumePrices = [];
+          }
+        } else {
+          this.volumePrices = [];
+        }
         if (fullProduct.images) {
           this.existingImages = fullProduct.images;
         }
@@ -524,6 +606,7 @@ export class ProductListComponent implements OnInit {
         estado: 'activo',
         visible_web: true
       });
+      this.volumePrices = [];
     }
   }
 
@@ -532,6 +615,20 @@ export class ProductListComponent implements OnInit {
     this.productForm.reset();
     this.selectedFiles = [];
     this.existingImages = [];
+    this.volumePrices = [];
+  }
+
+  addVolumeTier(min?: number) {
+    const nextMin = typeof min === 'number' ? min : 1;
+    this.volumePrices = [...this.volumePrices, { min: nextMin, precio: 0 }];
+  }
+
+  removeVolumeTier(index: number) {
+    this.volumePrices = this.volumePrices.filter((_, i) => i !== index);
+  }
+
+  trackByIndex(index: number) {
+    return index;
   }
 
   onFileSelect(event: any) {
@@ -559,6 +656,14 @@ export class ProductListComponent implements OnInit {
       const value = this.productForm.get(key)?.value;
       formData.append(key, value);
     });
+
+    const cleanedVolumePrices = this.volumePrices
+      .map(t => ({ min: Number(String(t.min).replace(/[^0-9]/g, '')), precio: Number(String(t.precio).replace(',', '.').replace(/[^0-9.]/g, '')) }))
+      .filter(t => Number.isFinite(t.min) && t.min > 0 && Number.isFinite(t.precio) && t.precio >= 0)
+      .sort((a, b) => a.min - b.min);
+    if (cleanedVolumePrices.length > 0) {
+      formData.append('precios_volumen', JSON.stringify(cleanedVolumePrices));
+    }
 
     this.selectedFiles.forEach(file => {
       formData.append('images', file);

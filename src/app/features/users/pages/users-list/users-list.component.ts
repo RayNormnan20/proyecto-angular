@@ -198,6 +198,11 @@ import { ToastService } from '../../../../core/services/toast.service';
                       <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
                       <input type="password" id="password" name="password" [(ngModel)]="currentUser.password" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" required>
                     </div>
+                    <div class="mb-4" *ngIf="isEditing">
+                      <label for="password_edit" class="block text-sm font-medium text-gray-700">Nueva contraseña (opcional)</label>
+                      <input type="password" id="password_edit" name="password_edit" [(ngModel)]="currentUser.password" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" placeholder="Dejar vacío para no cambiar">
+                      <p class="text-xs text-gray-500 mt-1">Si ingresas una nueva contraseña aquí, se actualizará la del usuario.</p>
+                    </div>
                     <div class="mb-4">
                       <label for="rol" class="block text-sm font-medium text-gray-700">Rol</label>
                       <select id="rol" name="rol" [(ngModel)]="currentUser.rol_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -292,6 +297,7 @@ export class UsersListComponent implements OnInit {
 
   editUser(user: User) {
     this.currentUser = { ...user };
+    this.currentUser.password = '';
     // Map nested role object to flat rol_id for the select
     if (user.role) {
       this.currentUser.rol_id = user.role.id_rol;

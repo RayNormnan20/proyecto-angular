@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth.service';
 import { OrderService, Order } from '../../../../core/services/order.service';
 import { FavoriteService } from '../../../favorites/services/favorite.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
 
@@ -13,19 +14,19 @@ import { environment } from '../../../../../environments/environment';
   template: `
     <div class="bg-gray-50 min-h-screen pb-12">
       <!-- Header / Banner -->
-      <div class="h-48 bg-gradient-to-r from-indigo-600 to-indigo-800 w-full relative overflow-hidden">
+      <div class="h-22 bg-gradient-to-r from-indigo-600 to-indigo-800 w-full relative overflow-hidden">
          <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
       </div>
 
       <!-- Main Content -->
-      <div class="container mx-auto px-4 -mt-20 relative z-10">
+      <div class="container mx-auto px-4 -mt-11 relative z-10">
         <div class="flex flex-col md:flex-row gap-6">
           
           <!-- Sidebar: User Card -->
           <div class="w-full md:w-1/3 lg:w-1/4">
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
               <div class="p-6 text-center border-b border-gray-100">
-                <div class="w-32 h-32 mx-auto bg-white p-1 rounded-full shadow-lg -mt-16 mb-4 relative">
+                <div class="w-32 h-22 mx-auto bg-white p-1 rounded-full shadow-lg -mt-12 mb-4 relative">
                    <div class="w-full h-full rounded-full bg-indigo-100 flex items-center justify-center text-4xl font-bold text-indigo-600 border-4 border-white">
                      {{ (currentUser()?.nombre || 'U').charAt(0).toUpperCase() }}
                    </div>
@@ -105,7 +106,8 @@ import { environment } from '../../../../../environments/environment';
             </div>
 
             <!-- Profile Info Tab -->
-            <div *ngIf="activeTab() === 'info'" class="bg-white rounded-lg shadow-md p-6 mb-6 animate-fade-in">
+            <div *ngIf="activeTab() === 'info'" class="animate-fade-in">
+              <div class="bg-white rounded-lg shadow-md p-6 mb-6">
               <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
                 <h3 class="text-xl font-bold text-gray-800">Información de Perfil</h3>
               </div>
@@ -131,6 +133,62 @@ import { environment } from '../../../../../environments/environment';
                   <div class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-2">
                     {{ (currentUser()?.createdAt || today) | date:'longDate' }}
                   </div>
+                </div>
+              </div>
+              </div>
+
+              <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                  <h3 class="text-xl font-bold text-gray-800">Actualizar Contraseña</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Contraseña actual</label>
+                    <input
+                      type="password"
+                      [value]="currentPassword()"
+                      (input)="currentPassword.set(($any($event.target).value || '').toString())"
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
+                      autocomplete="current-password"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Nueva contraseña</label>
+                    <input
+                      type="password"
+                      [value]="newPassword()"
+                      (input)="newPassword.set(($any($event.target).value || '').toString())"
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
+                      autocomplete="new-password"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Confirmar nueva contraseña</label>
+                    <input
+                      type="password"
+                      [value]="confirmPassword()"
+                      (input)="confirmPassword.set(($any($event.target).value || '').toString())"
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-indigo-500 focus:border-indigo-500"
+                      autocomplete="new-password"
+                    />
+                  </div>
+                </div>
+
+                <div *ngIf="passwordError()" class="mt-3 text-sm text-red-600">
+                  {{ passwordError() }}
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                  <button
+                    (click)="submitPasswordChange()"
+                    [disabled]="isChangingPassword()"
+                    class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                  >
+                    {{ isChangingPassword() ? 'Guardando...' : 'Guardar contraseña' }}
+                  </button>
                 </div>
               </div>
             </div>
@@ -213,10 +271,22 @@ import { environment } from '../../../../../environments/environment';
                         <p *ngIf="order.codigo_operacion"><span class="font-bold text-gray-700">Cód. Operación:</span> {{ order.codigo_operacion }}</p>
                       </div>
                       
-                      <div class="mt-4 flex justify-end gap-2">
-                        <button (click)="downloadInvoice(order.id_orden)" class="text-xs flex items-center gap-1 text-gray-600 hover:text-indigo-600 transition-colors">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      <div class="mt-4 flex justify-end">
+                        <button 
+                          (click)="downloadInvoice(order.id_orden)"
+                          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white 
+                                bg-indigo-600 rounded-lg shadow-md 
+                                hover:bg-indigo-700 hover:shadow-lg 
+                                active:scale-95 
+                                transition-all duration-200">
+
+                          <svg xmlns="http://www.w3.org/2000/svg" 
+                              class="h-4 w-4" 
+                              fill="none" 
+                              viewBox="0 0 24 24" 
+                              stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 16v-8m0 8l-3-3m3 3l3-3M7 20h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11a2 2 0 002 2z"/>
                           </svg>
                           Descargar Recibo
                         </button>
@@ -246,6 +316,7 @@ export class ProfileComponent {
   private authService = inject(AuthService);
   private orderService = inject(OrderService);
   private favoriteService = inject(FavoriteService);
+  private toastService = inject(ToastService);
   
   currentUser = this.authService.currentUser;
   today = new Date();
@@ -254,6 +325,11 @@ export class ProfileComponent {
   expandedOrderId = signal<number | null>(null);
   
   activeOrdersCount = signal(0);
+  currentPassword = signal('');
+  newPassword = signal('');
+  confirmPassword = signal('');
+  isChangingPassword = signal(false);
+  passwordError = signal<string | null>(null);
 
   stats = computed(() => ({
     totalOrders: this.orders().length,
@@ -288,6 +364,46 @@ export class ProfileComponent {
     if (!url) return 'assets/img/placeholder.png';
     if (url.startsWith('http')) return url;
     return `${environment.imageBaseUrl}${url}`;
+  }
+
+  submitPasswordChange() {
+    this.passwordError.set(null);
+
+    const currentPassword = this.currentPassword().trim();
+    const newPassword = this.newPassword().trim();
+    const confirmPassword = this.confirmPassword().trim();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      this.passwordError.set('Completa los 3 campos.');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      this.passwordError.set('La nueva contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      this.passwordError.set('La nueva contraseña y la confirmación no coinciden.');
+      return;
+    }
+
+    this.isChangingPassword.set(true);
+    this.authService.changePassword({ currentPassword, newPassword }).subscribe({
+      next: () => {
+        this.toastService.show('Contraseña actualizada correctamente', 'success');
+        this.currentPassword.set('');
+        this.newPassword.set('');
+        this.confirmPassword.set('');
+        this.isChangingPassword.set(false);
+      },
+      error: (err) => {
+        const message = err?.error?.message || 'Error al actualizar la contraseña';
+        this.passwordError.set(message);
+        this.toastService.show(message, 'error');
+        this.isChangingPassword.set(false);
+      }
+    });
   }
 
   downloadInvoice(orderId: number) {

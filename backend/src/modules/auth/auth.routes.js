@@ -30,4 +30,10 @@ router.post('/logout', authController.logout);
 
 router.get('/me', verifyToken, authController.getProfile);
 
+router.post('/change-password', verifyToken, [
+  body('currentPassword').notEmpty().withMessage('La contraseña actual es obligatoria'),
+  body('newPassword').isLength({ min: 6 }).withMessage('La nueva contraseña debe tener al menos 6 caracteres'),
+  validate
+], authController.changePassword);
+
 module.exports = router;

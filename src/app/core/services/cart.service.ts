@@ -16,8 +16,24 @@ export class CartService {
   private sparkleStyleId = 'cart-sparkle-style';
 
   cartTotal = computed(() => 
-    this.cartItems().reduce((total, item) => total + (Number(item.product.precio) * item.quantity), 0)
+    this.cartItems().reduce((total, item) => {
+      const price = this.getItemPrice(item.product, item.quantity);
+      return total + (price * item.quantity);
+    }, 0)
   );
+
+  getItemPrice(product: Product, quantity: number): number {
+    let price = Number(product.precio);
+    if (product.precios_volumen && Array.isArray(product.precios_volumen)) {
+      // Sort by min quantity descending to find the best match
+      const scales = [...product.precios_volumen].sort((a, b) => b.min - a.min);
+      const matchingScale = scales.find(s => quantity >= s.min);
+      if (matchingScale) {
+        price = Number(matchingScale.precio);
+      }
+    }
+    return price;
+  }
 
   cartCount = computed(() => 
     this.cartItems().reduce((count, item) => count + item.quantity, 0)

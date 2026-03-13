@@ -68,7 +68,7 @@ exports.deleteUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, apellidos, email, telefono, direccion, estado, rol_id } = req.body;
+    const { nombre, apellidos, email, telefono, direccion, estado, rol_id, password } = req.body;
     
     const user = await User.findByPk(id);
     
@@ -76,7 +76,13 @@ exports.updateUser = async (req, res) => {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    await user.update({ nombre, apellidos, email, telefono, direccion, estado, rol_id });
+    const payload = { nombre, apellidos, email, telefono, direccion, estado, rol_id };
+    const passwordStr = typeof password === 'string' ? password.trim() : '';
+    if (passwordStr) {
+      payload.password_hash = await hashPassword(passwordStr);
+    }
+
+    await user.update(payload);
     res.json({ message: 'Usuario actualizado correctamente', user });
   } catch (error) {
     console.error(error);

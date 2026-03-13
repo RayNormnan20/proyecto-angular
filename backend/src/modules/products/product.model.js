@@ -54,6 +54,11 @@ const Product = sequelize.define('Product', {
       model: Brand,
       key: 'id_marca'
     }
+  },
+  precios_volumen: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    comment: 'JSON con estructura [{"min": 10, "precio": 0.80}, ...]'
   }
 }, {
   tableName: 'productos',

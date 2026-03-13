@@ -147,7 +147,7 @@ import { environment } from '../../../environments/environment';
             <!-- Nav Links -->
             <div class="w-full lg:w-[75%]">
               <nav class="flex items-center justify-between py-3 lg:py-0 px-0 lg:px-8">
-                  <div class="hidden lg:flex space-x-8">
+                  <div class="hidden lg:flex gap-5">
                     <a (click)="goHome()" class="text-white hover:text-indigo-400 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Inicio</a>
                     <a (click)="goHome()" class="text-white hover:text-indigo-400 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider cursor-pointer">Catálogo</a>
                     <a routerLink="/testimonials" class="text-white hover:text-indigo-400 py-3 font-medium transition-colors no-underline uppercase text-sm tracking-wider">Clientes Satisfechos</a>

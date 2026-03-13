@@ -132,6 +132,7 @@ CREATE TABLE productos (
     visible_web BOOLEAN DEFAULT TRUE,
     categoria_id INT,
     marca_id INT,
+    precios_volumen JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (categoria_id) REFERENCES categorias(id_categoria) ON DELETE SET NULL,

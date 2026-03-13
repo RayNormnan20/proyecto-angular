@@ -1,6 +1,24 @@
 const { Product, Category, Brand, ProductImage } = require('../associations');
 const { Op } = require('sequelize');
 
+const parsePreciosVolumen = (value) => {
+  if (value === undefined || value === null) return null;
+  if (Array.isArray(value)) return value;
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    try {
+      const parsed = JSON.parse(trimmed);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+};
+
 // Listar productos con filtros y paginación
 exports.getAll = async (req, res) => {
   try {
@@ -41,6 +59,9 @@ exports.getAll = async (req, res) => {
       limit: parseInt(limit),
       offset: parseInt(offset),
       order,
+      attributes: {
+        include: ['precios_volumen']
+      },
       include: [
         { model: Category, as: 'category' },
         { model: Brand, as: 'brand' },
@@ -78,10 +99,19 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { nombre, descripcion, precio, stock, categoria_id, marca_id, codigo_sku, estado, visible_web } = req.body;
+    const { nombre, descripcion, precio, stock, categoria_id, marca_id, codigo_sku, estado, visible_web, precios_volumen } = req.body;
     
     const product = await Product.create({
-      nombre, descripcion, precio, stock, categoria_id, marca_id, codigo_sku, estado, visible_web
+      nombre, 
+      descripcion, 
+      precio, 
+      stock, 
+      categoria_id, 
+      marca_id, 
+      codigo_sku, 
+      estado, 
+      visible_web,
+      precios_volumen: parsePreciosVolumen(precios_volumen)
     });
 
     // Manejar imágenes subidas
@@ -116,7 +146,11 @@ exports.update = async (req, res) => {
     const product = await Product.findByPk(req.params.id);
     if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
 
-    await product.update(req.body);
+    const payload = { ...req.body };
+    if (Object.prototype.hasOwnProperty.call(payload, 'precios_volumen')) {
+      payload.precios_volumen = parsePreciosVolumen(payload.precios_volumen);
+    }
+    await product.update(payload);
 
     // Si se suben nuevas imágenes, se agregan a las existentes
     if (req.files && req.files.length > 0) {

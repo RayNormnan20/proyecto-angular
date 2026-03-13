@@ -1,6 +1,6 @@
 const authService = require('./auth.service');
 const { User, Role, Permission } = require('../associations');
-const { hashPassword } = require('../../utils/password.utils');
+const { hashPassword, comparePassword } = require('../../utils/password.utils');
 
 const register = async (req, res) => {
   try {
@@ -101,4 +101,30 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { register, login, refreshToken, logout, getProfile };
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Contraseña actual y nueva contraseña son obligatorias' });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    const isMatch = await comparePassword(currentPassword, user.password_hash);
+    if (!isMatch) return res.status(400).json({ message: 'La contraseña actual es incorrecta' });
+
+    const hashedPassword = await hashPassword(newPassword);
+    user.password_hash = hashedPassword;
+    await user.save();
+
+    res.json({ message: 'Contraseña actualizada correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al actualizar la contraseña' });
+  }
+};
+
+module.exports = { register, login, refreshToken, logout, getProfile, changePassword };

@@ -55,13 +55,24 @@ const createOrder = async (req, res) => {
         throw new Error(`Stock insuficiente para el producto ${product.nombre}`);
       }
 
-      const subtotal = Number(product.precio) * item.cantidad;
+      // Lógica de Precios por Volumen
+      let precioAplicado = Number(product.precio);
+      if (product.precios_volumen && Array.isArray(product.precios_volumen)) {
+        // Ordenar por cantidad mínima descendente para aplicar el descuento más alto que cumpla
+        const escalas = [...product.precios_volumen].sort((a, b) => b.min - a.min);
+        const escalaEncontrada = escalas.find(e => item.cantidad >= e.min);
+        if (escalaEncontrada) {
+          precioAplicado = Number(escalaEncontrada.precio);
+        }
+      }
+
+      const subtotal = precioAplicado * item.cantidad;
       total += subtotal;
 
       orderItemsData.push({
         producto_id: item.id_producto,
         cantidad: item.cantidad,
-        precio_unitario: product.precio,
+        precio_unitario: precioAplicado,
         subtotal: subtotal
       });
 

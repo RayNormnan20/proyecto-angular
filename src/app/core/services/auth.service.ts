@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { TokenService } from './token.service';
 import { environment } from '../../../environments/environment';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -70,5 +71,9 @@ export class AuthService {
   hasPermission(permission: string): boolean {
     const user = this.currentUser();
     return user?.permissions?.includes(permission) || false;
+  }
+
+  changePassword(payload: { currentPassword: string; newPassword: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/change-password`, payload);
   }
 }

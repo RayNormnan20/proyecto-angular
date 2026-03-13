@@ -318,7 +318,7 @@ import { environment } from '../../../../../environments/environment';
                     <p class="text-xs text-gray-500">Cant: {{ item.quantity }}</p>
                   </div>
                   <div class="text-right flex-shrink-0">
-                    <p class="text-sm font-bold text-gray-900">S/ {{ (item.product.precio * item.quantity) | number:'1.2-2' }}</p>
+                    <p class="text-sm font-bold text-gray-900">S/ {{ (cartService.getItemPrice(item.product, item.quantity) * item.quantity) | number:'1.2-2' }}</p>
                   </div>
                 </div>
               </div>

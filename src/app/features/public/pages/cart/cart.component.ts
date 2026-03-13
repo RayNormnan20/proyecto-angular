@@ -84,8 +84,15 @@ import { Product } from '../../../products/models/product.model';
                         </div>
                         
                         <div class="text-right flex-shrink-0">
-                           <p class="text-lg sm:text-xl font-bold text-gray-900 whitespace-nowrap">S/ {{ item.product.precio | number:'1.2-2' }}</p>
-                           <p class="text-xs sm:text-sm text-gray-400 line-through" *ngIf="item.product.precio < 1000">S/ {{ (item.product.precio * 1.2) | number:'1.2-2' }}</p>
+                           <p class="text-lg sm:text-xl font-bold text-gray-900 whitespace-nowrap">
+                             S/ {{ cartService.getItemPrice(item.product, item.quantity) | number:'1.2-2' }}
+                           </p>
+                           <p class="text-xs sm:text-sm text-gray-400 line-through" *ngIf="cartService.getItemPrice(item.product, item.quantity) < Number(item.product.precio)">
+                             S/ {{ item.product.precio | number:'1.2-2' }}
+                           </p>
+                           <p class="text-[10px] text-green-600 font-bold" *ngIf="cartService.getItemPrice(item.product, item.quantity) < Number(item.product.precio)">
+                             ¡Descuento por mayor!
+                           </p>
                         </div>
                       </div>
 
@@ -187,6 +194,7 @@ import { Product } from '../../../products/models/product.model';
 })
 export class CartComponent {
   cartService = inject(CartService);
+  Number = Number;
 
   // Base64 SVG Placeholder
   private readonly PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNmM2Y0ZjYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iIzk0YTMiOCIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGR5PSIuM2VtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NoSBJbWFnZTwvdGV4dD48L3N2Zz4=';

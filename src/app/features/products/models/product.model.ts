@@ -14,6 +14,7 @@ export interface Product {
   category?: Category;
   brand?: Brand;
   images?: ProductImage[];
+  precios_volumen?: { min: number; precio: number }[];
 }
 
 export interface Category {

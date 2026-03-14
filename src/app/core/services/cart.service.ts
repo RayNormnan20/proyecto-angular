@@ -24,9 +24,16 @@ export class CartService {
 
   getItemPrice(product: Product, quantity: number): number {
     let price = Number(product.precio);
-    if (product.precios_volumen && Array.isArray(product.precios_volumen)) {
-      // Sort by min quantity descending to find the best match
-      const scales = [...product.precios_volumen].sort((a, b) => b.min - a.min);
+    let tiers: any = product.precios_volumen as any;
+    if (typeof tiers === 'string' && tiers.trim()) {
+      try {
+        tiers = JSON.parse(tiers);
+      } catch {
+        tiers = null;
+      }
+    }
+    if (tiers && Array.isArray(tiers)) {
+      const scales = [...tiers].sort((a, b) => b.min - a.min);
       const matchingScale = scales.find(s => quantity >= s.min);
       if (matchingScale) {
         price = Number(matchingScale.precio);

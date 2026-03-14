@@ -70,6 +70,10 @@ exports.getAll = async (req, res) => {
       distinct: true // Para contar correctamente con includes
     });
 
+    for (const product of rows) {
+      product.setDataValue('precios_volumen', parsePreciosVolumen(product.precios_volumen));
+    }
+
     res.json({
       total: count,
       totalPages: Math.ceil(count / limit),
@@ -91,6 +95,7 @@ exports.getById = async (req, res) => {
       ]
     });
     if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
+    product.setDataValue('precios_volumen', parsePreciosVolumen(product.precios_volumen));
     res.json(product);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener producto', error: error.message });

@@ -329,7 +329,7 @@ import { environment } from '../../../../../environments/environment';
                     <div class="mb-6 border border-gray-200 rounded-lg p-4">
                       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                         <div>
-                          <div class="text-sm font-bold text-gray-900">Precios por volumen</div>
+                          <div class="text-sm font-bold text-gray-900">Descuentos por cantidades</div>
                           <div class="text-xs text-gray-500">Define precios por docena, mayor, millar, etc. Se aplica el mejor precio según la cantidad.</div>
                         </div>
                         <div class="flex flex-wrap gap-2">

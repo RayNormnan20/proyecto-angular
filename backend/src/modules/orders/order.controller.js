@@ -5,6 +5,22 @@ const { generateOrderPDF } = require('../../utils/pdf.utils');
 
 const { Op } = require('sequelize');
 
+const parsePreciosVolumen = (value) => {
+  if (value === undefined || value === null) return null;
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    try {
+      const parsed = JSON.parse(trimmed);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
 const createOrder = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -57,9 +73,10 @@ const createOrder = async (req, res) => {
 
       // Lógica de Precios por Volumen
       let precioAplicado = Number(product.precio);
-      if (product.precios_volumen && Array.isArray(product.precios_volumen)) {
+      const preciosVolumen = parsePreciosVolumen(product.precios_volumen);
+      if (preciosVolumen && Array.isArray(preciosVolumen)) {
         // Ordenar por cantidad mínima descendente para aplicar el descuento más alto que cumpla
-        const escalas = [...product.precios_volumen].sort((a, b) => b.min - a.min);
+        const escalas = [...preciosVolumen].sort((a, b) => b.min - a.min);
         const escalaEncontrada = escalas.find(e => item.cantidad >= e.min);
         if (escalaEncontrada) {
           precioAplicado = Number(escalaEncontrada.precio);

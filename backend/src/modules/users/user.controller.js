@@ -22,18 +22,28 @@ exports.getAllUsers = async (req, res) => {
 exports.createUser = async (req, res) => {
   try {
     const { nombre, apellidos, email, password, telefono, direccion, rol_id, estado } = req.body;
+    const nombreStr = typeof nombre === 'string' ? nombre.trim() : '';
+    const apellidosStr = typeof apellidos === 'string' ? apellidos.trim() : '';
+    const emailStr = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    const passwordStr = typeof password === 'string' ? password.trim() : '';
 
-    const existingUser = await User.findOne({ where: { email } });
+    if (!nombreStr || !apellidosStr || !emailStr || !passwordStr) {
+      return res.status(400).json({
+        message: 'Nombre, apellidos, correo y contraseña son obligatorios'
+      });
+    }
+
+    const existingUser = await User.findOne({ where: { email: emailStr } });
     if (existingUser) {
       return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
     }
 
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashPassword(passwordStr);
 
     const newUser = await User.create({
-      nombre,
-      apellidos,
-      email,
+      nombre: nombreStr,
+      apellidos: apellidosStr,
+      email: emailStr,
       password_hash: hashedPassword,
       telefono,
       direccion,

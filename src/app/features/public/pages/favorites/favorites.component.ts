@@ -35,6 +35,7 @@ import { environment } from '../../../../../environments/environment';
               [src]="getProductImage(product)" 
               class="w-full h-full object-cover" 
               alt="{{ product.nombre }}"
+              onerror="this.onerror=null;this.src='assets/img/placeholder.png'"
             >
             <button 
               (click)="removeFavorite(product.id_producto!)"
@@ -109,8 +110,12 @@ export class FavoritesComponent implements OnInit {
     if (product.images && product.images.length > 0) {
       const mainImage = product.images.find(img => img.es_principal);
       const image = mainImage || product.images[0];
-      return `${this.imageBaseUrl}${image.url}`;
+      if (!image?.url) return 'assets/img/placeholder.png';
+      if (image.url.startsWith('http')) return image.url;
+
+      const cleanUrl = image.url.startsWith('/') ? image.url.substring(1) : image.url;
+      return `${this.imageBaseUrl}/${cleanUrl}`;
     }
-    return 'assets/images/no-image.png';
+    return 'assets/img/placeholder.png';
   }
 }

@@ -191,6 +191,10 @@ import { ToastService } from '../../../../core/services/toast.service';
                       <input type="text" id="nombre" name="nombre" [(ngModel)]="currentUser.nombre" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" required>
                     </div>
                     <div class="mb-4">
+                      <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos</label>
+                      <input type="text" id="apellidos" name="apellidos" [(ngModel)]="currentUser.apellidos" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" required>
+                    </div>
+                    <div class="mb-4">
                       <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                       <input type="email" id="email" name="email" [(ngModel)]="currentUser.email" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" required>
                     </div>
@@ -289,6 +293,7 @@ export class UsersListComponent implements OnInit {
 
   openCreateModal() {
     this.currentUser = {
+      apellidos: '',
       estado: 'activo'
     };
     this.isEditing = false;
@@ -314,6 +319,24 @@ export class UsersListComponent implements OnInit {
 
   saveUser() {
     if (this.currentUser) {
+      const nombre = (this.currentUser.nombre || '').trim();
+      const apellidos = (this.currentUser.apellidos || '').trim();
+      const email = (this.currentUser.email || '').trim();
+      const password = (this.currentUser.password || '').trim();
+
+      if (!nombre || !apellidos || !email || (!this.isEditing && !password)) {
+        this.toastService.show('Completa nombre, apellidos, correo y contraseña', 'error');
+        return;
+      }
+
+      this.currentUser = {
+        ...this.currentUser,
+        nombre,
+        apellidos,
+        email,
+        password
+      };
+
       if (this.isEditing && this.currentUser.id_usuario) {
         this.usersService.updateUser(this.currentUser.id_usuario, this.currentUser).subscribe({
           next: () => {

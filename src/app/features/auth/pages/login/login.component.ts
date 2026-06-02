@@ -1,13 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthApiService } from '../../services/auth-api.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div class="flex min-h-screen bg-gray-50">
       <!-- Left Side: Image/Branding (Hidden on mobile) -->
@@ -89,7 +90,7 @@ import { AuthService } from '../../../../core/services/auth.service';
                 <label for="remember-me" class="ml-2 block text-sm text-gray-900">Recordarme</label>
               </div>
               <div class="text-sm">
-                <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">¿Olvidaste tu contraseña?</a>
+                <a routerLink="/auth/forgot-password" class="font-medium text-indigo-600 hover:text-indigo-500">¿Olvidaste tu contraseña?</a>
               </div>
             </div>
 
@@ -134,7 +135,7 @@ import { AuthService } from '../../../../core/services/auth.service';
           <div class="mt-6 text-center">
             <p class="text-sm text-gray-600">
               ¿No tienes una cuenta?
-              <a href="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500">Regístrate aquí</a>
+              <a routerLink="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500">Regístrate aquí</a>
             </p>
           </div>
         </div>

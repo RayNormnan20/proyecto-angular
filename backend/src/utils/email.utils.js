@@ -247,6 +247,11 @@ const sendWelcomeEmail = async (user) => {
 
   // Datos de la empresa (configurables o por defecto)
   const empresaNombre = settingsMap['app_name'] || 'Nova Vam 3D';
+  const frontendUrl = normalizeFrontendUrl(
+    settingsMap['frontend_url'],
+    process.env.FRONTEND_URL,
+    process.env.CORS_ORIGIN
+  );
   // const empresaLogo = settingsMap['app_logo'] || '';
 
   const html = `
@@ -261,7 +266,7 @@ const sendWelcomeEmail = async (user) => {
         <p>Ahora puedes acceder a tu cuenta para realizar pedidos, ver tu historial y gestionar tus direcciones.</p>
         
         <div style="text-align: center; margin-top: 30px;">
-          <a href="${process.env.CORS_ORIGIN || 'http://localhost:4200'}/login" style="background-color: #e74c3c; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Iniciar Sesión</a>
+          <a href="${frontendUrl}/auth/login" style="background-color: #e74c3c; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Iniciar Sesión</a>
         </div>
         
         <p style="margin-top: 30px; font-size: 12px; color: #7f8c8d; text-align: center;">
@@ -303,6 +308,91 @@ const sendWelcomeEmail = async (user) => {
       error_mensaje: error.message
     });
   }
+};
+
+const sendPasswordResetEmail = async (user, token) => {
+  const emailConfig = await getTransporter();
+
+  if (!emailConfig) {
+    console.warn('Omitiendo envío de correo de recuperación por falta de configuración.');
+    return;
+  }
+
+  const { transporter, from, settingsMap } = emailConfig;
+  const empresaNombre = settingsMap['app_name'] || 'Nova Vam 3D';
+  const frontendUrl = normalizeFrontendUrl(
+    settingsMap['frontend_url'],
+    process.env.FRONTEND_URL,
+    process.env.CORS_ORIGIN
+  );
+  const resetLink = `${frontendUrl}/auth/reset-password?token=${encodeURIComponent(token)}`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+      <div style="background-color: #4f46e5; color: white; padding: 24px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="margin: 0; font-size: 24px;">Recuperación de contraseña</h1>
+        <p style="margin: 8px 0 0;">${empresaNombre}</p>
+      </div>
+      <div style="padding: 24px;">
+        <p>Hola ${user.nombre},</p>
+        <p>Recibimos una solicitud para restablecer tu contraseña.</p>
+        <p>Haz clic en el siguiente botón para crear una nueva contraseña. Este enlace vence en 1 hora.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetLink}" style="background-color: #4f46e5; color: white; padding: 12px 22px; text-decoration: none; border-radius: 6px; font-weight: bold;">Restablecer contraseña</a>
+        </div>
+        <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
+        <p style="word-break: break-all; font-size: 12px; color: #6b7280;">Si el botón no funciona, copia y pega este enlace en tu navegador:<br>${resetLink}</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: `"Nova Vam 3D" <${from}>`,
+      to: user.email,
+      subject: `Restablece tu contraseña en ${empresaNombre}`,
+      html
+    });
+
+    await EmailLog.create({
+      destinatario: user.email,
+      asunto: `Restablece tu contraseña en ${empresaNombre}`,
+      contenido: `Enlace de recuperación enviado a ${user.email}`,
+      tipo: 'otro',
+      referencia_id: user.id_usuario,
+      estado: 'enviado'
+    });
+  } catch (error) {
+    console.error('Error al enviar correo de recuperación:', error);
+
+    await EmailLog.create({
+      destinatario: user.email,
+      asunto: `Restablece tu contraseña en ${empresaNombre}`,
+      contenido: `Error al enviar recuperación: ${error.message}`,
+      tipo: 'otro',
+      referencia_id: user.id_usuario,
+      estado: 'fallido',
+      error_mensaje: error.message
+    });
+  }
+};
+
+const normalizeFrontendUrl = (...candidates) => {
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+
+    const value = String(candidate).trim();
+    if (!value || value === '*') continue;
+
+    const firstValue = value.split(',').map(item => item.trim()).find(Boolean);
+    if (!firstValue || firstValue === '*') continue;
+
+    if (/^https?:\/\//i.test(firstValue)) {
+      return firstValue.replace(/\/$/, '');
+    }
+  }
+
+  return 'http://localhost:4200';
 };
 
 const sendContactEmail = async (contactData) => {
@@ -395,4 +485,4 @@ const sendContactEmail = async (contactData) => {
   }
 };
 
-module.exports = { sendOrderConfirmation, sendWelcomeEmail, sendContactEmail };
+module.exports = { sendOrderConfirmation, sendWelcomeEmail, sendPasswordResetEmail, sendContactEmail };

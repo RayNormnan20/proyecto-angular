@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/pages/login/login.component';
 import { RegisterComponent } from './features/auth/pages/register/register.component';
+import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/auth/pages/reset-password/reset-password.component';
 import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-layout.component';
 import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home/dashboard-home.component';
 import { authGuard } from './core/guards/auth.guard';
@@ -22,6 +24,7 @@ import { ShippingSettingsComponent } from './features/dashboard/pages/shipping-s
 import { EmailSettingsComponent } from './features/dashboard/pages/email-settings/email-settings.component';
 import { TestimonialSettingsComponent } from './features/dashboard/pages/testimonial-settings/testimonial-settings.component';
 import { HomeBannersSettingsComponent } from './features/dashboard/pages/home-banners-settings/home-banners-settings.component';
+import { AccessLogsComponent } from './features/dashboard/pages/access-logs/access-logs.component';
 
 // Público
 import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
@@ -64,6 +67,8 @@ export const routes: Routes = [
     children: [
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
+      { path: 'forgot-password', component: ForgotPasswordComponent },
+      { path: 'reset-password', component: ResetPasswordComponent },
       { path: '', redirectTo: 'login', pathMatch: 'full' }
     ]
   },
@@ -92,6 +97,7 @@ export const routes: Routes = [
       { path: 'shipping-settings', component: ShippingSettingsComponent },
       // Configuración Correo
       { path: 'email-settings', component: EmailSettingsComponent },
+      { path: 'access-logs', component: AccessLogsComponent },
       // Configuración Testimonios (Clientes Satisfechos)
       { path: 'testimonial-settings', component: TestimonialSettingsComponent },
       { path: 'home-banners-settings', component: HomeBannersSettingsComponent }

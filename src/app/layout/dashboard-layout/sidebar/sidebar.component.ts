@@ -160,6 +160,19 @@ import { AuthService } from '../../../core/services/auth.service';
                     </span>
                     Config. Email
                 </a>
+
+                <a 
+                    *ngIf="authService.hasRole('admin') || authService.hasRole('supervisor') || authService.hasRole('trabajador')"
+                    routerLink="/dashboard/access-logs" 
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
+                    (click)="close.emit()"
+                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
+                >
+                    <span class="mr-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-3M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    </span>
+                    Logs de Acceso
+                </a>
             </div>
         </ng-container>
 

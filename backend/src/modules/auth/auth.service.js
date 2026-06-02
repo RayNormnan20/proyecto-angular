@@ -1,8 +1,25 @@
-const { User, Role, Permission, Session, AccessLog } = require('../associations');
+const { User, Role, Permission, Session, AccessLog, PasswordResetToken } = require('../associations');
 const { hashPassword, comparePassword } = require('../../utils/password.utils');
 const { generateToken, generateRefreshToken, verifyRefreshToken } = require('../../utils/jwt.utils');
-const { sendWelcomeEmail } = require('../../utils/email.utils');
+const { sendWelcomeEmail, sendPasswordResetEmail } = require('../../utils/email.utils');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { Op } = require('sequelize');
+
+const hashResetToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+const logAccessEvent = async ({ usuarioId = null, accion, ipAddress = null, detalles = null }) => {
+  try {
+    await AccessLog.create({
+      usuario_id: usuarioId,
+      accion,
+      ip_address: ipAddress,
+      detalles
+    });
+  } catch (logError) {
+    console.error('Error creating access log:', logError);
+  }
+};
 
 const register = async (userData) => {
   const existingUser = await User.findOne({ where: { email: userData.email } });
@@ -56,8 +73,9 @@ const register = async (userData) => {
 };
 
 const login = async (email, password, ipAddress = null, userAgent = null) => {
+  const normalizedEmail = String(email || '').trim().toLowerCase();
   const user = await User.findOne({ 
-    where: { email },
+    where: { email: normalizedEmail },
     include: [{ 
       model: Role, 
       as: 'role',
@@ -69,15 +87,35 @@ const login = async (email, password, ipAddress = null, userAgent = null) => {
     }]
   });
 
-  // Log failed attempt if user exists but password/status fails could be done here, 
-  // but simpler to just log successful logins for now or handle errors in controller.
-  
-  if (!user) throw new Error('Credenciales inválidas');
+  if (!user) {
+    await logAccessEvent({
+      accion: 'FAILED_LOGIN',
+      ipAddress,
+      detalles: `Intento de acceso para correo no registrado: ${normalizedEmail}`
+    });
+    throw new Error('Credenciales inválidas');
+  }
 
   const isMatch = await comparePassword(password, user.password_hash);
-  if (!isMatch) throw new Error('Credenciales inválidas');
+  if (!isMatch) {
+    await logAccessEvent({
+      usuarioId: user.id_usuario,
+      accion: 'FAILED_LOGIN',
+      ipAddress,
+      detalles: userAgent ? `Contraseña incorrecta. User Agent: ${userAgent}` : 'Contraseña incorrecta'
+    });
+    throw new Error('Credenciales inválidas');
+  }
 
-  if (user.estado !== 'activo') throw new Error('Su cuenta no está activa. Contacte al administrador.');
+  if (user.estado !== 'activo') {
+    await logAccessEvent({
+      usuarioId: user.id_usuario,
+      accion: 'FAILED_LOGIN',
+      ipAddress,
+      detalles: `Cuenta con estado ${user.estado}`
+    });
+    throw new Error('Su cuenta no está activa. Contacte al administrador.');
+  }
 
   user.ultimo_acceso = new Date();
   await user.save();
@@ -98,18 +136,12 @@ const login = async (email, password, ipAddress = null, userAgent = null) => {
   const accessToken = generateToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
-  // 1. Log Access (LOGIN)
-  try {
-    await AccessLog.create({
-      usuario_id: user.id_usuario,
-      accion: 'LOGIN',
-      ip_address: ipAddress,
-      detalles: userAgent ? `User Agent: ${userAgent}` : 'No user agent provided'
-    });
-  } catch (logError) {
-    console.error('Error creating access log:', logError);
-    // Don't block login if logging fails
-  }
+  await logAccessEvent({
+    usuarioId: user.id_usuario,
+    accion: 'LOGIN',
+    ipAddress,
+    detalles: userAgent ? `User Agent: ${userAgent}` : 'No user agent provided'
+  });
 
   // 2. Create Session
   try {
@@ -148,9 +180,8 @@ const logout = async (refreshToken) => {
       session.is_revoked = true;
       await session.save();
 
-      // Log Logout
-      await AccessLog.create({
-        usuario_id: session.usuario_id,
+      await logAccessEvent({
+        usuarioId: session.usuario_id,
         accion: 'LOGOUT',
         detalles: 'Cierre de sesión exitoso'
       });
@@ -202,4 +233,104 @@ const refreshToken = async (token) => {
   return { accessToken: newAccessToken };
 };
 
-module.exports = { register, login, refreshToken, logout };
+const requestPasswordReset = async (email, ipAddress = null, userAgent = null) => {
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+  const user = await User.findOne({ where: { email: normalizedEmail } });
+
+  await logAccessEvent({
+    usuarioId: user ? user.id_usuario : null,
+    accion: 'PASSWORD_RESET_REQUEST',
+    ipAddress,
+    detalles: user
+      ? (userAgent ? `Solicitud de recuperación. User Agent: ${userAgent}` : 'Solicitud de recuperación')
+      : `Solicitud para correo no registrado: ${normalizedEmail}`
+  });
+
+  if (!user || user.estado !== 'activo') {
+    return;
+  }
+
+  const now = new Date();
+  await PasswordResetToken.update(
+    { used_at: now },
+    {
+      where: {
+        usuario_id: user.id_usuario,
+        used_at: null,
+        expires_at: { [Op.gt]: now }
+      }
+    }
+  );
+
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const tokenHash = hashResetToken(rawToken);
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+  await PasswordResetToken.create({
+    usuario_id: user.id_usuario,
+    token_hash: tokenHash,
+    requested_ip: ipAddress,
+    user_agent: userAgent,
+    expires_at: expiresAt
+  });
+
+  await sendPasswordResetEmail(user, rawToken);
+};
+
+const resetPassword = async (token, newPassword, ipAddress = null, userAgent = null) => {
+  const passwordStr = String(newPassword || '').trim();
+  const tokenHash = hashResetToken(String(token || '').trim());
+  const now = new Date();
+
+  const resetToken = await PasswordResetToken.findOne({
+    where: {
+      token_hash: tokenHash,
+      used_at: null,
+      expires_at: { [Op.gt]: now }
+    },
+    include: [{ model: User, as: 'user' }]
+  });
+
+  if (!resetToken || !resetToken.user) {
+    await logAccessEvent({
+      accion: 'PASSWORD_RESET_FAILED',
+      ipAddress,
+      detalles: userAgent ? `Token inválido o expirado. User Agent: ${userAgent}` : 'Token inválido o expirado'
+    });
+    throw new Error('El enlace de recuperación es inválido o ya expiró');
+  }
+
+  resetToken.user.password_hash = await hashPassword(passwordStr);
+  await resetToken.user.save();
+
+  resetToken.used_at = now;
+  await resetToken.save();
+
+  await Session.update(
+    { is_revoked: true },
+    { where: { usuario_id: resetToken.user.id_usuario, is_revoked: false } }
+  );
+
+  await PasswordResetToken.update(
+    { used_at: now },
+    {
+      where: {
+        usuario_id: resetToken.user.id_usuario,
+        used_at: null,
+        expires_at: { [Op.gt]: now },
+        id_token: { [Op.ne]: resetToken.id_token }
+      }
+    }
+  );
+
+  await logAccessEvent({
+    usuarioId: resetToken.user.id_usuario,
+    accion: 'PASSWORD_RESET_SUCCESS',
+    ipAddress,
+    detalles: userAgent ? `Contraseña restablecida. User Agent: ${userAgent}` : 'Contraseña restablecida'
+  });
+
+  return { message: 'Contraseña restablecida correctamente' };
+};
+
+module.exports = { register, login, refreshToken, logout, requestPasswordReset, resetPassword };

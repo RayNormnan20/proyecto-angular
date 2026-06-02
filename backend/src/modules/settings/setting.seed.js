@@ -1,8 +1,32 @@
 const Setting = require('./setting.model');
 
+const getDefaultFrontendUrl = () => {
+  const candidates = [
+    process.env.FRONTEND_URL,
+    process.env.CORS_ORIGIN
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+
+    const value = String(candidate).trim();
+    if (!value || value === '*') continue;
+
+    const firstValue = value.split(',').map(item => item.trim()).find(Boolean);
+    if (!firstValue || firstValue === '*') continue;
+
+    if (/^https?:\/\//i.test(firstValue)) {
+      return firstValue.replace(/\/$/, '');
+    }
+  }
+
+  return 'http://localhost:4200';
+};
+
 const seedSettings = async () => {
   try {
     const defaults = {
+      'frontend_url': getDefaultFrontendUrl(),
       'yape_qr': '',
       'yape_nombre': 'Mi Tienda S.A.C.',
       'transfer_banco': 'BCP',

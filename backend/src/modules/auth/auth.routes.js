@@ -4,6 +4,7 @@ const router = express.Router();
 const authController = require('./auth.controller');
 const validate = require('../../middlewares/validate.middleware');
 const verifyToken = require('../../middlewares/auth.middleware');
+const checkRole = require('../../middlewares/role.middleware');
 
 router.post('/register', [
   body('nombre').notEmpty().withMessage('El nombre es obligatorio'),
@@ -35,5 +36,18 @@ router.post('/change-password', verifyToken, [
   body('newPassword').isLength({ min: 6 }).withMessage('La nueva contraseña debe tener al menos 6 caracteres'),
   validate
 ], authController.changePassword);
+
+router.post('/forgot-password', [
+  body('email').isEmail().withMessage('El email no es válido'),
+  validate
+], authController.forgotPassword);
+
+router.post('/reset-password', [
+  body('token').notEmpty().withMessage('El token es obligatorio'),
+  body('newPassword').isLength({ min: 6 }).withMessage('La nueva contraseña debe tener al menos 6 caracteres'),
+  validate
+], authController.resetPassword);
+
+router.get('/access-logs', verifyToken, checkRole(['admin', 'trabajador', 'supervisor']), authController.getAccessLogs);
 
 module.exports = router;

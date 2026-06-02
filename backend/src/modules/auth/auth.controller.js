@@ -1,5 +1,5 @@
 const authService = require('./auth.service');
-const { User, Role, Permission } = require('../associations');
+const { User, Role, Permission, AccessLog } = require('../associations');
 const { hashPassword, comparePassword } = require('../../utils/password.utils');
 
 const register = async (req, res) => {
@@ -127,4 +127,78 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, refreshToken, logout, getProfile, changePassword };
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    await authService.requestPasswordReset(email, ip, userAgent);
+
+    res.json({
+      message: 'Si el correo existe, se envio un enlace para restablecer la contraseña'
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al procesar la solicitud de recuperación' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    const result = await authService.resetPassword(token, newPassword, ip, userAgent);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message || 'No se pudo restablecer la contraseña' });
+  }
+};
+
+const getAccessLogs = async (req, res) => {
+  try {
+    const { page = 1, limit = 20, accion } = req.query;
+    const where = {};
+
+    if (accion) {
+      where.accion = accion;
+    }
+
+    const { count, rows } = await AccessLog.findAndCountAll({
+      where,
+      limit: parseInt(limit, 10),
+      offset: (parseInt(page, 10) - 1) * parseInt(limit, 10),
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id_usuario', 'nombre', 'apellidos', 'email']
+      }],
+      order: [['created_at', 'DESC']]
+    });
+
+    res.json({
+      total: count,
+      totalPages: Math.ceil(count / parseInt(limit, 10)),
+      currentPage: parseInt(page, 10),
+      logs: rows
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener los logs de acceso' });
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  refreshToken,
+  logout,
+  getProfile,
+  changePassword,
+  forgotPassword,
+  resetPassword,
+  getAccessLogs
+};

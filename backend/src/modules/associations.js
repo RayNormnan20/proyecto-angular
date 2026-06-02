@@ -10,6 +10,7 @@ const OrderItem = require('./orders/order-item.model');
 const Setting = require('./settings/setting.model');
 const Session = require('./auth/session.model');
 const AccessLog = require('./auth/access-log.model');
+const PasswordResetToken = require('./auth/password-reset-token.model');
 const Favorite = require('./favorites/favorite.model');
 const PaymentMethod = require('./payment-methods/payment-method.model');
 const EmailLog = require('./email-logs/email-log.model');
@@ -70,6 +71,10 @@ User.hasMany(Session, { foreignKey: 'usuario_id', as: 'sessions' });
 AccessLog.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
 User.hasMany(AccessLog, { foreignKey: 'usuario_id', as: 'access_logs' });
 
+// Password Reset Token Associations
+PasswordResetToken.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
+User.hasMany(PasswordResetToken, { foreignKey: 'usuario_id', as: 'password_reset_tokens' });
+
 // Favorite Associations (Many-to-Many User <-> Product)
 User.belongsToMany(Product, { 
   through: Favorite, 
@@ -98,6 +103,7 @@ module.exports = {
   Setting,
   Session,
   AccessLog,
+  PasswordResetToken,
   Favorite,
   PaymentMethod,
   EmailLog,

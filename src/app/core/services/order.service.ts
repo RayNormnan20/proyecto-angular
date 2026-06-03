@@ -8,8 +8,16 @@ export interface Order {
   usuario_id: number;
   fecha: string;
   total: string;
-  estado: 'pendiente' | 'pagado' | 'enviado' | 'entregado' | 'cancelado';
+  estado: 'pendiente' | 'pagado' | 'en_preparacion' | 'listo_envio' | 'enviado' | 'entregado' | 'cancelado' | 'devuelto';
   metodo_pago_id: number;
+  empresa_envio?: string;
+  numero_seguimiento?: string;
+  url_seguimiento?: string;
+  fecha_preparacion?: string;
+  fecha_envio?: string;
+  fecha_entrega_estimada?: string;
+  fecha_entrega?: string;
+  nota_estado?: string;
   paymentMethod?: {
     id_metodo_pago: number;
     nombre: string;
@@ -45,6 +53,18 @@ export interface CreateOrderDto {
   codigo_operacion?: string;
 }
 
+export interface UpdateOrderTrackingDto {
+  estado: Order['estado'];
+  empresa_envio?: string | null;
+  numero_seguimiento?: string | null;
+  url_seguimiento?: string | null;
+  fecha_preparacion?: string | null;
+  fecha_envio?: string | null;
+  fecha_entrega_estimada?: string | null;
+  fecha_entrega?: string | null;
+  nota_estado?: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -70,8 +90,8 @@ export class OrderService {
     return this.http.get<Order>(`${this.apiUrl}/${id}`);
   }
 
-  updateOrderStatus(id: number, estado: string): Observable<Order> {
-    return this.http.put<Order>(`${this.apiUrl}/${id}/status`, { estado });
+  updateOrderStatus(id: number, payload: UpdateOrderTrackingDto): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/${id}/status`, payload);
   }
 
   downloadPDF(id: number): Observable<Blob> {

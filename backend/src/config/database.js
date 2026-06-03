@@ -41,6 +41,10 @@ const connectDB = async () => {
     // Sembrar configuraciones
     const seedSettings = require('../modules/settings/setting.seed');
     await seedSettings();
+
+    // Verificar columnas nuevas no destructivas para pedidos/tracking
+    const { ensureOrderTrackingColumns } = require('../modules/orders/order.migration');
+    await ensureOrderTrackingColumns();
   } catch (error) {
     console.error('❌ Error al conectar con la base de datos:', error);
     if (!isServerless) {

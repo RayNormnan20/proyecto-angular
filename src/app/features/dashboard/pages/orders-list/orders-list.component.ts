@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { OrderService, Order } from '../../../../core/services/order.service';
+import { OrderService, Order, UpdateOrderTrackingDto } from '../../../../core/services/order.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { environment } from '../../../../../environments/environment';
 
@@ -37,9 +37,12 @@ import { environment } from '../../../../../environments/environment';
               <option value="">Todos</option>
               <option value="pendiente">Pendiente</option>
               <option value="pagado">Pagado</option>
+              <option value="en_preparacion">En preparación</option>
+              <option value="listo_envio">Listo para envío</option>
               <option value="enviado">Enviado</option>
               <option value="entregado">Entregado</option>
               <option value="cancelado">Cancelado</option>
+              <option value="devuelto">Devuelto</option>
             </select>
           </div>
           <div class="flex gap-2">
@@ -89,10 +92,13 @@ import { environment } from '../../../../../environments/environment';
                     <span [ngClass]="{
                       'bg-yellow-100 text-yellow-800': order.estado === 'pendiente',
                       'bg-green-100 text-green-800': order.estado === 'pagado' || order.estado === 'entregado',
+                      'bg-orange-100 text-orange-800': order.estado === 'en_preparacion',
+                      'bg-cyan-100 text-cyan-800': order.estado === 'listo_envio',
                       'bg-blue-100 text-blue-800': order.estado === 'enviado',
-                      'bg-red-100 text-red-800': order.estado === 'cancelado'
+                      'bg-red-100 text-red-800': order.estado === 'cancelado',
+                      'bg-gray-200 text-gray-800': order.estado === 'devuelto'
                     }" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize">
-                      {{ order.estado }}
+                      {{ getStatusLabel(order.estado) }}
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -102,9 +108,12 @@ import { environment } from '../../../../../environments/environment';
                       class="mt-1 block w-full py-1 px-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-xs">
                       <option value="pendiente">Pendiente</option>
                       <option value="pagado">Pagado</option>
+                      <option value="en_preparacion">En preparación</option>
+                      <option value="listo_envio">Listo para envío</option>
                       <option value="enviado">Enviado</option>
                       <option value="entregado">Entregado</option>
                       <option value="cancelado">Cancelado</option>
+                      <option value="devuelto">Devuelto</option>
                     </select>
                     
                     <button (click)="toggleDetails(order.id_orden)" class="mt-2 flex items-center text-indigo-600 hover:text-indigo-800 text-xs font-medium transition-colors">
@@ -144,6 +153,42 @@ import { environment } from '../../../../../environments/environment';
                     <div class="mt-1" *ngIf="order.notas">
                        <p><span class="font-bold">Notas:</span> {{ order.notas }}</p>
                     </div>
+                    <div class="mt-4 p-4 bg-white rounded-lg border border-gray-200">
+                      <h5 class="font-bold text-gray-800 mb-3">Tracking y seguimiento</h5>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Empresa de envío</label>
+                          <input [ngModel]="getDraft(order.id_orden).empresa_envio || ''" (ngModelChange)="updateDraft(order.id_orden, 'empresa_envio', $event)" class="w-full rounded-md border border-gray-300 p-2 text-sm" placeholder="Shalom, Olva, Urbano...">
+                        </div>
+                        <div>
+                          <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Número de seguimiento</label>
+                          <input [ngModel]="getDraft(order.id_orden).numero_seguimiento || ''" (ngModelChange)="updateDraft(order.id_orden, 'numero_seguimiento', $event)" class="w-full rounded-md border border-gray-300 p-2 text-sm" placeholder="Tracking / guía">
+                        </div>
+                        <div>
+                          <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">URL de seguimiento</label>
+                          <input [ngModel]="getDraft(order.id_orden).url_seguimiento || ''" (ngModelChange)="updateDraft(order.id_orden, 'url_seguimiento', $event)" class="w-full rounded-md border border-gray-300 p-2 text-sm" placeholder="https://...">
+                        </div>
+                        <div>
+                          <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Entrega estimada</label>
+                          <input type="date" [ngModel]="formatDateForInput(getDraft(order.id_orden).fecha_entrega_estimada)" (ngModelChange)="updateDraft(order.id_orden, 'fecha_entrega_estimada', $event)" class="w-full rounded-md border border-gray-300 p-2 text-sm">
+                        </div>
+                        <div class="md:col-span-2">
+                          <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nota de estado</label>
+                          <textarea [ngModel]="getDraft(order.id_orden).nota_estado || ''" (ngModelChange)="updateDraft(order.id_orden, 'nota_estado', $event)" rows="2" class="w-full rounded-md border border-gray-300 p-2 text-sm" placeholder="Detalle interno o visible para el seguimiento"></textarea>
+                        </div>
+                      </div>
+                      <div class="mt-3 grid grid-cols-1 md:grid-cols-4 gap-2 text-xs text-gray-600">
+                        <div><span class="font-bold">Preparación:</span> {{ order.fecha_preparacion ? (order.fecha_preparacion | date:'short') : 'Sin fecha' }}</div>
+                        <div><span class="font-bold">Envío:</span> {{ order.fecha_envio ? (order.fecha_envio | date:'short') : 'Sin fecha' }}</div>
+                        <div><span class="font-bold">Entrega estimada:</span> {{ order.fecha_entrega_estimada ? (order.fecha_entrega_estimada | date:'shortDate') : 'Sin fecha' }}</div>
+                        <div><span class="font-bold">Entregado:</span> {{ order.fecha_entrega ? (order.fecha_entrega | date:'short') : 'Sin fecha' }}</div>
+                      </div>
+                      <div class="mt-3">
+                        <button (click)="saveTracking(order)" class="inline-flex items-center px-3 py-2 rounded-md bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700">
+                          Guardar tracking
+                        </button>
+                      </div>
+                    </div>
                     
                     <div class="mt-4 pt-3 border-t border-gray-200">
                         <button (click)="downloadOrderPDF(order.id_orden)" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm transition-colors">
@@ -174,10 +219,13 @@ import { environment } from '../../../../../environments/environment';
             <span [ngClass]="{
               'bg-yellow-100 text-yellow-800': order.estado === 'pendiente',
               'bg-green-100 text-green-800': order.estado === 'pagado' || order.estado === 'entregado',
+              'bg-orange-100 text-orange-800': order.estado === 'en_preparacion',
+              'bg-cyan-100 text-cyan-800': order.estado === 'listo_envio',
               'bg-blue-100 text-blue-800': order.estado === 'enviado',
-              'bg-red-100 text-red-800': order.estado === 'cancelado'
+              'bg-red-100 text-red-800': order.estado === 'cancelado',
+              'bg-gray-200 text-gray-800': order.estado === 'devuelto'
             }" class="px-2 py-1 text-xs font-semibold rounded-full capitalize">
-              {{ order.estado }}
+              {{ getStatusLabel(order.estado) }}
             </span>
           </div>
 
@@ -207,9 +255,12 @@ import { environment } from '../../../../../environments/environment';
                 class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
                 <option value="pendiente">Pendiente</option>
                 <option value="pagado">Pagado</option>
+                <option value="en_preparacion">En preparación</option>
+                <option value="listo_envio">Listo para envío</option>
                 <option value="enviado">Enviado</option>
                 <option value="entregado">Entregado</option>
                 <option value="cancelado">Cancelado</option>
+                <option value="devuelto">Devuelto</option>
               </select>
             </div>
             
@@ -249,6 +300,38 @@ import { environment } from '../../../../../environments/environment';
             <div *ngIf="order.notas">
                <span class="font-bold text-xs text-gray-500 uppercase block">Notas</span>
                <p class="italic text-gray-600">{{ order.notas }}</p>
+            </div>
+
+            <div class="mt-3 pt-3 border-t border-gray-200 space-y-3">
+              <div>
+                <span class="font-bold text-xs text-gray-500 uppercase block mb-1">Empresa de envío</span>
+                <input [ngModel]="getDraft(order.id_orden).empresa_envio || ''" (ngModelChange)="updateDraft(order.id_orden, 'empresa_envio', $event)" class="w-full rounded-md border border-gray-300 p-2 text-sm">
+              </div>
+              <div>
+                <span class="font-bold text-xs text-gray-500 uppercase block mb-1">Número de seguimiento</span>
+                <input [ngModel]="getDraft(order.id_orden).numero_seguimiento || ''" (ngModelChange)="updateDraft(order.id_orden, 'numero_seguimiento', $event)" class="w-full rounded-md border border-gray-300 p-2 text-sm">
+              </div>
+              <div>
+                <span class="font-bold text-xs text-gray-500 uppercase block mb-1">URL de seguimiento</span>
+                <input [ngModel]="getDraft(order.id_orden).url_seguimiento || ''" (ngModelChange)="updateDraft(order.id_orden, 'url_seguimiento', $event)" class="w-full rounded-md border border-gray-300 p-2 text-sm">
+              </div>
+              <div>
+                <span class="font-bold text-xs text-gray-500 uppercase block mb-1">Entrega estimada</span>
+                <input type="date" [ngModel]="formatDateForInput(getDraft(order.id_orden).fecha_entrega_estimada)" (ngModelChange)="updateDraft(order.id_orden, 'fecha_entrega_estimada', $event)" class="w-full rounded-md border border-gray-300 p-2 text-sm">
+              </div>
+              <div>
+                <span class="font-bold text-xs text-gray-500 uppercase block mb-1">Nota de estado</span>
+                <textarea [ngModel]="getDraft(order.id_orden).nota_estado || ''" (ngModelChange)="updateDraft(order.id_orden, 'nota_estado', $event)" rows="2" class="w-full rounded-md border border-gray-300 p-2 text-sm"></textarea>
+              </div>
+              <div class="text-xs text-gray-600 space-y-1">
+                <div><span class="font-bold">Preparación:</span> {{ order.fecha_preparacion ? (order.fecha_preparacion | date:'short') : 'Sin fecha' }}</div>
+                <div><span class="font-bold">Envío:</span> {{ order.fecha_envio ? (order.fecha_envio | date:'short') : 'Sin fecha' }}</div>
+                <div><span class="font-bold">Entrega estimada:</span> {{ order.fecha_entrega_estimada ? (order.fecha_entrega_estimada | date:'shortDate') : 'Sin fecha' }}</div>
+                <div><span class="font-bold">Entregado:</span> {{ order.fecha_entrega ? (order.fecha_entrega | date:'short') : 'Sin fecha' }}</div>
+              </div>
+              <button (click)="saveTracking(order)" class="w-full inline-flex justify-center items-center px-3 py-2 rounded-md text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700">
+                Guardar tracking
+              </button>
             </div>
 
             <div class="mt-4 pt-3 border-t border-gray-200">
@@ -331,6 +414,7 @@ export class OrdersListComponent {
   orderService = inject(OrderService);
   toastService = inject(ToastService);
   orders = signal<Order[]>([]);
+  orderDrafts = signal<Record<number, UpdateOrderTrackingDto>>({});
   expandedOrders = signal<Set<number>>(new Set());
   imageBaseUrl = environment.imageBaseUrl;
   
@@ -347,6 +431,65 @@ export class OrdersListComponent {
 
   constructor() {
     this.loadOrders();
+  }
+
+  private buildDraft(order: Order): UpdateOrderTrackingDto {
+    return {
+      estado: order.estado,
+      empresa_envio: order.empresa_envio || '',
+      numero_seguimiento: order.numero_seguimiento || '',
+      url_seguimiento: order.url_seguimiento || '',
+      fecha_preparacion: order.fecha_preparacion || null,
+      fecha_envio: order.fecha_envio || null,
+      fecha_entrega_estimada: order.fecha_entrega_estimada || null,
+      fecha_entrega: order.fecha_entrega || null,
+      nota_estado: order.nota_estado || ''
+    };
+  }
+
+  private applyUpdatedOrder(updatedOrder: Order) {
+    this.orders.update(orders => orders.map(o => o.id_orden === updatedOrder.id_orden ? { ...o, ...updatedOrder } : o));
+    this.orderDrafts.update(drafts => ({
+      ...drafts,
+      [updatedOrder.id_orden]: this.buildDraft(updatedOrder)
+    }));
+  }
+
+  getStatusLabel(status: Order['estado']): string {
+    const labels: Record<Order['estado'], string> = {
+      pendiente: 'Pendiente',
+      pagado: 'Pagado',
+      en_preparacion: 'En preparación',
+      listo_envio: 'Listo para envío',
+      enviado: 'Enviado',
+      entregado: 'Entregado',
+      cancelado: 'Cancelado',
+      devuelto: 'Devuelto'
+    };
+    return labels[status] || status;
+  }
+
+  getDraft(orderId: number): UpdateOrderTrackingDto {
+    return this.orderDrafts()[orderId] || {
+      estado: 'pendiente'
+    };
+  }
+
+  updateDraft(orderId: number, field: keyof UpdateOrderTrackingDto, value: string | null) {
+    this.orderDrafts.update(drafts => ({
+      ...drafts,
+      [orderId]: {
+        ...this.getDraft(orderId),
+        [field]: value
+      }
+    }));
+  }
+
+  formatDateForInput(value?: string | null): string {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toISOString().slice(0, 10);
   }
 
   getComprobanteUrl(order: Order): string {
@@ -369,11 +512,23 @@ export class OrdersListComponent {
       next: (res: any) => {
         if (res.orders && Array.isArray(res.orders)) {
            this.orders.set(res.orders);
+           this.orderDrafts.set(
+             res.orders.reduce((acc: Record<number, UpdateOrderTrackingDto>, order: Order) => {
+               acc[order.id_orden] = this.buildDraft(order);
+               return acc;
+             }, {})
+           );
            this.totalItems.set(res.total || res.orders.length);
            this.totalPages.set(res.totalPages || 1);
         } else if (Array.isArray(res)) {
            // Fallback logic
            this.orders.set(res);
+           this.orderDrafts.set(
+             res.reduce((acc: Record<number, UpdateOrderTrackingDto>, order: Order) => {
+               acc[order.id_orden] = this.buildDraft(order);
+               return acc;
+             }, {})
+           );
            this.totalItems.set(res.length);
            this.totalPages.set(1);
         }
@@ -420,19 +575,41 @@ export class OrdersListComponent {
 
   updateStatus(orderId: number, event: Event) {
     const select = event.target as HTMLSelectElement;
-    const newStatus = select.value;
+    const newStatus = select.value as Order['estado'];
+    const payload: UpdateOrderTrackingDto = {
+      ...this.getDraft(orderId),
+      estado: newStatus
+    };
+    this.updateDraft(orderId, 'estado', newStatus);
 
-    this.orderService.updateOrderStatus(orderId, newStatus).subscribe({
+    this.orderService.updateOrderStatus(orderId, payload).subscribe({
       next: (updatedOrder) => {
         this.toastService.show(`Estado del pedido #${orderId} actualizado a ${newStatus}`, 'success');
-        this.orders.update(orders => 
-          orders.map(o => o.id_orden === orderId ? { ...o, estado: updatedOrder.estado as any } : o)
-        );
+        this.applyUpdatedOrder(updatedOrder);
       },
       error: (err) => {
         console.error('Error updating status', err);
         this.toastService.show('Error al actualizar el estado', 'error');
         this.loadOrders(); // Reload to revert UI
+      }
+    });
+  }
+
+  saveTracking(order: Order) {
+    const payload: UpdateOrderTrackingDto = {
+      ...this.getDraft(order.id_orden),
+      estado: this.getDraft(order.id_orden).estado || order.estado
+    };
+
+    this.orderService.updateOrderStatus(order.id_orden, payload).subscribe({
+      next: (updatedOrder) => {
+        this.applyUpdatedOrder(updatedOrder);
+        this.toastService.show(`Tracking del pedido #${order.id_orden} actualizado`, 'success');
+      },
+      error: (err) => {
+        console.error('Error saving tracking', err);
+        this.toastService.show(err?.error?.message || 'Error al guardar el tracking', 'error');
+        this.loadOrders();
       }
     });
   }

@@ -2,8 +2,11 @@ const { sequelize } = require('../../config/database');
 const { Order, OrderItem, Product, User, ProductImage, PaymentMethod } = require('../associations');
 const { sendOrderConfirmation } = require('../../utils/email.utils');
 const { generateOrderPDF } = require('../../utils/pdf.utils');
+const { ORDER_STATUS_VALUES } = require('./order.migration');
 
 const { Op } = require('sequelize');
+
+const ORDER_STATUS_SET = new Set(ORDER_STATUS_VALUES);
 
 const parsePreciosVolumen = (value) => {
   if (value === undefined || value === null) return null;
@@ -19,6 +22,19 @@ const parsePreciosVolumen = (value) => {
     }
   }
   return null;
+};
+
+const normalizeOptionalString = (value) => {
+  if (value === undefined || value === null) return undefined;
+  const normalized = String(value).trim();
+  return normalized || null;
+};
+
+const normalizeOptionalDate = (value) => {
+  if (value === undefined || value === null || value === '') return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date;
 };
 
 const createOrder = async (req, res) => {
@@ -285,7 +301,17 @@ const getOrderById = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { estado } = req.body;
+    const {
+      estado,
+      empresa_envio,
+      numero_seguimiento,
+      url_seguimiento,
+      fecha_preparacion,
+      fecha_envio,
+      fecha_entrega_estimada,
+      fecha_entrega,
+      nota_estado
+    } = req.body;
 
     const order = await Order.findByPk(id);
 
@@ -293,7 +319,42 @@ const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Orden no encontrada' });
     }
 
-    order.estado = estado;
+    const nextEstado = typeof estado === 'string' ? estado.trim() : '';
+    if (!nextEstado || !ORDER_STATUS_SET.has(nextEstado)) {
+      return res.status(400).json({ message: 'Estado de pedido inválido' });
+    }
+
+    const normalizedDates = {
+      fecha_preparacion: normalizeOptionalDate(fecha_preparacion),
+      fecha_envio: normalizeOptionalDate(fecha_envio),
+      fecha_entrega_estimada: normalizeOptionalDate(fecha_entrega_estimada),
+      fecha_entrega: normalizeOptionalDate(fecha_entrega)
+    };
+
+    if (Object.values(normalizedDates).some(value => value === null)) {
+      return res.status(400).json({ message: 'Una o más fechas son inválidas' });
+    }
+
+    order.estado = nextEstado;
+    if (empresa_envio !== undefined) order.empresa_envio = normalizeOptionalString(empresa_envio);
+    if (numero_seguimiento !== undefined) order.numero_seguimiento = normalizeOptionalString(numero_seguimiento);
+    if (url_seguimiento !== undefined) order.url_seguimiento = normalizeOptionalString(url_seguimiento);
+    if (nota_estado !== undefined) order.nota_estado = normalizeOptionalString(nota_estado);
+    if (normalizedDates.fecha_preparacion !== undefined) order.fecha_preparacion = normalizedDates.fecha_preparacion;
+    if (normalizedDates.fecha_envio !== undefined) order.fecha_envio = normalizedDates.fecha_envio;
+    if (normalizedDates.fecha_entrega_estimada !== undefined) order.fecha_entrega_estimada = normalizedDates.fecha_entrega_estimada;
+    if (normalizedDates.fecha_entrega !== undefined) order.fecha_entrega = normalizedDates.fecha_entrega;
+
+    if (nextEstado === 'en_preparacion' && !order.fecha_preparacion) {
+      order.fecha_preparacion = new Date();
+    }
+    if (nextEstado === 'enviado' && !order.fecha_envio) {
+      order.fecha_envio = new Date();
+    }
+    if (nextEstado === 'entregado' && !order.fecha_entrega) {
+      order.fecha_entrega = new Date();
+    }
+
     await order.save();
 
     res.json(order);

@@ -26,7 +26,16 @@ const Order = sequelize.define('Order', {
     defaultValue: 0.00
   },
   estado: {
-    type: DataTypes.ENUM('pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'),
+    type: DataTypes.ENUM(
+      'pendiente',
+      'pagado',
+      'en_preparacion',
+      'listo_envio',
+      'enviado',
+      'entregado',
+      'cancelado',
+      'devuelto'
+    ),
     defaultValue: 'pendiente'
   },
   metodo_pago_id: {
@@ -55,6 +64,38 @@ const Order = sequelize.define('Order', {
   },
   direccion_envio: {
     type: DataTypes.STRING,
+    allowNull: true
+  },
+  empresa_envio: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  numero_seguimiento: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  url_seguimiento: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  fecha_preparacion: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  fecha_envio: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  fecha_entrega_estimada: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  fecha_entrega: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  nota_estado: {
+    type: DataTypes.TEXT,
     allowNull: true
   },
   notas: {

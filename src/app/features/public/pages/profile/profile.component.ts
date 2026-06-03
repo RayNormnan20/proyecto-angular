@@ -225,10 +225,13 @@ import { environment } from '../../../../../environments/environment';
                        <span [ngClass]="{
                         'bg-yellow-100 text-yellow-800': order.estado === 'pendiente',
                         'bg-green-100 text-green-800': order.estado === 'pagado' || order.estado === 'entregado',
+                        'bg-orange-100 text-orange-800': order.estado === 'en_preparacion',
+                        'bg-cyan-100 text-cyan-800': order.estado === 'listo_envio',
                         'bg-indigo-100 text-indigo-800': order.estado === 'enviado',
-                        'bg-red-100 text-red-800': order.estado === 'cancelado'
+                        'bg-red-100 text-red-800': order.estado === 'cancelado',
+                        'bg-gray-200 text-gray-800': order.estado === 'devuelto'
                       }" class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-tighter">
-                        {{ order.estado }}
+                        {{ getStatusLabel(order.estado) }}
                       </span>
                       <button (click)="toggleOrderDetails(order.id_orden)" class="text-indigo-600 text-xs font-medium hover:underline">
                         {{ expandedOrderId() === order.id_orden ? 'Ocultar detalles' : 'Ver detalles' }}
@@ -267,6 +270,18 @@ import { environment } from '../../../../../environments/environment';
                       <div class="mt-6 p-3 bg-gray-50 rounded-md text-xs space-y-2">
                         <p><span class="font-bold text-gray-700">Dirección de envío:</span> {{ order.direccion_envio || 'No especificada' }}</p>
                         <p><span class="font-bold text-gray-700">Método de pago:</span> {{ order.paymentMethod?.nombre || 'No especificado' }}</p>
+                        <p><span class="font-bold text-gray-700">Estado:</span> {{ getStatusLabel(order.estado) }}</p>
+                        <p *ngIf="order.empresa_envio"><span class="font-bold text-gray-700">Empresa de envío:</span> {{ order.empresa_envio }}</p>
+                        <p *ngIf="order.numero_seguimiento"><span class="font-bold text-gray-700">Seguimiento:</span> {{ order.numero_seguimiento }}</p>
+                        <p *ngIf="order.fecha_preparacion"><span class="font-bold text-gray-700">Preparación:</span> {{ order.fecha_preparacion | date:'medium' }}</p>
+                        <p *ngIf="order.fecha_envio"><span class="font-bold text-gray-700">Envío:</span> {{ order.fecha_envio | date:'medium' }}</p>
+                        <p *ngIf="order.fecha_entrega_estimada"><span class="font-bold text-gray-700">Entrega estimada:</span> {{ order.fecha_entrega_estimada | date:'mediumDate' }}</p>
+                        <p *ngIf="order.fecha_entrega"><span class="font-bold text-gray-700">Entregado el:</span> {{ order.fecha_entrega | date:'medium' }}</p>
+                        <p *ngIf="order.nota_estado"><span class="font-bold text-gray-700">Seguimiento:</span> {{ order.nota_estado }}</p>
+                        <p *ngIf="order.url_seguimiento">
+                          <span class="font-bold text-gray-700">Enlace:</span>
+                          <a [href]="order.url_seguimiento" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline ml-1">Rastrear pedido</a>
+                        </p>
                         <p *ngIf="order.notas"><span class="font-bold text-gray-700">Notas:</span> {{ order.notas }}</p>
                         <p *ngIf="order.codigo_operacion"><span class="font-bold text-gray-700">Cód. Operación:</span> {{ order.codigo_operacion }}</p>
                       </div>
@@ -358,6 +373,20 @@ export class ProfileComponent {
 
   toggleOrderDetails(orderId: number) {
     this.expandedOrderId.update(current => current === orderId ? null : orderId);
+  }
+
+  getStatusLabel(status: Order['estado']): string {
+    const labels: Record<Order['estado'], string> = {
+      pendiente: 'Pendiente',
+      pagado: 'Pagado',
+      en_preparacion: 'En preparación',
+      listo_envio: 'Listo para envío',
+      enviado: 'Enviado',
+      entregado: 'Entregado',
+      cancelado: 'Cancelado',
+      devuelto: 'Devuelto'
+    };
+    return labels[status] || status;
   }
 
   resolveImageUrl(url: string): string {

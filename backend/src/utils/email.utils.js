@@ -395,6 +395,165 @@ const ORDER_STATUS_LABELS = {
 };
 
 const formatCurrency = (amount) => `S/ ${Number(amount || 0).toFixed(2)}`;
+const formatDateTime = (value, options = {}) => {
+  if (!value) return '';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  return date.toLocaleString('es-PE', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    ...options
+  });
+};
+
+const ORDER_PROGRESS_STEPS = [
+  {
+    key: 'pendiente',
+    title: 'Pedido solicitado',
+    matches: ['pendiente']
+  },
+  {
+    key: 'pagado',
+    title: 'Pago confirmado',
+    matches: ['pagado']
+  },
+  {
+    key: 'en_preparacion',
+    title: 'En preparación',
+    matches: ['en_preparacion', 'listo_envio']
+  },
+  {
+    key: 'enviado',
+    title: 'En ruta',
+    matches: ['enviado']
+  },
+  {
+    key: 'entregado',
+    title: 'Pedido entregado',
+    matches: ['entregado']
+  }
+];
+
+const getProgressStepIndex = (status) => {
+  const directIndex = ORDER_PROGRESS_STEPS.findIndex(step => step.matches.includes(status));
+  if (directIndex >= 0) {
+    return directIndex;
+  }
+
+  if (status === 'cancelado' || status === 'devuelto') {
+    return ORDER_PROGRESS_STEPS.length - 1;
+  }
+
+  return 0;
+};
+
+const getStatusEmailCopy = (status) => {
+  const content = {
+    pendiente: {
+      title: 'Tu pedido fue recibido',
+      message: 'Ya registramos tu pedido y comenzamos el proceso de atención.'
+    },
+    pagado: {
+      title: 'Pago confirmado',
+      message: 'Confirmamos tu pago y tu pedido ya continúa al siguiente paso.'
+    },
+    en_preparacion: {
+      title: 'Estamos preparando tu pedido',
+      message: 'Tu pedido ya ingresó a preparación para dejarlo listo cuanto antes.'
+    },
+    listo_envio: {
+      title: 'Tu pedido está listo para envío',
+      message: 'Tu pedido ya fue preparado y está listo para salir.'
+    },
+    enviado: {
+      title: 'Tu pedido va en camino',
+      message: 'Tu pedido ya fue enviado. Revisa los datos de seguimiento para monitorear la entrega.'
+    },
+    entregado: {
+      title: 'Pedido entregado',
+      message: 'Tu pedido figura como entregado. Esperamos que disfrutes tu compra.'
+    },
+    cancelado: {
+      title: 'Pedido cancelado',
+      message: 'Tu pedido fue cancelado. Si no reconoces este cambio, contáctanos.'
+    },
+    devuelto: {
+      title: 'Pedido devuelto',
+      message: 'Tu pedido fue marcado como devuelto. Si necesitas ayuda, contáctanos para revisarlo.'
+    }
+  };
+
+  return content[status] || {
+    title: 'Actualización de tu pedido',
+    message: 'Tu pedido tuvo una actualización en su proceso.'
+  };
+};
+
+const buildOrderProgressHtml = (status) => {
+  if (status === 'cancelado' || status === 'devuelto') {
+    const statusLabel = ORDER_STATUS_LABELS[status] || status;
+    const tone = status === 'cancelado'
+      ? { background: '#fef2f2', border: '#fecaca', text: '#b91c1c' }
+      : { background: '#fff7ed', border: '#fed7aa', text: '#c2410c' };
+
+    return `
+      <div style="margin-top: 24px; padding: 18px; background: ${tone.background}; border: 1px solid ${tone.border}; border-radius: 10px;">
+        <div style="font-size: 15px; font-weight: 700; color: ${tone.text};">${statusLabel}</div>
+        <div style="margin-top: 6px; color: #4b5563; font-size: 14px;">
+          El proceso del pedido se detuvo en este estado. Si necesitas más detalle, revisa la nota del pedido o contáctanos.
+        </div>
+      </div>
+    `;
+  }
+
+  const currentStepIndex = getProgressStepIndex(status);
+  const indicatorsHtml = ORDER_PROGRESS_STEPS.map((step, index) => {
+    const isCompleted = index <= currentStepIndex;
+    const circleColor = isCompleted ? '#22c55e' : '#d1d5db';
+
+    return `
+      <td align="center" valign="middle" style="width: 64px; padding: 0;">
+        <div style="width: 36px; height: 36px; line-height: 36px; border-radius: 50%; background: ${circleColor}; color: #ffffff; font-size: 18px; font-weight: bold; text-align: center; margin: 0 auto;">
+          ${isCompleted ? '&#10003;' : '&nbsp;'}
+        </div>
+      </td>
+      ${index < ORDER_PROGRESS_STEPS.length - 1 ? `
+        <td valign="middle" style="padding: 0 6px;">
+          <div style="height: 3px; background: ${index < currentStepIndex ? '#22c55e' : '#d1d5db'}; border-radius: 999px; width: 100%;"></div>
+        </td>
+      ` : ''}
+    `;
+  }).join('');
+
+  const labelsHtml = ORDER_PROGRESS_STEPS.map((step, index) => {
+    const isCurrent = index === currentStepIndex;
+
+    return `
+      <td align="center" valign="top" style="width: 64px; padding: 10px 0 0; font-size: 13px; line-height: 1.35; color: ${isCurrent ? '#1d4ed8' : '#4b5563'}; font-weight: ${isCurrent ? '700' : '600'};">
+        ${step.title}
+      </td>
+      ${index < ORDER_PROGRESS_STEPS.length - 1 ? '<td style="padding: 0;"></td>' : ''}
+    `;
+  }).join('');
+
+  return `
+    <div style="margin-top: 24px; padding: 20px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px;">
+      <h3 style="margin: 0 0 18px; color: #111827; font-size: 18px;">Seguimiento de tu pedido</h3>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; table-layout: fixed;">
+        <tr>
+          ${indicatorsHtml}
+        </tr>
+        <tr>
+          ${labelsHtml}
+        </tr>
+      </table>
+    </div>
+  `;
+};
 
 const sendOrderStatusUpdate = async (order, user) => {
   const emailConfig = await getTransporter();
@@ -413,6 +572,8 @@ const sendOrderStatusUpdate = async (order, user) => {
   );
   const profileLink = `${frontendUrl}/profile`;
   const statusLabel = ORDER_STATUS_LABELS[order.estado] || order.estado;
+  const statusCopy = getStatusEmailCopy(order.estado);
+  const progressBlock = buildOrderProgressHtml(order.estado);
 
   const trackingBlock = `
     <div style="margin-top: 24px; padding: 20px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
@@ -420,10 +581,10 @@ const sendOrderStatusUpdate = async (order, user) => {
       <p style="margin: 6px 0;"><strong>Estado:</strong> ${statusLabel}</p>
       ${order.empresa_envio ? `<p style="margin: 6px 0;"><strong>Empresa:</strong> ${order.empresa_envio}</p>` : ''}
       ${order.numero_seguimiento ? `<p style="margin: 6px 0;"><strong>Guía / tracking:</strong> ${order.numero_seguimiento}</p>` : ''}
-      ${order.fecha_preparacion ? `<p style="margin: 6px 0;"><strong>Preparación:</strong> ${new Date(order.fecha_preparacion).toLocaleString()}</p>` : ''}
-      ${order.fecha_envio ? `<p style="margin: 6px 0;"><strong>Envío:</strong> ${new Date(order.fecha_envio).toLocaleString()}</p>` : ''}
-      ${order.fecha_entrega_estimada ? `<p style="margin: 6px 0;"><strong>Entrega estimada:</strong> ${new Date(order.fecha_entrega_estimada).toLocaleDateString()}</p>` : ''}
-      ${order.fecha_entrega ? `<p style="margin: 6px 0;"><strong>Entregado:</strong> ${new Date(order.fecha_entrega).toLocaleString()}</p>` : ''}
+      ${order.fecha_preparacion ? `<p style="margin: 6px 0;"><strong>Preparación:</strong> ${formatDateTime(order.fecha_preparacion)}</p>` : ''}
+      ${order.fecha_envio ? `<p style="margin: 6px 0;"><strong>Envío:</strong> ${formatDateTime(order.fecha_envio)}</p>` : ''}
+      ${order.fecha_entrega_estimada ? `<p style="margin: 6px 0;"><strong>Entrega estimada:</strong> ${formatDateTime(order.fecha_entrega_estimada, { timeStyle: undefined })}</p>` : ''}
+      ${order.fecha_entrega ? `<p style="margin: 6px 0;"><strong>Entregado:</strong> ${formatDateTime(order.fecha_entrega)}</p>` : ''}
       ${order.nota_estado ? `<p style="margin: 6px 0;"><strong>Detalle:</strong> ${order.nota_estado}</p>` : ''}
       ${order.url_seguimiento ? `<p style="margin: 12px 0 0;"><a href="${order.url_seguimiento}" style="color: #4f46e5; text-decoration: none; font-weight: bold;">Rastrear envío</a></p>` : ''}
     </div>
@@ -437,7 +598,9 @@ const sendOrderStatusUpdate = async (order, user) => {
       </div>
       <div style="padding: 24px;">
         <p>Hola ${user.nombre},</p>
-        <p>Tu pedido <strong>#${order.id_orden}</strong> ahora está en estado <strong>${statusLabel}</strong>.</p>
+        <p style="margin-bottom: 8px;">Tu pedido <strong>#${order.id_orden}</strong> ahora está en estado <strong>${statusLabel}</strong>.</p>
+        <p style="margin-top: 0; color: #4b5563;"><strong>${statusCopy.title}.</strong> ${statusCopy.message}</p>
+        ${progressBlock}
         ${trackingBlock}
         <div style="text-align: center; margin-top: 28px;">
           <a href="${profileLink}" style="display: inline-block; background-color: #4f46e5; color: white; padding: 12px 22px; text-decoration: none; border-radius: 6px; font-weight: bold;">Ver mi pedido</a>

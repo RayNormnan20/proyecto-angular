@@ -5,6 +5,7 @@ const Product = require('./products/product.model');
 const Category = require('./categories/category.model');
 const Brand = require('./brands/brand.model');
 const ProductImage = require('./products/product-image.model');
+const StockMovement = require('./products/stock-movement.model');
 const Order = require('./orders/order.model');
 const OrderItem = require('./orders/order-item.model');
 const Setting = require('./settings/setting.model');
@@ -50,6 +51,9 @@ Brand.hasMany(Product, { foreignKey: 'marca_id', as: 'products' });
 Product.hasMany(ProductImage, { foreignKey: 'producto_id', as: 'images' });
 ProductImage.belongsTo(Product, { foreignKey: 'producto_id', as: 'product' });
 
+Product.hasMany(StockMovement, { foreignKey: 'producto_id', as: 'stock_movements' });
+StockMovement.belongsTo(Product, { foreignKey: 'producto_id', as: 'product' });
+
 // Order Associations
 Order.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
 User.hasMany(Order, { foreignKey: 'usuario_id', as: 'orders' });
@@ -70,6 +74,9 @@ User.hasMany(Session, { foreignKey: 'usuario_id', as: 'sessions' });
 // Access Log Associations
 AccessLog.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
 User.hasMany(AccessLog, { foreignKey: 'usuario_id', as: 'access_logs' });
+
+StockMovement.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
+User.hasMany(StockMovement, { foreignKey: 'usuario_id', as: 'stock_movements' });
 
 // Password Reset Token Associations
 PasswordResetToken.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
@@ -98,6 +105,7 @@ module.exports = {
   Category,
   Brand,
   ProductImage,
+  StockMovement,
   Order,
   OrderItem,
   Setting,

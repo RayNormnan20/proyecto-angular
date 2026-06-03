@@ -11,6 +11,8 @@ router.get('/:id', productController.getById);
 // Rutas protegidas
 router.post('/', [authenticateToken, checkPermission('CREAR_PRODUCTO'), upload.array('images', 5)], productController.create);
 router.put('/:id', [authenticateToken, checkPermission('EDITAR_PRODUCTO'), upload.array('images', 5)], productController.update);
+router.get('/:id/stock-movements', [authenticateToken, checkPermission('EDITAR_PRODUCTO')], productController.getStockMovements);
+router.post('/:id/stock-adjustment', [authenticateToken, checkPermission('EDITAR_PRODUCTO')], productController.adjustStock);
 router.delete('/:id', [authenticateToken, checkPermission('ELIMINAR_PRODUCTO')], productController.delete);
 router.delete('/images/:imageId', [authenticateToken, checkPermission('EDITAR_PRODUCTO')], productController.deleteImage);
 

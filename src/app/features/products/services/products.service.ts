@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { Product } from '../models/product.model';
+import { Product, StockMovement } from '../models/product.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -42,5 +42,17 @@ export class ProductsService {
 
   deleteImage(imageId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/images/${imageId}`);
+  }
+
+  getStockMovements(id: number): Observable<StockMovement[]> {
+    return this.http.get<StockMovement[]>(`${this.apiUrl}/${id}/stock-movements`);
+  }
+
+  adjustStock(id: number, payload: {
+    adjustmentType: 'add' | 'remove' | 'set';
+    quantity: number;
+    note?: string;
+  }): Observable<Product> {
+    return this.http.post<Product>(`${this.apiUrl}/${id}/stock-adjustment`, payload);
   }
 }

@@ -1,4 +1,4 @@
-const { Product, Category, Brand, ProductImage } = require('../associations');
+const { Product, Category, Brand, ProductImage, StockMovement, User } = require('../associations');
 const { Op } = require('sequelize');
 
 const parsePreciosVolumen = (value) => {
@@ -17,6 +17,45 @@ const parsePreciosVolumen = (value) => {
   }
 
   return null;
+};
+
+const normalizeStock = (value) => {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+};
+
+const resolveProductStatus = (stock, currentStatus) => {
+  if (stock <= 0) return 'agotado';
+  if (currentStatus === 'agotado') return 'activo';
+  return currentStatus || 'activo';
+};
+
+const createStockMovement = async ({
+  producto_id,
+  tipo,
+  motivo,
+  cantidad,
+  stock_anterior,
+  stock_nuevo,
+  referencia_tipo = null,
+  referencia_id = null,
+  nota = null,
+  usuario_id = null
+}) => {
+  if (!cantidad) return;
+
+  await StockMovement.create({
+    producto_id,
+    tipo,
+    motivo,
+    cantidad,
+    stock_anterior,
+    stock_nuevo,
+    referencia_tipo,
+    referencia_id,
+    nota,
+    usuario_id
+  });
 };
 
 // Listar productos con filtros y paginación
@@ -105,16 +144,17 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const { nombre, descripcion, precio, stock, categoria_id, marca_id, codigo_sku, estado, visible_web, precios_volumen } = req.body;
+    const normalizedStock = normalizeStock(stock);
     
     const product = await Product.create({
       nombre, 
       descripcion, 
       precio, 
-      stock, 
+      stock: normalizedStock, 
       categoria_id, 
       marca_id, 
       codigo_sku, 
-      estado, 
+      estado: resolveProductStatus(normalizedStock, estado), 
       visible_web,
       precios_volumen: parsePreciosVolumen(precios_volumen)
     });
@@ -140,6 +180,21 @@ exports.create = async (req, res) => {
       include: [{ model: ProductImage, as: 'images' }]
     });
 
+    if (normalizedStock > 0) {
+      await createStockMovement({
+        producto_id: product.id_producto,
+        tipo: 'entrada',
+        motivo: 'CREACION_PRODUCTO',
+        cantidad: normalizedStock,
+        stock_anterior: 0,
+        stock_nuevo: normalizedStock,
+        referencia_tipo: 'producto',
+        referencia_id: product.id_producto,
+        nota: 'Stock inicial del producto',
+        usuario_id: req.user?.id || null
+      });
+    }
+
     res.status(201).json(createdProduct);
   } catch (error) {
     res.status(500).json({ message: 'Error al crear producto', error: error.message });
@@ -152,6 +207,15 @@ exports.update = async (req, res) => {
     if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
 
     const payload = { ...req.body };
+    const previousStock = product.stock;
+    let nextStock = previousStock;
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'stock')) {
+      nextStock = normalizeStock(payload.stock);
+      payload.stock = nextStock;
+      payload.estado = resolveProductStatus(nextStock, payload.estado || product.estado);
+    }
+
     if (Object.prototype.hasOwnProperty.call(payload, 'precios_volumen')) {
       payload.precios_volumen = parsePreciosVolumen(payload.precios_volumen);
     }
@@ -179,6 +243,22 @@ exports.update = async (req, res) => {
     const updatedProduct = await Product.findByPk(product.id_producto, {
       include: [{ model: ProductImage, as: 'images' }]
     });
+
+    if (nextStock !== previousStock) {
+      const diff = nextStock - previousStock;
+      await createStockMovement({
+        producto_id: product.id_producto,
+        tipo: diff > 0 ? 'entrada' : 'ajuste',
+        motivo: 'EDICION_PRODUCTO',
+        cantidad: Math.abs(diff),
+        stock_anterior: previousStock,
+        stock_nuevo: nextStock,
+        referencia_tipo: 'producto',
+        referencia_id: product.id_producto,
+        nota: 'Cambio de stock desde edición del producto',
+        usuario_id: req.user?.id || null
+      });
+    }
 
     res.json(updatedProduct);
   } catch (error) {
@@ -214,4 +294,92 @@ exports.deleteImage = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Error al eliminar imagen', error: error.message });
     }
-}
+};
+
+exports.getStockMovements = async (req, res) => {
+  try {
+    const product = await Product.findByPk(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
+
+    const movements = await StockMovement.findAll({
+      where: { producto_id: product.id_producto },
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id_usuario', 'nombre', 'apellidos', 'email']
+      }],
+      order: [['created_at', 'DESC']],
+      limit: 50
+    });
+
+    res.json(movements);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener movimientos de stock', error: error.message });
+  }
+};
+
+exports.adjustStock = async (req, res) => {
+  try {
+    const product = await Product.findByPk(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
+
+    const adjustmentType = String(req.body.adjustmentType || '').trim();
+    const quantity = normalizeStock(req.body.quantity);
+    const note = typeof req.body.note === 'string' ? req.body.note.trim() : '';
+
+    if (!['add', 'remove', 'set'].includes(adjustmentType)) {
+      return res.status(400).json({ message: 'Tipo de ajuste inválido' });
+    }
+
+    if (adjustmentType !== 'set' && quantity <= 0) {
+      return res.status(400).json({ message: 'La cantidad del ajuste debe ser mayor a cero' });
+    }
+
+    const previousStock = product.stock;
+    let nextStock = previousStock;
+    let movementType = 'ajuste';
+    let reason = 'AJUSTE_MANUAL';
+
+    if (adjustmentType === 'add') {
+      nextStock = previousStock + quantity;
+      movementType = 'entrada';
+      reason = 'INGRESO_MANUAL';
+    } else if (adjustmentType === 'remove') {
+      if (quantity > previousStock) {
+        return res.status(400).json({ message: 'No puedes retirar más stock del disponible' });
+      }
+      nextStock = previousStock - quantity;
+      movementType = 'salida';
+      reason = 'SALIDA_MANUAL';
+    } else {
+      nextStock = quantity;
+      movementType = nextStock >= previousStock ? 'entrada' : 'ajuste';
+      reason = 'AJUSTE_ABSOLUTO';
+    }
+
+    product.stock = nextStock;
+    product.estado = resolveProductStatus(nextStock, product.estado);
+    await product.save();
+
+    await createStockMovement({
+      producto_id: product.id_producto,
+      tipo: movementType,
+      motivo: reason,
+      cantidad: Math.abs(nextStock - previousStock),
+      stock_anterior: previousStock,
+      stock_nuevo: nextStock,
+      referencia_tipo: 'manual',
+      referencia_id: product.id_producto,
+      nota: note || null,
+      usuario_id: req.user?.id || null
+    });
+
+    const updatedProduct = await Product.findByPk(product.id_producto, {
+      include: [{ model: ProductImage, as: 'images' }]
+    });
+
+    res.json(updatedProduct);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al ajustar stock', error: error.message });
+  }
+};

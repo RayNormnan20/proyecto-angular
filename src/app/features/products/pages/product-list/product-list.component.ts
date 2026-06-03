@@ -5,7 +5,7 @@ import { ProductsService } from '../../services/products.service';
 import { CategoriesService } from '../../services/categories.service';
 import { BrandsService } from '../../services/brands.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { Product, Category, Brand, ProductImage } from '../../models/product.model';
+import { Product, Category, Brand, ProductImage, StockMovement } from '../../models/product.model';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 
@@ -95,6 +95,11 @@ import { environment } from '../../../../../environments/environment';
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex space-x-2">
+                  <button (click)="openStockModal(product)" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2 rounded-full transition-colors" title="Ajustar stock">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V7a2 2 0 00-2-2h-4V3H10v2H6a2 2 0 00-2 2v6m16 0H4m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m5 4h6" />
+                    </svg>
+                  </button>
                   <button (click)="openModal(product)" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 p-2 rounded-full transition-colors" title="Editar">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -143,6 +148,12 @@ import { environment } from '../../../../../environments/environment';
                Stock: <span class="font-medium text-gray-900">{{ product.stock }}</span>
              </div>
              <div class="flex space-x-3">
+               <button (click)="openStockModal(product)" class="flex items-center space-x-1 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-emerald-100 transition-colors">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V7a2 2 0 00-2-2h-4V3H10v2H6a2 2 0 00-2 2v6m16 0H4m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m5 4h6" />
+                 </svg>
+                 <span>Stock</span>
+               </button>
                <button (click)="openModal(product)" class="flex items-center space-x-1 bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-indigo-100 transition-colors">
                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -422,6 +433,102 @@ import { environment } from '../../../../../environments/environment';
         </div>
       </div>
     </div>
+
+    <!-- Stock Modal -->
+    <div *ngIf="isStockModalOpen && selectedStockProduct" class="fixed inset-0 z-[110] overflow-y-auto" aria-modal="true" role="dialog">
+      <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+        <div class="fixed inset-0 transition-opacity" style="background-color: rgba(0, 0, 0, 0.5);" (click)="closeStockModal()"></div>
+        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-4xl">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+            <div class="flex justify-between items-start gap-4 mb-5">
+              <div>
+                <h3 class="text-lg font-medium text-gray-900">Stock avanzado</h3>
+                <p class="text-sm text-gray-600 mt-1">{{ selectedStockProduct.nombre }} · Stock actual: <span class="font-semibold text-gray-900">{{ selectedStockProduct.stock }}</span></p>
+              </div>
+              <button (click)="closeStockModal()" class="text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="lg:col-span-1 border border-gray-200 rounded-lg p-4">
+                <h4 class="text-sm font-bold text-gray-900 mb-4">Ajuste manual</h4>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo</label>
+                    <select [(ngModel)]="stockAdjustmentType" class="w-full rounded-md border border-gray-300 p-2 text-sm">
+                      <option value="add">Ingresar stock</option>
+                      <option value="remove">Retirar stock</option>
+                      <option value="set">Fijar stock exacto</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Cantidad</label>
+                    <input type="number" min="0" [(ngModel)]="stockAdjustmentQuantity" class="w-full rounded-md border border-gray-300 p-2 text-sm">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nota</label>
+                    <textarea rows="3" [(ngModel)]="stockAdjustmentNote" class="w-full rounded-md border border-gray-300 p-2 text-sm" placeholder="Motivo del ajuste"></textarea>
+                  </div>
+                  <button (click)="submitStockAdjustment()" [disabled]="isAdjustingStock" class="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50">
+                    {{ isAdjustingStock ? 'Guardando...' : 'Guardar ajuste' }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="lg:col-span-2 border border-gray-200 rounded-lg overflow-hidden">
+                <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                  <h4 class="text-sm font-bold text-gray-900">Movimientos recientes</h4>
+                  <button (click)="reloadStockMovements()" class="text-sm text-indigo-600 hover:text-indigo-800">Actualizar</button>
+                </div>
+                <div class="max-h-[420px] overflow-auto">
+                  <table class="min-w-full">
+                    <thead class="bg-white sticky top-0">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Fecha</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Tipo</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Motivo</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Cantidad</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Stock</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Usuario</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let movement of stockMovements()" class="border-t border-gray-100 align-top">
+                        <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">{{ movement.created_at | date:'short' }}</td>
+                        <td class="px-4 py-3">
+                          <span [class]="getMovementBadgeClass(movement.tipo)">{{ getMovementLabel(movement.tipo) }}</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                          <div class="font-medium">{{ movement.motivo }}</div>
+                          <div *ngIf="movement.nota" class="text-xs text-gray-500 mt-1">{{ movement.nota }}</div>
+                        </td>
+                        <td class="px-4 py-3 text-sm font-semibold text-gray-900">{{ movement.cantidad }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">{{ movement.stock_anterior }} -> {{ movement.stock_nuevo }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ getMovementUser(movement) }}</td>
+                      </tr>
+                      <tr *ngIf="!isLoadingStockMovements() && stockMovements().length === 0">
+                        <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">No hay movimientos registrados todavía.</td>
+                      </tr>
+                      <tr *ngIf="isLoadingStockMovements()">
+                        <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">Cargando movimientos...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 flex justify-end">
+            <button type="button" (click)="closeStockModal()" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   `
 })
 export class ProductListComponent implements OnInit {
@@ -457,6 +564,14 @@ export class ProductListComponent implements OnInit {
   selectedFiles: File[] = [];
   existingImages: ProductImage[] = [];
   volumePrices: Array<{ min: number | string; precio: number | string }> = [];
+  isStockModalOpen = false;
+  selectedStockProduct: Product | null = null;
+  stockMovements = signal<StockMovement[]>([]);
+  isLoadingStockMovements = signal(false);
+  stockAdjustmentType: 'add' | 'remove' | 'set' = 'add';
+  stockAdjustmentQuantity = 0;
+  stockAdjustmentNote = '';
+  isAdjustingStock = false;
 
   productForm = this.fb.group({
     nombre: ['', Validators.required],
@@ -616,6 +731,98 @@ export class ProductListComponent implements OnInit {
     this.selectedFiles = [];
     this.existingImages = [];
     this.volumePrices = [];
+  }
+
+  openStockModal(product: Product) {
+    this.selectedStockProduct = product;
+    this.isStockModalOpen = true;
+    this.stockAdjustmentType = 'add';
+    this.stockAdjustmentQuantity = 0;
+    this.stockAdjustmentNote = '';
+    this.reloadStockMovements();
+  }
+
+  closeStockModal() {
+    this.isStockModalOpen = false;
+    this.selectedStockProduct = null;
+    this.stockMovements.set([]);
+    this.stockAdjustmentType = 'add';
+    this.stockAdjustmentQuantity = 0;
+    this.stockAdjustmentNote = '';
+    this.isAdjustingStock = false;
+  }
+
+  reloadStockMovements() {
+    if (!this.selectedStockProduct?.id_producto) return;
+
+    this.isLoadingStockMovements.set(true);
+    this.productsService.getStockMovements(this.selectedStockProduct.id_producto).subscribe({
+      next: (movements) => {
+        this.stockMovements.set(movements || []);
+        this.isLoadingStockMovements.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.stockMovements.set([]);
+        this.isLoadingStockMovements.set(false);
+      }
+    });
+  }
+
+  submitStockAdjustment() {
+    if (!this.selectedStockProduct?.id_producto) return;
+
+    const quantity = Number(this.stockAdjustmentQuantity);
+    if (!Number.isFinite(quantity) || quantity < 0) {
+      this.toastService.show('Ingresa una cantidad válida para el ajuste de stock', 'error');
+      return;
+    }
+
+    this.isAdjustingStock = true;
+    this.productsService.adjustStock(this.selectedStockProduct.id_producto, {
+      adjustmentType: this.stockAdjustmentType,
+      quantity,
+      note: this.stockAdjustmentNote
+    }).subscribe({
+      next: (updatedProduct) => {
+        this.products.update(products => products.map(p => p.id_producto === updatedProduct.id_producto ? { ...p, ...updatedProduct } : p));
+        this.selectedStockProduct = updatedProduct;
+        this.stockAdjustmentQuantity = 0;
+        this.stockAdjustmentNote = '';
+        this.isAdjustingStock = false;
+        this.reloadStockMovements();
+        this.toastService.show('Stock actualizado correctamente', 'success');
+      },
+      error: (err) => {
+        console.error(err);
+        this.isAdjustingStock = false;
+        this.toastService.show(err?.error?.message || 'Error al ajustar el stock', 'error');
+      }
+    });
+  }
+
+  getMovementBadgeClass(type: StockMovement['tipo']): string {
+    const base = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ';
+    switch (type) {
+      case 'entrada':
+        return base + 'bg-green-100 text-green-800';
+      case 'salida':
+        return base + 'bg-red-100 text-red-800';
+      default:
+        return base + 'bg-yellow-100 text-yellow-800';
+    }
+  }
+
+  getMovementLabel(type: StockMovement['tipo']): string {
+    if (type === 'entrada') return 'Entrada';
+    if (type === 'salida') return 'Salida';
+    return 'Ajuste';
+  }
+
+  getMovementUser(movement: StockMovement): string {
+    const user = movement.user;
+    if (!user) return 'Sistema';
+    return `${user.nombre} ${user.apellidos || ''}`.trim() || user.email;
   }
 
   addVolumeTier(min?: number) {

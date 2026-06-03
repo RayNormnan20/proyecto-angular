@@ -17,6 +17,26 @@ export interface Product {
   precios_volumen?: { min: number; precio: number }[];
 }
 
+export interface StockMovement {
+  id_movimiento?: number;
+  producto_id: number;
+  tipo: 'entrada' | 'salida' | 'ajuste';
+  motivo: string;
+  cantidad: number;
+  stock_anterior: number;
+  stock_nuevo: number;
+  referencia_tipo?: string;
+  referencia_id?: number;
+  nota?: string;
+  created_at?: string;
+  user?: {
+    id_usuario: number;
+    nombre: string;
+    apellidos?: string;
+    email: string;
+  } | null;
+}
+
 export interface Category {
   id_categoria?: number;
   nombre: string;

@@ -1,5 +1,5 @@
 const { sequelize } = require('../../config/database');
-const { Order, OrderItem, Product, User, ProductImage, PaymentMethod } = require('../associations');
+const { Order, OrderItem, Product, User, ProductImage, PaymentMethod, StockMovement } = require('../associations');
 const { sendOrderConfirmation } = require('../../utils/email.utils');
 const { generateOrderPDF } = require('../../utils/pdf.utils');
 const { ORDER_STATUS_VALUES } = require('./order.migration');
@@ -35,6 +35,21 @@ const normalizeOptionalDate = (value) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
   return date;
+};
+
+const registerStockOutput = async ({ product, quantity, previousStock, orderId, transaction }) => {
+  await StockMovement.create({
+    producto_id: product.id_producto,
+    tipo: 'salida',
+    motivo: 'VENTA_PEDIDO',
+    cantidad: quantity,
+    stock_anterior: previousStock,
+    stock_nuevo: product.stock,
+    referencia_tipo: 'orden',
+    referencia_id: orderId,
+    nota: `Descuento automático por pedido #${orderId}`,
+    usuario_id: null
+  }, { transaction });
 };
 
 const createOrder = async (req, res) => {
@@ -74,6 +89,7 @@ const createOrder = async (req, res) => {
 
     let total = 0;
     const orderItemsData = [];
+    const stockChanges = [];
 
     // Validate products and calculate total
     for (const item of items) {
@@ -110,11 +126,19 @@ const createOrder = async (req, res) => {
       });
 
       // Decrement stock
+      const previousStock = product.stock;
       product.stock -= item.cantidad;
       if (product.stock === 0) {
         product.estado = 'agotado';
+      } else if (product.estado === 'agotado') {
+        product.estado = 'activo';
       }
       await product.save({ transaction: t });
+      stockChanges.push({
+        product,
+        quantity: item.cantidad,
+        previousStock
+      });
     }
 
     // Create Order
@@ -135,6 +159,14 @@ const createOrder = async (req, res) => {
         ...itemData,
         orden_id: order.id_orden
       }, { transaction: t });
+    }
+
+    for (const stockChange of stockChanges) {
+      await registerStockOutput({
+        ...stockChange,
+        orderId: order.id_orden,
+        transaction: t
+      });
     }
 
     await t.commit();

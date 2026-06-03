@@ -63,11 +63,11 @@ type DashboardStats = {
 
         <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
           <div class="flex items-center justify-between">
-            <div class="text-sm font-medium text-gray-600">Pedidos pendientes</div>
+            <div class="text-sm font-medium text-gray-600">Pedidos en proceso</div>
             <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">🧾</div>
           </div>
           <div class="mt-3 text-3xl font-bold text-gray-900">{{ stats()?.orders?.pending ?? '—' }}</div>
-          <div class="mt-1 text-xs text-gray-500">Estado: pendiente</div>
+          <div class="mt-1 text-xs text-gray-500">Pendiente, pagado, preparación, listo y enviado</div>
         </div>
 
         <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
@@ -107,7 +107,7 @@ type DashboardStats = {
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">S/ {{ order.total | number:'1.2-2' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">
-                    {{ order.estado }}
+                    {{ getStatusLabel(order.estado) }}
                   </span>
                 </td>
               </tr>
@@ -122,7 +122,7 @@ type DashboardStats = {
           <div *ngFor="let order of stats()?.recentOrders || []" class="border border-gray-100 rounded-lg p-4">
             <div class="flex items-start justify-between gap-2">
               <div class="text-sm font-semibold text-gray-900">Pedido #{{ order.id_orden }}</div>
-              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">{{ order.estado }}</span>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">{{ getStatusLabel(order.estado) }}</span>
             </div>
             <div class="mt-2 text-sm text-gray-700">{{ order.user?.nombre }} {{ order.user?.apellidos }}</div>
             <div class="mt-1 text-xs text-gray-500">{{ order.fecha | date:'medium' }}</div>
@@ -144,6 +144,20 @@ export class DashboardHomeComponent implements OnInit {
 
   ngOnInit() {
     this.loadStats();
+  }
+
+  getStatusLabel(status: string) {
+    const labels: Record<string, string> = {
+      pendiente: 'Pendiente',
+      pagado: 'Pagado',
+      en_preparacion: 'En preparación',
+      listo_envio: 'Listo para envío',
+      enviado: 'Enviado',
+      entregado: 'Entregado',
+      cancelado: 'Cancelado',
+      devuelto: 'Devuelto'
+    };
+    return labels[status] || status;
   }
 
   loadStats() {

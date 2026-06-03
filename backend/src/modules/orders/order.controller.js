@@ -1,12 +1,33 @@
 const { sequelize } = require('../../config/database');
-const { Order, OrderItem, Product, User, ProductImage, PaymentMethod, StockMovement } = require('../associations');
-const { sendOrderConfirmation } = require('../../utils/email.utils');
+const { Order, OrderItem, Product, User, ProductImage, PaymentMethod, StockMovement, Coupon } = require('../associations');
+const { sendOrderConfirmation, sendOrderStatusUpdate } = require('../../utils/email.utils');
 const { generateOrderPDF } = require('../../utils/pdf.utils');
 const { ORDER_STATUS_VALUES } = require('./order.migration');
+const { resolveValidCoupon } = require('../coupons/coupon.utils');
 
 const { Op } = require('sequelize');
 
 const ORDER_STATUS_SET = new Set(ORDER_STATUS_VALUES);
+const STATUS_LABELS = {
+  pendiente: 'Pendiente',
+  pagado: 'Pagado',
+  en_preparacion: 'En preparación',
+  listo_envio: 'Listo para envío',
+  enviado: 'Enviado',
+  entregado: 'Entregado',
+  cancelado: 'Cancelado',
+  devuelto: 'Devuelto'
+};
+const ALLOWED_STATUS_TRANSITIONS = {
+  pendiente: new Set(['pendiente', 'pagado', 'en_preparacion', 'cancelado']),
+  pagado: new Set(['pagado', 'en_preparacion', 'listo_envio', 'cancelado']),
+  en_preparacion: new Set(['en_preparacion', 'listo_envio', 'enviado', 'cancelado']),
+  listo_envio: new Set(['listo_envio', 'enviado', 'cancelado']),
+  enviado: new Set(['enviado', 'entregado', 'devuelto']),
+  entregado: new Set(['entregado', 'devuelto']),
+  cancelado: new Set(['cancelado']),
+  devuelto: new Set(['devuelto'])
+};
 
 const parsePreciosVolumen = (value) => {
   if (value === undefined || value === null) return null;
@@ -37,6 +58,12 @@ const normalizeOptionalDate = (value) => {
   return date;
 };
 
+const isStatusTransitionAllowed = (currentStatus, nextStatus) => {
+  const transitions = ALLOWED_STATUS_TRANSITIONS[currentStatus];
+  if (!transitions) return false;
+  return transitions.has(nextStatus);
+};
+
 const registerStockOutput = async ({ product, quantity, previousStock, orderId, transaction }) => {
   await StockMovement.create({
     producto_id: product.id_producto,
@@ -55,7 +82,7 @@ const registerStockOutput = async ({ product, quantity, previousStock, orderId, 
 const createOrder = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    let { items, metodo_pago_id, direccion_envio, notas, codigo_operacion } = req.body;
+    let { items, metodo_pago_id, direccion_envio, notas, codigo_operacion, cupon_codigo } = req.body;
     const userId = req.user.id; // From auth middleware
 
     // Parse items if it comes as a string (from FormData)
@@ -87,7 +114,7 @@ const createOrder = async (req, res) => {
       return res.status(400).json({ message: 'Método de pago inválido o inactivo' });
     }
 
-    let total = 0;
+    let subtotal = 0;
     const orderItemsData = [];
     const stockChanges = [];
 
@@ -96,11 +123,15 @@ const createOrder = async (req, res) => {
       const product = await Product.findByPk(item.id_producto, { transaction: t });
       
       if (!product) {
-        throw new Error(`Producto con ID ${item.id_producto} no encontrado`);
+        const error = new Error(`Producto con ID ${item.id_producto} no encontrado`);
+        error.statusCode = 404;
+        throw error;
       }
 
       if (product.stock < item.cantidad) {
-        throw new Error(`Stock insuficiente para el producto ${product.nombre}`);
+        const error = new Error(`Stock insuficiente para el producto ${product.nombre}`);
+        error.statusCode = 400;
+        throw error;
       }
 
       // Lógica de Precios por Volumen
@@ -115,14 +146,14 @@ const createOrder = async (req, res) => {
         }
       }
 
-      const subtotal = precioAplicado * item.cantidad;
-      total += subtotal;
+      const itemSubtotal = precioAplicado * item.cantidad;
+      subtotal += itemSubtotal;
 
       orderItemsData.push({
         producto_id: item.id_producto,
         cantidad: item.cantidad,
         precio_unitario: precioAplicado,
-        subtotal: subtotal
+        subtotal: itemSubtotal
       });
 
       // Decrement stock
@@ -141,12 +172,39 @@ const createOrder = async (req, res) => {
       });
     }
 
+    let couponId = null;
+    let couponCode = null;
+    let couponDiscount = 0;
+    if (cupon_codigo) {
+      const couponResult = await resolveValidCoupon({
+        codigo: cupon_codigo,
+        subtotal,
+        transaction: t
+      });
+
+      if (couponResult.error) {
+        const error = new Error(couponResult.error);
+        error.statusCode = 400;
+        throw error;
+      }
+
+      couponId = couponResult.coupon.id_cupon;
+      couponCode = couponResult.codigo;
+      couponDiscount = couponResult.discount;
+      await couponResult.coupon.increment('usos_actuales', { by: 1, transaction: t });
+    }
+
+    const total = Number(Math.max(subtotal - couponDiscount, 0).toFixed(2));
+
     // Create Order
     const order = await Order.create({
       usuario_id: userId,
       total: total,
       estado: 'pendiente',
       metodo_pago_id: metodo_pago_id,
+      cupon_id: couponId,
+      cupon_codigo: couponCode,
+      descuento_cupon: couponDiscount,
       direccion_envio: direccion_envio,
       notas: notas,
       codigo_operacion: codigo_operacion,
@@ -187,6 +245,10 @@ const createOrder = async (req, res) => {
         {
           model: PaymentMethod,
           as: 'paymentMethod'
+        },
+        {
+          model: Coupon,
+          as: 'coupon'
         }
       ]
     });
@@ -210,7 +272,7 @@ const createOrder = async (req, res) => {
   } catch (error) {
     await t.rollback();
     console.error('Error creating order:', error);
-    res.status(500).json({ message: error.message || 'Error al crear la orden' });
+    res.status(error.statusCode || 500).json({ message: error.message || 'Error al crear la orden' });
   }
 };
 
@@ -258,6 +320,7 @@ const getOrders = async (req, res) => {
           attributes: ['id_usuario', 'nombre', 'email']
         },
         { model: PaymentMethod, as: 'paymentMethod' },
+        { model: Coupon, as: 'coupon' },
         {
           model: OrderItem,
           as: 'items',
@@ -300,6 +363,7 @@ const getOrderById = async (req, res) => {
           attributes: ['id_usuario', 'nombre', 'email']
         },
         { model: PaymentMethod, as: 'paymentMethod' },
+        { model: Coupon, as: 'coupon' },
         {
           model: OrderItem,
           as: 'items',
@@ -345,7 +409,17 @@ const updateOrderStatus = async (req, res) => {
       nota_estado
     } = req.body;
 
-    const order = await Order.findByPk(id);
+    const order = await Order.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id_usuario', 'nombre', 'email']
+        },
+        { model: PaymentMethod, as: 'paymentMethod' },
+        { model: Coupon, as: 'coupon' }
+      ]
+    });
 
     if (!order) {
       return res.status(404).json({ message: 'Orden no encontrada' });
@@ -354,6 +428,11 @@ const updateOrderStatus = async (req, res) => {
     const nextEstado = typeof estado === 'string' ? estado.trim() : '';
     if (!nextEstado || !ORDER_STATUS_SET.has(nextEstado)) {
       return res.status(400).json({ message: 'Estado de pedido inválido' });
+    }
+    if (!isStatusTransitionAllowed(order.estado, nextEstado)) {
+      return res.status(400).json({
+        message: `No se puede cambiar de ${STATUS_LABELS[order.estado] || order.estado} a ${STATUS_LABELS[nextEstado] || nextEstado}`
+      });
     }
 
     const normalizedDates = {
@@ -366,6 +445,17 @@ const updateOrderStatus = async (req, res) => {
     if (Object.values(normalizedDates).some(value => value === null)) {
       return res.status(400).json({ message: 'Una o más fechas son inválidas' });
     }
+
+    const statusChanged = order.estado !== nextEstado;
+    const trackingChanged =
+      (empresa_envio !== undefined && order.empresa_envio !== normalizeOptionalString(empresa_envio)) ||
+      (numero_seguimiento !== undefined && order.numero_seguimiento !== normalizeOptionalString(numero_seguimiento)) ||
+      (url_seguimiento !== undefined && order.url_seguimiento !== normalizeOptionalString(url_seguimiento)) ||
+      (nota_estado !== undefined && order.nota_estado !== normalizeOptionalString(nota_estado)) ||
+      (normalizedDates.fecha_preparacion !== undefined) ||
+      (normalizedDates.fecha_envio !== undefined) ||
+      (normalizedDates.fecha_entrega_estimada !== undefined) ||
+      (normalizedDates.fecha_entrega !== undefined);
 
     order.estado = nextEstado;
     if (empresa_envio !== undefined) order.empresa_envio = normalizeOptionalString(empresa_envio);
@@ -389,10 +479,38 @@ const updateOrderStatus = async (req, res) => {
 
     await order.save();
 
-    res.json(order);
+    const updatedOrder = await Order.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id_usuario', 'nombre', 'email']
+        },
+        { model: PaymentMethod, as: 'paymentMethod' },
+        { model: Coupon, as: 'coupon' },
+        {
+          model: OrderItem,
+          as: 'items',
+          include: [
+            {
+              model: Product,
+              as: 'product',
+              include: [{ model: ProductImage, as: 'images' }]
+            }
+          ]
+        }
+      ]
+    });
+
+    if ((statusChanged || trackingChanged) && updatedOrder?.user?.email) {
+      sendOrderStatusUpdate(updatedOrder, updatedOrder.user)
+        .catch(err => console.error('Error sending status update email:', err));
+    }
+
+    res.json(updatedOrder);
   } catch (error) {
     console.error('Error updating order status:', error);
-    res.status(500).json({ message: 'Error al actualizar el estado de la orden' });
+    res.status(500).json({ message: error.message || 'Error al actualizar el estado de la orden' });
   }
 };
 

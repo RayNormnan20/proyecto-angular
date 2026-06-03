@@ -76,6 +76,10 @@ const seedPermissions = async () => {
       // Banners Home
       { nombre: 'GESTIONAR_BANNERS_HOME', descripcion: 'Puede agregar o editar imágenes del home' },
       { nombre: 'ELIMINAR_BANNER_HOME', descripcion: 'Puede eliminar imágenes del home' },
+      // Cupones
+      { nombre: 'VER_CUPONES', descripcion: 'Puede ver la lista de cupones' },
+      { nombre: 'GESTIONAR_CUPONES', descripcion: 'Puede crear o editar cupones' },
+      { nombre: 'ELIMINAR_CUPON', descripcion: 'Puede eliminar cupones' },
       // Dashboard
       { nombre: 'VER_DASHBOARD', descripcion: 'Puede ver el panel principal y estadísticas' },
     ];
@@ -124,6 +128,7 @@ const seedPermissions = async () => {
                     'VER_LOGS_EMAIL',
                     'VER_METODOS_PAGO', 'GESTIONAR_METODOS_PAGO',
                     'GESTIONAR_BANNERS_HOME',
+                    'VER_CUPONES', 'GESTIONAR_CUPONES',
                     'VER_DASHBOARD'
                 ]
              }

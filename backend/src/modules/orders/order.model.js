@@ -46,6 +46,23 @@ const Order = sequelize.define('Order', {
       key: 'id_metodo_pago'
     }
   },
+  cupon_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'cupones',
+      key: 'id_cupon'
+    }
+  },
+  cupon_codigo: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  descuento_cupon: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+    defaultValue: 0
+  },
   /* Deprecated in favor of metodo_pago_id
   metodo_pago: {
     type: DataTypes.ENUM('yape', 'transferencia'),

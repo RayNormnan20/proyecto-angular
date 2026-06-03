@@ -17,6 +17,7 @@ const PaymentMethod = require('./payment-methods/payment-method.model');
 const EmailLog = require('./email-logs/email-log.model');
 const Testimonial = require('./testimonials/testimonial.model');
 const HomeBanner = require('./home-banners/home-banner.model');
+const Coupon = require('./coupons/coupon.model');
 
 // Role-Permission associations (Many-to-Many)
 if (!Role.associations.permissions) {
@@ -60,6 +61,9 @@ User.hasMany(Order, { foreignKey: 'usuario_id', as: 'orders' });
 
 Order.belongsTo(PaymentMethod, { foreignKey: 'metodo_pago_id', as: 'paymentMethod' });
 PaymentMethod.hasMany(Order, { foreignKey: 'metodo_pago_id', as: 'orders' });
+
+Order.belongsTo(Coupon, { foreignKey: 'cupon_id', as: 'coupon' });
+Coupon.hasMany(Order, { foreignKey: 'cupon_id', as: 'orders' });
 
 Order.hasMany(OrderItem, { foreignKey: 'orden_id', as: 'items' });
 OrderItem.belongsTo(Order, { foreignKey: 'orden_id', as: 'order' });
@@ -116,5 +120,6 @@ module.exports = {
   PaymentMethod,
   EmailLog,
   Testimonial,
-  HomeBanner
+  HomeBanner,
+  Coupon
 };

@@ -181,9 +181,15 @@ const sendOrderConfirmation = async (order, user, items, pdfBuffer = null) => {
             ${itemsHtml}
           </tbody>
           <tfoot>
+            ${order.descuento_cupon && Number(order.descuento_cupon) > 0 ? `
+            <tr>
+              <td colspan="3" style="padding: 10px; text-align: right; font-weight: bold;">Cupón ${order.cupon_codigo || ''}:</td>
+              <td style="padding: 10px; font-weight: bold; color: #059669;">- ${formatCurrency(order.descuento_cupon)}</td>
+            </tr>
+            ` : ''}
             <tr>
               <td colspan="3" style="padding: 10px; text-align: right; font-weight: bold;">Total:</td>
-              <td style="padding: 10px; font-weight: bold;">S/ ${order.total}</td>
+              <td style="padding: 10px; font-weight: bold;">${formatCurrency(order.total)}</td>
             </tr>
           </tfoot>
         </table>
@@ -377,6 +383,99 @@ const sendPasswordResetEmail = async (user, token) => {
   }
 };
 
+const ORDER_STATUS_LABELS = {
+  pendiente: 'Pendiente',
+  pagado: 'Pagado',
+  en_preparacion: 'En preparación',
+  listo_envio: 'Listo para envío',
+  enviado: 'Enviado',
+  entregado: 'Entregado',
+  cancelado: 'Cancelado',
+  devuelto: 'Devuelto'
+};
+
+const formatCurrency = (amount) => `S/ ${Number(amount || 0).toFixed(2)}`;
+
+const sendOrderStatusUpdate = async (order, user) => {
+  const emailConfig = await getTransporter();
+
+  if (!emailConfig) {
+    console.warn('Skipping order status email due to missing configuration.');
+    return;
+  }
+
+  const { transporter, from, settingsMap } = emailConfig;
+  const empresaNombre = settingsMap['app_name'] || 'Nova Vam 3D';
+  const frontendUrl = normalizeFrontendUrl(
+    settingsMap['frontend_url'],
+    process.env.FRONTEND_URL,
+    process.env.CORS_ORIGIN
+  );
+  const profileLink = `${frontendUrl}/profile`;
+  const statusLabel = ORDER_STATUS_LABELS[order.estado] || order.estado;
+
+  const trackingBlock = `
+    <div style="margin-top: 24px; padding: 20px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+      <h3 style="margin-top: 0; color: #111827;">Seguimiento actual</h3>
+      <p style="margin: 6px 0;"><strong>Estado:</strong> ${statusLabel}</p>
+      ${order.empresa_envio ? `<p style="margin: 6px 0;"><strong>Empresa:</strong> ${order.empresa_envio}</p>` : ''}
+      ${order.numero_seguimiento ? `<p style="margin: 6px 0;"><strong>Guía / tracking:</strong> ${order.numero_seguimiento}</p>` : ''}
+      ${order.fecha_preparacion ? `<p style="margin: 6px 0;"><strong>Preparación:</strong> ${new Date(order.fecha_preparacion).toLocaleString()}</p>` : ''}
+      ${order.fecha_envio ? `<p style="margin: 6px 0;"><strong>Envío:</strong> ${new Date(order.fecha_envio).toLocaleString()}</p>` : ''}
+      ${order.fecha_entrega_estimada ? `<p style="margin: 6px 0;"><strong>Entrega estimada:</strong> ${new Date(order.fecha_entrega_estimada).toLocaleDateString()}</p>` : ''}
+      ${order.fecha_entrega ? `<p style="margin: 6px 0;"><strong>Entregado:</strong> ${new Date(order.fecha_entrega).toLocaleString()}</p>` : ''}
+      ${order.nota_estado ? `<p style="margin: 6px 0;"><strong>Detalle:</strong> ${order.nota_estado}</p>` : ''}
+      ${order.url_seguimiento ? `<p style="margin: 12px 0 0;"><a href="${order.url_seguimiento}" style="color: #4f46e5; text-decoration: none; font-weight: bold;">Rastrear envío</a></p>` : ''}
+    </div>
+  `;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #4f46e5; color: white; padding: 24px; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">Actualización de tu pedido</h1>
+        <p style="margin: 8px 0 0;">${empresaNombre}</p>
+      </div>
+      <div style="padding: 24px;">
+        <p>Hola ${user.nombre},</p>
+        <p>Tu pedido <strong>#${order.id_orden}</strong> ahora está en estado <strong>${statusLabel}</strong>.</p>
+        ${trackingBlock}
+        <div style="text-align: center; margin-top: 28px;">
+          <a href="${profileLink}" style="display: inline-block; background-color: #4f46e5; color: white; padding: 12px 22px; text-decoration: none; border-radius: 6px; font-weight: bold;">Ver mi pedido</a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: `"Nova Vam 3D" <${from}>`,
+      to: user.email,
+      subject: `Actualización de tu pedido #${order.id_orden}: ${statusLabel}`,
+      html
+    });
+
+    await EmailLog.create({
+      destinatario: user.email,
+      asunto: `Actualización de tu pedido #${order.id_orden}: ${statusLabel}`,
+      contenido: `Estado actualizado a ${statusLabel}`,
+      tipo: 'orden',
+      referencia_id: order.id_orden,
+      estado: 'enviado'
+    });
+  } catch (error) {
+    console.error('Error al enviar correo de actualización de pedido:', error);
+    await EmailLog.create({
+      destinatario: user.email,
+      asunto: `Actualización de tu pedido #${order.id_orden}: ${statusLabel}`,
+      contenido: `Error al enviar actualización: ${error.message}`,
+      tipo: 'orden',
+      referencia_id: order.id_orden,
+      estado: 'fallido',
+      error_mensaje: error.message
+    });
+  }
+};
+
 const normalizeFrontendUrl = (...candidates) => {
   for (const candidate of candidates) {
     if (!candidate) continue;
@@ -485,4 +584,4 @@ const sendContactEmail = async (contactData) => {
   }
 };
 
-module.exports = { sendOrderConfirmation, sendWelcomeEmail, sendPasswordResetEmail, sendContactEmail };
+module.exports = { sendOrderConfirmation, sendOrderStatusUpdate, sendWelcomeEmail, sendPasswordResetEmail, sendContactEmail };

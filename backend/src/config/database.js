@@ -5,6 +5,7 @@ require('mysql2');
 dotenv.config();
 
 const isServerless = Boolean(process.env.VERCEL);
+const databaseTimezone = process.env.DB_TIMEZONE || '-05:00';
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -14,6 +15,7 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3306,
     dialect: 'mysql',
+    timezone: databaseTimezone,
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
       max: 5,

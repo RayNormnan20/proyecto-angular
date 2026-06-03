@@ -15,6 +15,7 @@ const emailLogRoutes = require('../modules/email-logs/email-log.routes');
 const testimonialRoutes = require('../modules/testimonials/testimonial.routes');
 const contactRoutes = require('../modules/contact/contact.routes');
 const homeBannerRoutes = require('../modules/home-banners/home-banner.routes');
+const couponRoutes = require('../modules/coupons/coupon.routes');
 const { User, Role, Order, Product } = require('../modules/associations');
 const { Op } = require('sequelize');
 
@@ -33,6 +34,7 @@ router.use('/email-logs', emailLogRoutes);
 router.use('/testimonials', testimonialRoutes);
 router.use('/contact', contactRoutes);
 router.use('/home-banners', homeBannerRoutes);
+router.use('/coupons', couponRoutes);
 
 
 // Ejemplo de ruta protegida para verificar el token
@@ -52,8 +54,8 @@ router.get('/stats', verifyToken, checkRole(['admin', 'trabajador', 'supervisor'
 
     const [ordersTotal, ordersPending, revenueTotal] = await Promise.all([
       Order.count(),
-      Order.count({ where: { estado: 'pendiente' } }),
-      Order.sum('total', { where: { estado: { [Op.in]: ['pagado', 'enviado', 'entregado'] } } })
+      Order.count({ where: { estado: { [Op.in]: ['pendiente', 'pagado', 'en_preparacion', 'listo_envio', 'enviado'] } } }),
+      Order.sum('total', { where: { estado: { [Op.in]: ['pagado', 'en_preparacion', 'listo_envio', 'enviado', 'entregado'] } } })
     ]);
 
     const recentOrders = await Order.findAll({

@@ -20,6 +20,7 @@ import { BrandListComponent } from './features/brands/pages/brand-list/brand-lis
 import { BrandFormComponent } from './features/brands/pages/brand-form/brand-form.component';
 import { OrdersListComponent } from './features/dashboard/pages/orders-list/orders-list.component';
 import { PaymentSettingsComponent } from './features/dashboard/pages/payment-settings/payment-settings.component';
+import { CouponSettingsComponent } from './features/dashboard/pages/coupon-settings/coupon-settings.component';
 import { ShippingSettingsComponent } from './features/dashboard/pages/shipping-settings/shipping-settings.component';
 import { EmailSettingsComponent } from './features/dashboard/pages/email-settings/email-settings.component';
 import { TestimonialSettingsComponent } from './features/dashboard/pages/testimonial-settings/testimonial-settings.component';
@@ -93,6 +94,7 @@ export const routes: Routes = [
       { path: 'orders', component: OrdersListComponent },
       // Configuración Pagos
       { path: 'payment-settings', component: PaymentSettingsComponent },
+      { path: 'coupon-settings', component: CouponSettingsComponent },
       // Configuración Envíos
       { path: 'shipping-settings', component: ShippingSettingsComponent },
       // Configuración Correo

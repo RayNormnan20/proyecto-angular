@@ -153,6 +153,9 @@ import { environment } from '../../../../../environments/environment';
                     <div class="mt-1" *ngIf="order.notas">
                        <p><span class="font-bold">Notas:</span> {{ order.notas }}</p>
                     </div>
+                    <div class="mt-1" *ngIf="order.cupon_codigo">
+                       <p><span class="font-bold">Cupón aplicado:</span> {{ order.cupon_codigo }} <span *ngIf="order.descuento_cupon">(- S/ {{ order.descuento_cupon }})</span></p>
+                    </div>
                     <div class="mt-4 p-4 bg-white rounded-lg border border-gray-200">
                       <h5 class="font-bold text-gray-800 mb-3">Tracking y seguimiento</h5>
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">

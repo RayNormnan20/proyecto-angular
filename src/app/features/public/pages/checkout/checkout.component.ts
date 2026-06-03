@@ -7,6 +7,8 @@ import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
 import { SettingsService, Settings } from '../../../../core/services/settings.service';
+import { Coupon, CouponService } from '../../../../core/services/coupon.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -324,10 +326,50 @@ import { environment } from '../../../../../environments/environment';
               </div>
 
               <!-- Totals -->
+              <div class="mb-6 rounded-xl border border-gray-100 bg-gray-50 p-4">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                  <div>
+                    <h3 class="text-sm font-semibold text-gray-900">Cupón de descuento</h3>
+                    <p class="text-xs text-gray-500">Aplica promociones antes de confirmar el pedido.</p>
+                  </div>
+                  <button *ngIf="appliedCoupon()" (click)="removeCoupon()" type="button" class="text-xs font-semibold text-red-600 hover:text-red-700">
+                    Quitar
+                  </button>
+                </div>
+                <div class="flex gap-2">
+                  <input
+                    [value]="couponCode()"
+                    (input)="couponCode.set(($any($event.target).value || '').toString().toUpperCase())"
+                    placeholder="Ej: BIENVENIDA10"
+                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm uppercase"
+                  >
+                  <button
+                    type="button"
+                    (click)="applyCoupon()"
+                    [disabled]="isApplyingCoupon() || !couponCode().trim()"
+                    class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                  >
+                    {{ isApplyingCoupon() ? 'Aplicando...' : 'Aplicar' }}
+                  </button>
+                </div>
+                <div *ngIf="appliedCoupon()" class="mt-3 rounded-lg border border-green-200 bg-green-50 p-3 text-sm">
+                  <div class="font-semibold text-green-800">
+                    Cupón aplicado: {{ appliedCoupon()?.codigo }}
+                  </div>
+                  <div class="text-green-700">
+                    {{ appliedCoupon()?.descripcion || getCouponSummary(appliedCoupon()!) }}
+                  </div>
+                </div>
+              </div>
+
               <div class="space-y-3 mb-6 pt-4 border-t border-gray-100">
                 <div class="flex justify-between text-gray-600 text-sm">
                   <span>Subtotal</span>
                   <span>S/ {{ cartService.cartTotal() | number:'1.2-2' }}</span>
+                </div>
+                <div class="flex justify-between text-sm" *ngIf="couponDiscount() > 0">
+                  <span class="text-gray-600">Descuento</span>
+                  <span class="font-semibold text-green-600">- S/ {{ couponDiscount() | number:'1.2-2' }}</span>
                 </div>
                 <div class="flex justify-between text-gray-600 text-sm">
                   <span>Envío</span>
@@ -373,6 +415,8 @@ export class CheckoutComponent implements OnInit {
   paymentMethodService = inject(PaymentMethodService);
   authService = inject(AuthService);
   settingsService = inject(SettingsService);
+  couponService = inject(CouponService);
+  toastService = inject(ToastService);
   router = inject(Router);
   fb = inject(FormBuilder);
 
@@ -389,9 +433,13 @@ export class CheckoutComponent implements OnInit {
   shippingCosts = signal<{district: string, cost: number}[]>([]);
   currentShippingCost = signal(0);
   deliveryMethod = signal<'pickup' | 'delivery' | null>(null);
+  couponCode = signal('');
+  appliedCoupon = signal<Coupon | null>(null);
+  couponDiscount = signal(0);
+  isApplyingCoupon = signal(false);
 
   // Total computed
-  totalToPay = computed(() => this.cartService.cartTotal() + this.currentShippingCost());
+  totalToPay = computed(() => Math.max(this.cartService.cartTotal() - this.couponDiscount(), 0) + this.currentShippingCost());
 
   checkoutForm: FormGroup = this.fb.group({
     metodo_entrega: ['', Validators.required],
@@ -575,6 +623,7 @@ export class CheckoutComponent implements OnInit {
       ...this.checkoutForm.value,
       direccion_envio: shippingAddress,
       costo_envio: this.currentShippingCost(), // Send shipping cost to backend if needed
+      cupon_codigo: this.appliedCoupon()?.codigo || '',
       total: this.totalToPay()
     };
 
@@ -587,6 +636,7 @@ export class CheckoutComponent implements OnInit {
     formData.append('metodo_pago_id', String(orderData.metodo_pago_id));
     if (orderData.codigo_operacion) formData.append('codigo_operacion', orderData.codigo_operacion);
     if (orderData.notas) formData.append('notas', orderData.notas);
+    if (orderData.cupon_codigo) formData.append('cupon_codigo', orderData.cupon_codigo);
     if (this.selectedFile) {
       formData.append('comprobante_pago', this.selectedFile);
     }
@@ -595,14 +645,58 @@ export class CheckoutComponent implements OnInit {
       next: (order) => {
         this.cartService.clearCart();
         this.isProcessing.set(false);
+        this.appliedCoupon.set(null);
+        this.couponDiscount.set(0);
+        this.couponCode.set('');
+        this.toastService.show('Pedido registrado correctamente', 'success');
         // Navigate to profile or success page
         this.router.navigate(['/profile']); // Or a dedicated success page
       },
       error: (err) => {
         console.error('Error creating order', err);
         this.isProcessing.set(false);
-        alert('Hubo un error al procesar tu pedido. Por favor intenta nuevamente.');
+        this.toastService.show(err?.error?.message || 'Hubo un error al procesar tu pedido. Por favor intenta nuevamente.', 'error');
       }
     });
+  }
+
+  applyCoupon() {
+    const code = this.couponCode().trim().toUpperCase();
+    if (!code) {
+      this.toastService.show('Ingresa un código de cupón', 'error');
+      return;
+    }
+
+    this.isApplyingCoupon.set(true);
+    this.couponService.validate(code, this.cartService.cartTotal()).subscribe({
+      next: (response) => {
+        this.appliedCoupon.set(response.coupon);
+        this.couponDiscount.set(Number(response.discount || 0));
+        this.couponCode.set(response.coupon.codigo);
+        this.isApplyingCoupon.set(false);
+        this.toastService.show(response.message || 'Cupón aplicado', 'success');
+      },
+      error: (err) => {
+        console.error('Error applying coupon', err);
+        this.appliedCoupon.set(null);
+        this.couponDiscount.set(0);
+        this.isApplyingCoupon.set(false);
+        this.toastService.show(err?.error?.message || 'No se pudo aplicar el cupón', 'error');
+      }
+    });
+  }
+
+  removeCoupon() {
+    this.appliedCoupon.set(null);
+    this.couponDiscount.set(0);
+    this.couponCode.set('');
+    this.toastService.show('Cupón removido', 'info');
+  }
+
+  getCouponSummary(coupon: Coupon): string {
+    if (coupon.tipo_descuento === 'porcentaje') {
+      return `${coupon.valor}% de descuento`;
+    }
+    return `S/ ${Number(coupon.valor || 0).toFixed(2)} de descuento`;
   }
 }

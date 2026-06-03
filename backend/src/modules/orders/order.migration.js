@@ -49,6 +49,19 @@ const ensureOrderTrackingColumns = async () => {
       nota_estado: {
         type: DataTypes.TEXT,
         allowNull: true
+      },
+      cupon_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      cupon_codigo: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      descuento_cupon: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0
       }
     };
 

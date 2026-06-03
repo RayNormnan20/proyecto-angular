@@ -271,6 +271,7 @@ import { environment } from '../../../../../environments/environment';
                         <p><span class="font-bold text-gray-700">Dirección de envío:</span> {{ order.direccion_envio || 'No especificada' }}</p>
                         <p><span class="font-bold text-gray-700">Método de pago:</span> {{ order.paymentMethod?.nombre || 'No especificado' }}</p>
                         <p><span class="font-bold text-gray-700">Estado:</span> {{ getStatusLabel(order.estado) }}</p>
+                        <p *ngIf="order.cupon_codigo"><span class="font-bold text-gray-700">Cupón:</span> {{ order.cupon_codigo }} <span *ngIf="order.descuento_cupon">(- S/ {{ order.descuento_cupon }})</span></p>
                         <p *ngIf="order.empresa_envio"><span class="font-bold text-gray-700">Empresa de envío:</span> {{ order.empresa_envio }}</p>
                         <p *ngIf="order.numero_seguimiento"><span class="font-bold text-gray-700">Seguimiento:</span> {{ order.numero_seguimiento }}</p>
                         <p *ngIf="order.fecha_preparacion"><span class="font-bold text-gray-700">Preparación:</span> {{ order.fecha_preparacion | date:'medium' }}</p>

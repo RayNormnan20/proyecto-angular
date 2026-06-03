@@ -18,6 +18,15 @@ export interface Order {
   fecha_entrega_estimada?: string;
   fecha_entrega?: string;
   nota_estado?: string;
+  cupon_codigo?: string;
+  descuento_cupon?: string;
+  coupon?: {
+    id_cupon: number;
+    codigo: string;
+    descripcion?: string;
+    tipo_descuento: 'porcentaje' | 'monto_fijo';
+    valor: number;
+  };
   paymentMethod?: {
     id_metodo_pago: number;
     nombre: string;
@@ -51,6 +60,7 @@ export interface CreateOrderDto {
   direccion_envio: string;
   notas?: string;
   codigo_operacion?: string;
+  cupon_codigo?: string;
 }
 
 export interface UpdateOrderTrackingDto {

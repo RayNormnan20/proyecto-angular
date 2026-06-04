@@ -1,5 +1,5 @@
-const { Product, Category, Brand, ProductImage, StockMovement, User } = require('../associations');
-const { Op } = require('sequelize');
+const { Product, Category, Brand, ProductImage, StockMovement, User, ProductReview } = require('../associations');
+const { Op, fn, col } = require('sequelize');
 
 const parsePreciosVolumen = (value) => {
   if (value === undefined || value === null) return null;
@@ -58,6 +58,49 @@ const createStockMovement = async ({
   });
 };
 
+const attachReviewSummaryToProducts = async (products) => {
+  if (!Array.isArray(products) || products.length === 0) return;
+
+  const productIds = products
+    .map(product => product.id_producto)
+    .filter(id => Number.isInteger(id));
+
+  if (productIds.length === 0) return;
+
+  const reviewRows = await ProductReview.findAll({
+    attributes: [
+      'producto_id',
+      [fn('AVG', col('puntuacion')), 'average'],
+      [fn('COUNT', col('id_resena')), 'total']
+    ],
+    where: {
+      visible: true,
+      producto_id: {
+        [Op.in]: productIds
+      }
+    },
+    group: ['producto_id'],
+    raw: true
+  });
+
+  const summaryMap = new Map(
+    reviewRows.map(row => [
+      Number(row.producto_id),
+      {
+        average: Number(Number(row.average || 0).toFixed(1)),
+        total: Number(row.total || 0)
+      }
+    ])
+  );
+
+  for (const product of products) {
+    product.setDataValue('review_summary', summaryMap.get(product.id_producto) || {
+      average: 0,
+      total: 0
+    });
+  }
+};
+
 // Listar productos con filtros y paginación
 exports.getAll = async (req, res) => {
   try {
@@ -112,6 +155,7 @@ exports.getAll = async (req, res) => {
     for (const product of rows) {
       product.setDataValue('precios_volumen', parsePreciosVolumen(product.precios_volumen));
     }
+    await attachReviewSummaryToProducts(rows);
 
     res.json({
       total: count,
@@ -135,6 +179,7 @@ exports.getById = async (req, res) => {
     });
     if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
     product.setDataValue('precios_volumen', parsePreciosVolumen(product.precios_volumen));
+    await attachReviewSummaryToProducts([product]);
     res.json(product);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener producto', error: error.message });

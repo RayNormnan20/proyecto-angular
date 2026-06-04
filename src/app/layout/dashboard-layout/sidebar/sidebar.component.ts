@@ -190,7 +190,7 @@ import { AuthService } from '../../../core/services/auth.service';
         </ng-container>
 
         <!-- Módulo de Productos (Desplegable) -->
-        <ng-container *ngIf="authService.hasPermission('VER_PRODUCTOS') || authService.hasPermission('VER_CATEGORIAS') || authService.hasPermission('VER_MARCAS')">
+        <ng-container *ngIf="authService.hasPermission('VER_PRODUCTOS') || authService.hasPermission('VER_CATEGORIAS') || authService.hasPermission('VER_MARCAS') || authService.hasPermission('VER_RESENAS_PRODUCTOS')">
 
             <!-- Botón Padre -->
             <button 
@@ -256,6 +256,19 @@ import { AuthService } from '../../../core/services/auth.service';
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 4v12l-4-2-4 2V4M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     </span>
                     Marcas
+                </a>
+
+                <a 
+                    *ngIf="authService.hasRole('admin') || authService.hasPermission('VER_RESENAS_PRODUCTOS')"
+                    routerLink="/dashboard/product-review-settings" 
+                    routerLinkActive="text-white border-l-4 border-indigo-500 bg-[#252830]"
+                    (click)="close.emit()"
+                    class="flex items-center pl-12 pr-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#252830] transition-colors border-l-4 border-transparent"
+                >
+                    <span class="mr-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.276-3.405A7.54 7.54 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    </span>
+                    Reseñas
                 </a>
             </div>
         </ng-container>

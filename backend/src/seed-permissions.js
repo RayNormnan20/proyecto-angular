@@ -80,6 +80,10 @@ const seedPermissions = async () => {
       { nombre: 'VER_CUPONES', descripcion: 'Puede ver la lista de cupones' },
       { nombre: 'GESTIONAR_CUPONES', descripcion: 'Puede crear o editar cupones' },
       { nombre: 'ELIMINAR_CUPON', descripcion: 'Puede eliminar cupones' },
+      // Reseñas de productos
+      { nombre: 'VER_RESENAS_PRODUCTOS', descripcion: 'Puede ver la lista de reseñas de productos' },
+      { nombre: 'GESTIONAR_RESENAS_PRODUCTOS', descripcion: 'Puede mostrar u ocultar reseñas de productos' },
+      { nombre: 'ELIMINAR_RESENA_PRODUCTO', descripcion: 'Puede eliminar reseñas de productos' },
       // Dashboard
       { nombre: 'VER_DASHBOARD', descripcion: 'Puede ver el panel principal y estadísticas' },
     ];
@@ -129,6 +133,7 @@ const seedPermissions = async () => {
                     'VER_METODOS_PAGO', 'GESTIONAR_METODOS_PAGO',
                     'GESTIONAR_BANNERS_HOME',
                     'VER_CUPONES', 'GESTIONAR_CUPONES',
+                    'VER_RESENAS_PRODUCTOS', 'GESTIONAR_RESENAS_PRODUCTOS',
                     'VER_DASHBOARD'
                 ]
              }

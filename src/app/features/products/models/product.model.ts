@@ -15,6 +15,10 @@ export interface Product {
   brand?: Brand;
   images?: ProductImage[];
   precios_volumen?: { min: number; precio: number }[];
+  review_summary?: {
+    average: number;
+    total: number;
+  };
 }
 
 export interface StockMovement {

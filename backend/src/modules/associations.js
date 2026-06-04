@@ -18,6 +18,7 @@ const EmailLog = require('./email-logs/email-log.model');
 const Testimonial = require('./testimonials/testimonial.model');
 const HomeBanner = require('./home-banners/home-banner.model');
 const Coupon = require('./coupons/coupon.model');
+const ProductReview = require('./product-reviews/product-review.model');
 
 // Role-Permission associations (Many-to-Many)
 if (!Role.associations.permissions) {
@@ -55,6 +56,9 @@ ProductImage.belongsTo(Product, { foreignKey: 'producto_id', as: 'product' });
 Product.hasMany(StockMovement, { foreignKey: 'producto_id', as: 'stock_movements' });
 StockMovement.belongsTo(Product, { foreignKey: 'producto_id', as: 'product' });
 
+Product.hasMany(ProductReview, { foreignKey: 'producto_id', as: 'reviews' });
+ProductReview.belongsTo(Product, { foreignKey: 'producto_id', as: 'product' });
+
 // Order Associations
 Order.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
 User.hasMany(Order, { foreignKey: 'usuario_id', as: 'orders' });
@@ -70,6 +74,9 @@ OrderItem.belongsTo(Order, { foreignKey: 'orden_id', as: 'order' });
 
 OrderItem.belongsTo(Product, { foreignKey: 'producto_id', as: 'product' });
 Product.hasMany(OrderItem, { foreignKey: 'producto_id', as: 'order_items' });
+
+Order.hasMany(ProductReview, { foreignKey: 'orden_id', as: 'reviews' });
+ProductReview.belongsTo(Order, { foreignKey: 'orden_id', as: 'order' });
 
 // Session Associations
 Session.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
@@ -93,6 +100,9 @@ User.belongsToMany(Product, {
   otherKey: 'producto_id',
   as: 'favorites'
 });
+
+User.hasMany(ProductReview, { foreignKey: 'usuario_id', as: 'product_reviews' });
+ProductReview.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
 
 Product.belongsToMany(User, { 
   through: Favorite, 
@@ -121,5 +131,6 @@ module.exports = {
   EmailLog,
   Testimonial,
   HomeBanner,
-  Coupon
+  Coupon,
+  ProductReview
 };

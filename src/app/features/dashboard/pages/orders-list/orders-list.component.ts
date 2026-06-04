@@ -103,17 +103,12 @@ import { environment } from '../../../../../environments/environment';
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <select 
-                      (change)="updateStatus(order.id_orden, $event)"
-                      [value]="order.estado"
+                      [ngModel]="getSelectedStatus(order)"
+                      (ngModelChange)="updateStatus(order, $event)"
                       class="mt-1 block w-full py-1 px-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-xs">
-                      <option value="pendiente">Pendiente</option>
-                      <option value="pagado">Pagado</option>
-                      <option value="en_preparacion">En preparación</option>
-                      <option value="listo_envio">Listo para envío</option>
-                      <option value="enviado">Enviado</option>
-                      <option value="entregado">Entregado</option>
-                      <option value="cancelado">Cancelado</option>
-                      <option value="devuelto">Devuelto</option>
+                      <option *ngFor="let status of statusOptions" [value]="status" [disabled]="!canTransitionTo(order.estado, status)">
+                        {{ getStatusLabel(status) }}
+                      </option>
                     </select>
                     
                     <button (click)="toggleDetails(order.id_orden)" class="mt-2 flex items-center text-indigo-600 hover:text-indigo-800 text-xs font-medium transition-colors">
@@ -253,17 +248,12 @@ import { environment } from '../../../../../environments/environment';
             <div>
               <label class="text-xs font-semibold text-gray-500 mb-1 block">Cambiar Estado</label>
               <select 
-                (change)="updateStatus(order.id_orden, $event)"
-                [value]="order.estado"
+                [ngModel]="getSelectedStatus(order)"
+                (ngModelChange)="updateStatus(order, $event)"
                 class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
-                <option value="pendiente">Pendiente</option>
-                <option value="pagado">Pagado</option>
-                <option value="en_preparacion">En preparación</option>
-                <option value="listo_envio">Listo para envío</option>
-                <option value="enviado">Enviado</option>
-                <option value="entregado">Entregado</option>
-                <option value="cancelado">Cancelado</option>
-                <option value="devuelto">Devuelto</option>
+                <option *ngFor="let status of statusOptions" [value]="status" [disabled]="!canTransitionTo(order.estado, status)">
+                  {{ getStatusLabel(status) }}
+                </option>
               </select>
             </div>
             
@@ -431,6 +421,17 @@ export class OrdersListComponent {
   totalItems = signal(0);
   totalPages = signal(0);
   Math = Math;
+  statusOptions: Order['estado'][] = ['pendiente', 'pagado', 'en_preparacion', 'listo_envio', 'enviado', 'entregado', 'cancelado', 'devuelto'];
+  allowedStatusTransitions: Record<Order['estado'], Set<Order['estado']>> = {
+    pendiente: new Set(['pendiente', 'pagado', 'en_preparacion', 'cancelado']),
+    pagado: new Set(['pagado', 'en_preparacion', 'listo_envio', 'cancelado']),
+    en_preparacion: new Set(['en_preparacion', 'listo_envio', 'enviado', 'cancelado']),
+    listo_envio: new Set(['listo_envio', 'enviado', 'cancelado']),
+    enviado: new Set(['enviado', 'entregado', 'devuelto']),
+    entregado: new Set(['entregado', 'devuelto']),
+    cancelado: new Set(['cancelado']),
+    devuelto: new Set(['devuelto'])
+  };
 
   constructor() {
     this.loadOrders();
@@ -576,9 +577,23 @@ export class OrdersListComponent {
     return this.expandedOrders().has(orderId);
   }
 
-  updateStatus(orderId: number, event: Event) {
-    const select = event.target as HTMLSelectElement;
-    const newStatus = select.value as Order['estado'];
+  canTransitionTo(currentStatus: Order['estado'], nextStatus: Order['estado']): boolean {
+    return this.allowedStatusTransitions[currentStatus]?.has(nextStatus) ?? false;
+  }
+
+  getSelectedStatus(order: Order): Order['estado'] {
+    return (this.getDraft(order.id_orden).estado || order.estado) as Order['estado'];
+  }
+
+  updateStatus(order: Order, newStatus: Order['estado']) {
+    const orderId = order.id_orden;
+
+    if (!this.canTransitionTo(order.estado, newStatus)) {
+      this.toastService.show(`No se puede cambiar de ${this.getStatusLabel(order.estado)} a ${this.getStatusLabel(newStatus)}`, 'error');
+      this.loadOrders();
+      return;
+    }
+
     const payload: UpdateOrderTrackingDto = {
       ...this.getDraft(orderId),
       estado: newStatus
@@ -592,7 +607,7 @@ export class OrdersListComponent {
       },
       error: (err) => {
         console.error('Error updating status', err);
-        this.toastService.show('Error al actualizar el estado', 'error');
+        this.toastService.show(err?.error?.message || 'Error al actualizar el estado', 'error');
         this.loadOrders(); // Reload to revert UI
       }
     });

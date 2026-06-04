@@ -16,6 +16,7 @@ const testimonialRoutes = require('../modules/testimonials/testimonial.routes');
 const contactRoutes = require('../modules/contact/contact.routes');
 const homeBannerRoutes = require('../modules/home-banners/home-banner.routes');
 const couponRoutes = require('../modules/coupons/coupon.routes');
+const productReviewRoutes = require('../modules/product-reviews/product-review.routes');
 const { User, Role, Order, Product } = require('../modules/associations');
 const { Op } = require('sequelize');
 
@@ -35,6 +36,7 @@ router.use('/testimonials', testimonialRoutes);
 router.use('/contact', contactRoutes);
 router.use('/home-banners', homeBannerRoutes);
 router.use('/coupons', couponRoutes);
+router.use('/product-reviews', productReviewRoutes);
 
 
 // Ejemplo de ruta protegida para verificar el token

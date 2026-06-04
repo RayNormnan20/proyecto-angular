@@ -47,6 +47,9 @@ const connectDB = async () => {
     // Verificar columnas nuevas no destructivas para pedidos/tracking
     const { ensureOrderTrackingColumns } = require('../modules/orders/order.migration');
     await ensureOrderTrackingColumns();
+
+    const { ensureProductReviewColumns } = require('../modules/product-reviews/product-review.migration');
+    await ensureProductReviewColumns();
   } catch (error) {
     console.error('❌ Error al conectar con la base de datos:', error);
     if (!isServerless) {

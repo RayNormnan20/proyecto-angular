@@ -219,13 +219,11 @@ type VendorLogo = {
               <div class="flex justify-center items-center gap-2 mb-2">
                   <h5 class="text-lg font-bold text-gray-900 m-0">S/. {{product.precio}}</h5>
               </div>
-              <div class="flex justify-center text-indigo-600 text-xs items-center">
-                  <small class="fa fa-star mr-1"></small>
-                  <small class="fa fa-star mr-1"></small>
-                  <small class="fa fa-star mr-1"></small>
-                  <small class="fa fa-star mr-1"></small>
-                  <small class="fa fa-star mr-1"></small>
-                  <span class="text-gray-500 ml-1">(99)</span>
+              <div class="flex justify-center text-xs items-center">
+                  <ng-container *ngFor="let star of stars">
+                    <small class="fa fa-star mr-1" [class.text-amber-400]="star <= getProductReviewStars(product)" [class.text-gray-300]="star > getProductReviewStars(product)"></small>
+                  </ng-container>
+                  <span class="text-gray-500 ml-1">({{ getProductReviewTotal(product) }})</span>
               </div>
             </div>
           </div>
@@ -288,13 +286,11 @@ type VendorLogo = {
               <div class="flex justify-center items-center gap-2 mb-2">
                   <h5 class="text-lg font-bold text-gray-900 m-0">S/. {{product.precio}}</h5>
               </div>
-              <div class="flex justify-center text-[#C9A84C] text-xs items-center">
-                  <small class="fa fa-star mr-1"></small>
-                  <small class="fa fa-star mr-1"></small>
-                  <small class="fa fa-star mr-1"></small>
-                  <small class="fa fa-star mr-1"></small>
-                  <small class="fa fa-star mr-1"></small>
-                  <span class="text-gray-500 ml-1">(99)</span>
+              <div class="flex justify-center text-xs items-center">
+                  <ng-container *ngFor="let star of stars">
+                    <small class="fa fa-star mr-1" [class.text-amber-400]="star <= getProductReviewStars(product)" [class.text-gray-300]="star > getProductReviewStars(product)"></small>
+                  </ng-container>
+                  <span class="text-gray-500 ml-1">({{ getProductReviewTotal(product) }})</span>
               </div>
             </div>
           </div>
@@ -366,13 +362,11 @@ type VendorLogo = {
                     <div class="flex justify-center items-center gap-2 mb-2">
                         <h5 class="text-lg font-bold text-gray-900 m-0">S/. {{product.precio}}</h5>
                     </div>
-                    <div class="flex justify-center text-[#C9A84C] text-xs items-center">
-                        <small class="fa fa-star mr-1"></small>
-                        <small class="fa fa-star mr-1"></small>
-                        <small class="fa fa-star mr-1"></small>
-                        <small class="fa fa-star mr-1"></small>
-                        <small class="fa fa-star mr-1"></small>
-                        <span class="text-gray-500 ml-1">(99)</span>
+                    <div class="flex justify-center text-xs items-center">
+                        <ng-container *ngFor="let star of stars">
+                          <small class="fa fa-star mr-1" [class.text-amber-400]="star <= getProductReviewStars(product)" [class.text-gray-300]="star > getProductReviewStars(product)"></small>
+                        </ng-container>
+                        <span class="text-gray-500 ml-1">({{ getProductReviewTotal(product) }})</span>
                     </div>
                 </div>
             </div>
@@ -529,6 +523,7 @@ featuredProducts = signal<Product[]>([]);
 
   favorites = signal<Set<number>>(new Set());
   searchTerm: string = '';
+  stars = [1, 2, 3, 4, 5];
   
   // Pagination
   currentPage = signal(1);
@@ -885,6 +880,14 @@ featuredProducts = signal<Product[]>([]);
       return `${this.imageBaseUrl}${url}`;
     }
     return 'assets/img/placeholder.png';
+  }
+
+  getProductReviewStars(product: Product): number {
+    return Math.round(product.review_summary?.average || 0);
+  }
+
+  getProductReviewTotal(product: Product): number {
+    return Number(product.review_summary?.total || 0);
   }
 
   addToCart(product: Product, event: Event) {

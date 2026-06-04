@@ -26,6 +26,7 @@ import { EmailSettingsComponent } from './features/dashboard/pages/email-setting
 import { TestimonialSettingsComponent } from './features/dashboard/pages/testimonial-settings/testimonial-settings.component';
 import { HomeBannersSettingsComponent } from './features/dashboard/pages/home-banners-settings/home-banners-settings.component';
 import { AccessLogsComponent } from './features/dashboard/pages/access-logs/access-logs.component';
+import { ProductReviewSettingsComponent } from './features/dashboard/pages/product-review-settings/product-review-settings.component';
 
 // Público
 import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
@@ -86,6 +87,7 @@ export const routes: Routes = [
       { path: 'roles', component: RolesListComponent },
       // Productos Admin
       { path: 'products', component: ProductListComponent },
+      { path: 'product-review-settings', component: ProductReviewSettingsComponent },
       // Categorías
       { path: 'categories', component: CategoryListComponent },
       // Marcas

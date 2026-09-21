@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { Product, StockMovement } from '../models/product.model';
+import { Product, StockMovement, BulkImportProductRow, BulkImportResult } from '../models/product.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -30,6 +30,10 @@ export class ProductsService {
 
   create(productData: FormData): Observable<Product> {
     return this.http.post<Product>(this.apiUrl, productData);
+  }
+
+  bulkImport(products: BulkImportProductRow[]): Observable<BulkImportResult> {
+    return this.http.post<BulkImportResult>(`${this.apiUrl}/bulk-import`, { products });
   }
 
   update(id: number, productData: FormData): Observable<Product> {

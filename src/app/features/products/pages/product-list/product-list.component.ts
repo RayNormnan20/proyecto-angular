@@ -5,9 +5,11 @@ import { ProductsService } from '../../services/products.service';
 import { CategoriesService } from '../../services/categories.service';
 import { BrandsService } from '../../services/brands.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { Product, Category, Brand, ProductImage, StockMovement } from '../../models/product.model';
+import { Product, Category, Brand, ProductImage, StockMovement, BulkImportProductRow, BulkImportResult } from '../../models/product.model';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
+import { buildBulkExportCsv, buildBulkImportTemplateCsv, decodeCsvFileContent, encodeCsvForExcel, parseBulkImportCsv } from '../../utils/product-bulk-import.util';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
@@ -17,9 +19,14 @@ import { environment } from '../../../../../environments/environment';
     <div class="container mx-auto p-4">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1 class="text-2xl font-bold text-gray-800">Gestión de Productos</h1>
-        <button (click)="openModal()" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center justify-center">
-          + Nuevo Producto
-        </button>
+        <div class="w-full md:w-auto flex flex-col sm:flex-row gap-3">
+          <button (click)="openImportModal()" class="w-full md:w-auto bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700 flex items-center justify-center">
+            Importación Masiva
+          </button>
+          <button (click)="openModal()" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center justify-center">
+            + Nuevo Producto
+          </button>
+        </div>
       </div>
 
       <!-- Filtros -->
@@ -228,6 +235,155 @@ import { environment } from '../../../../../environments/environment';
                 </svg>
               </button>
             </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div *ngIf="isImportModalOpen" class="fixed inset-0 z-[105] overflow-y-auto" aria-labelledby="import-modal-title" role="dialog" aria-modal="true">
+      <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+        <div class="fixed inset-0 transition-opacity" style="background-color: rgba(0, 0, 0, 0.5);" aria-hidden="true" (click)="closeImportModal()"></div>
+
+        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-5xl">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+            <div class="flex justify-between items-start gap-4 mb-5">
+              <div>
+                <h3 class="text-lg font-medium text-gray-900" id="import-modal-title">Importación masiva de productos</h3>
+                <p class="text-sm text-gray-600 mt-1">
+                  Sube un archivo CSV con los campos principales del producto. Puedes enviar <span class="font-semibold">categoria</span> y <span class="font-semibold">marca</span> por nombre o por ID.
+                </p>
+              </div>
+              <button (click)="closeImportModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                <span class="sr-only">Cerrar</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div class="xl:col-span-1 border border-gray-200 rounded-lg p-4 space-y-4">
+                <div>
+                  <div class="text-sm font-bold text-gray-900">Formato esperado</div>
+                  <p class="text-xs text-gray-500 mt-1">
+                    Columnas mínimas: <span class="font-semibold">nombre</span>, <span class="font-semibold">precio</span>, <span class="font-semibold">stock</span>, <span class="font-semibold">categoria o categoria_id</span>, <span class="font-semibold">marca o marca_id</span>.
+                  </p>
+                </div>
+
+                <div class="rounded-md bg-gray-50 border border-gray-200 p-3 text-xs text-gray-600 space-y-1">
+                  <div><span class="font-semibold text-gray-800">Identificación:</span> usa <code>id_producto</code> o <code>codigo_sku</code> para actualizar productos existentes</div>
+                  <div><span class="font-semibold text-gray-800">Estado:</span> activo, inactivo o agotado</div>
+                  <div><span class="font-semibold text-gray-800">Visible web:</span> true, false, si, no, 1, 0</div>
+                  <div><span class="font-semibold text-gray-800">Precios volumen:</span> <code>12:11.50|100:9.90</code></div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row xl:flex-col gap-3">
+                  <button type="button" (click)="downloadImportTemplate()" class="inline-flex justify-center rounded-md bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100">
+                    Descargar plantilla CSV
+                  </button>
+                  <button type="button" (click)="downloadCurrentProducts()" [disabled]="isExporting" class="inline-flex justify-center rounded-md bg-sky-50 px-4 py-2 text-sm font-medium text-sky-700 hover:bg-sky-100 disabled:opacity-50">
+                    {{ isExporting ? 'Descargando...' : 'Descargar productos actuales' }}
+                  </button>
+                  <label class="inline-flex justify-center rounded-md bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100 cursor-pointer">
+                    Seleccionar archivo CSV
+                    <input type="file" accept=".csv,text/csv" class="hidden" (change)="onImportFileSelected($event)">
+                  </label>
+                </div>
+
+                <div class="text-sm text-gray-700" *ngIf="importFileName">
+                  Archivo cargado: <span class="font-semibold">{{ importFileName }}</span>
+                </div>
+
+                <div *ngIf="importErrors.length > 0" class="rounded-md border border-red-200 bg-red-50 p-3">
+                  <div class="text-sm font-semibold text-red-700 mb-2">Revisa el archivo</div>
+                  <ul class="text-sm text-red-600 space-y-1">
+                    <li *ngFor="let error of importErrors">• {{ error }}</li>
+                  </ul>
+                </div>
+
+                <div *ngIf="importResult" class="rounded-md border border-gray-200 bg-gray-50 p-3 space-y-2">
+                  <div class="text-sm font-semibold text-gray-900">Resultado de la importación</div>
+                  <div class="text-sm text-gray-700">Procesados: <span class="font-semibold">{{ importResult.processedCount }}</span></div>
+                  <div class="text-sm text-indigo-700">Importados/actualizados: <span class="font-semibold">{{ importResult.importedCount }}</span></div>
+                  <div class="text-sm text-green-700">Creados: <span class="font-semibold">{{ importResult.createdCount }}</span></div>
+                  <div class="text-sm text-amber-700">Actualizados: <span class="font-semibold">{{ importResult.updatedCount }}</span></div>
+                  <div class="text-sm text-red-700">Con error: <span class="font-semibold">{{ importResult.errorCount }}</span></div>
+                </div>
+              </div>
+
+              <div class="xl:col-span-2 border border-gray-200 rounded-lg overflow-hidden">
+                <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <h4 class="text-sm font-bold text-gray-900">Previsualización</h4>
+                    <p class="text-xs text-gray-500 mt-1" *ngIf="importRows.length > 0">Mostrando {{ importPreviewRows.length }} de {{ importRows.length }} filas preparadas para importar.</p>
+                  </div>
+                  <button
+                    type="button"
+                    (click)="submitBulkImport()"
+                    [disabled]="importRows.length === 0 || importErrors.length > 0 || isImporting"
+                    class="inline-flex justify-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                  >
+                    {{ isImporting ? 'Importando...' : 'Importar productos' }}
+                  </button>
+                </div>
+
+                <div *ngIf="importRows.length === 0" class="p-8 text-center text-sm text-gray-500">
+                  Carga un archivo CSV para revisar los productos antes de importarlos.
+                </div>
+
+                <div *ngIf="importRows.length > 0" class="overflow-auto max-h-[380px]">
+                  <table class="min-w-full">
+                    <thead class="bg-white sticky top-0">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">#</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">ID</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Nombre</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">SKU</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Precio</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Stock</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Categoría</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Marca</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let row of importPreviewRows; let index = index" class="border-t border-gray-100">
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ index + 2 }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ row.id_producto || '-' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ row.nombre || '-' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ row.codigo_sku || '-' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ row.precio || '-' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ row.stock || '-' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ row.categoria || row.categoria_id || '-' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ row.marca || row.marca_id || '-' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ row.estado || 'activo' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div *ngIf="importResult?.errors?.length" class="border-t border-gray-200 bg-red-50 p-4">
+                  <div class="text-sm font-semibold text-red-700 mb-2">Filas con observaciones</div>
+                  <div class="space-y-2 max-h-52 overflow-auto">
+                    <div *ngFor="let error of importResult?.errors || []" class="rounded-md border border-red-200 bg-white p-3">
+                      <div class="text-sm font-medium text-gray-900">
+                        Fila {{ error.rowNumber }} <span *ngIf="error.nombre">· {{ error.nombre }}</span> <span *ngIf="error.codigo_sku">· SKU {{ error.codigo_sku }}</span>
+                      </div>
+                      <ul class="text-sm text-red-600 mt-1 space-y-1">
+                        <li *ngFor="let detail of error.errors">• {{ detail }}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 flex justify-end">
+            <button type="button" (click)="closeImportModal()" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+              Cerrar
+            </button>
           </div>
         </div>
       </div>
@@ -564,6 +720,15 @@ export class ProductListComponent implements OnInit {
   selectedFiles: File[] = [];
   existingImages: ProductImage[] = [];
   volumePrices: Array<{ min: number | string; precio: number | string }> = [];
+  isImportModalOpen = false;
+  importHeaders: string[] = [];
+  importRows: BulkImportProductRow[] = [];
+  importPreviewRows: BulkImportProductRow[] = [];
+  importErrors: string[] = [];
+  importFileName = '';
+  importResult: BulkImportResult | null = null;
+  isImporting = false;
+  isExporting = false;
   isStockModalOpen = false;
   selectedStockProduct: Product | null = null;
   stockMovements = signal<StockMovement[]>([]);
@@ -731,6 +896,140 @@ export class ProductListComponent implements OnInit {
     this.selectedFiles = [];
     this.existingImages = [];
     this.volumePrices = [];
+  }
+
+  openImportModal() {
+    this.isImportModalOpen = true;
+  }
+
+  closeImportModal() {
+    this.isImportModalOpen = false;
+    this.importHeaders = [];
+    this.importRows = [];
+    this.importPreviewRows = [];
+    this.importErrors = [];
+    this.importFileName = '';
+    this.importResult = null;
+    this.isImporting = false;
+  }
+
+  downloadImportTemplate() {
+    const csvContent = buildBulkImportTemplateCsv();
+    const blob = new Blob([encodeCsvForExcel(csvContent)], { type: 'text/csv;charset=utf-16le;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'plantilla-importacion-productos.csv';
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  async downloadCurrentProducts() {
+    this.isExporting = true;
+
+    try {
+      const allProducts: Product[] = [];
+      let page = 1;
+      let totalPages = 1;
+
+      do {
+        const response = await firstValueFrom(this.productsService.getAll({
+          page,
+          limit: 100
+        }));
+
+        const pageProducts = Array.isArray(response?.products) ? response.products : [];
+        allProducts.push(...pageProducts);
+        totalPages = Number(response?.totalPages || 1);
+        page += 1;
+      } while (page <= totalPages);
+
+      const csvContent = buildBulkExportCsv(allProducts);
+      const blob = new Blob([encodeCsvForExcel(csvContent)], { type: 'text/csv;charset=utf-16le;' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'productos-actuales-importacion.csv';
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+      this.toastService.show(`${allProducts.length} productos descargados correctamente`, 'success');
+    } catch (error) {
+      console.error(error);
+      this.toastService.show('No se pudo descargar la base actual de productos', 'error');
+    } finally {
+      this.isExporting = false;
+    }
+  }
+
+  onImportFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    this.importResult = null;
+    this.importErrors = [];
+    this.importRows = [];
+    this.importPreviewRows = [];
+    this.importHeaders = [];
+    this.importFileName = file.name;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const content = reader.result instanceof ArrayBuffer ? decodeCsvFileContent(reader.result) : '';
+      const parsed = parseBulkImportCsv(content);
+
+      this.importHeaders = parsed.headers;
+      this.importRows = parsed.rows;
+      this.importPreviewRows = parsed.previewRows;
+      this.importErrors = parsed.errors;
+
+      if (parsed.errors.length > 0) {
+        this.toastService.show('El archivo tiene columnas faltantes o formato no válido', 'error');
+      } else {
+        this.toastService.show(`${parsed.rows.length} productos listos para importar`, 'success');
+      }
+    };
+
+    reader.onerror = () => {
+      this.importErrors = ['No se pudo leer el archivo seleccionado.'];
+      this.toastService.show('No se pudo leer el archivo CSV', 'error');
+    };
+
+    reader.readAsArrayBuffer(file);
+    input.value = '';
+  }
+
+  submitBulkImport() {
+    if (this.importRows.length === 0 || this.importErrors.length > 0) {
+      return;
+    }
+
+    this.isImporting = true;
+    this.productsService.bulkImport(this.importRows).subscribe({
+      next: (result) => {
+        this.importResult = result;
+        this.isImporting = false;
+        this.loadProducts();
+
+        if (result.errorCount > 0) {
+          this.toastService.show(`Importación completada: ${result.createdCount} creados, ${result.updatedCount} actualizados y ${result.errorCount} con observaciones`, 'success');
+        } else {
+          this.toastService.show(`${result.createdCount} creados y ${result.updatedCount} actualizados correctamente`, 'success');
+        }
+      },
+      error: (err) => {
+        this.isImporting = false;
+        const response = err?.error as BulkImportResult | undefined;
+        if (response?.errors) {
+          this.importResult = response;
+        }
+        this.toastService.show(err?.error?.message || 'No se pudo importar el archivo', 'error');
+      }
+    });
   }
 
   openStockModal(product: Product) {

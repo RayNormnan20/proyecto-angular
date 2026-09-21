@@ -64,3 +64,51 @@ export interface ProductImage {
   es_principal?: boolean;
   created_at?: string;
 }
+
+export interface BulkImportProductRow {
+  id_producto?: string | number;
+  nombre?: string;
+  descripcion?: string;
+  precio?: string | number;
+  stock?: string | number;
+  codigo_sku?: string;
+  categoria?: string;
+  categoria_id?: string | number;
+  marca?: string;
+  marca_id?: string | number;
+  estado?: string;
+  visible_web?: string | boolean | number;
+  precios_volumen?: string;
+}
+
+export interface BulkImportCreatedProduct {
+  id_producto: number;
+  nombre: string;
+  codigo_sku?: string | null;
+  rowNumber: number;
+}
+
+export interface BulkImportUpdatedProduct {
+  id_producto: number;
+  nombre: string;
+  codigo_sku?: string | null;
+  rowNumber: number;
+}
+
+export interface BulkImportError {
+  rowNumber: number;
+  nombre?: string;
+  codigo_sku?: string | null;
+  errors: string[];
+}
+
+export interface BulkImportResult {
+  importedCount: number;
+  createdCount: number;
+  updatedCount: number;
+  errorCount: number;
+  processedCount: number;
+  createdProducts: BulkImportCreatedProduct[];
+  updatedProducts: BulkImportUpdatedProduct[];
+  errors: BulkImportError[];
+}

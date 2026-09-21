@@ -6,6 +6,7 @@ const authenticateToken = require('../../middlewares/auth.middleware');
 const checkPermission = require('../../middlewares/permission.middleware');
 
 router.get('/', productController.getAll);
+router.post('/bulk-import', [authenticateToken, checkPermission('CREAR_PRODUCTO')], productController.bulkImport);
 router.get('/:id', productController.getById);
 
 // Rutas protegidas

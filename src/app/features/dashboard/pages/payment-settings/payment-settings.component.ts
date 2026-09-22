@@ -5,6 +5,8 @@ import { PaymentMethodService, PaymentMethod } from '../../../../core/services/p
 import { ToastService } from '../../../../core/services/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
+import { SettingsService } from '../../../../core/services/settings.service';
+import { BrandingService } from '../../../../core/services/branding.service';
 
 @Component({
   selector: 'app-payment-settings',
@@ -16,9 +18,13 @@ export class PaymentSettingsComponent {
   private paymentMethodService = inject(PaymentMethodService);
   private toastService = inject(ToastService);
   private authService = inject(AuthService);
+  private settingsService = inject(SettingsService);
+  brandingService = inject(BrandingService);
   
   paymentMethods = signal<PaymentMethod[]>([]);
   isProcessing = signal<number | null>(null); // Stores ID of method being processed
+  appName = signal('');
+  isSavingAppName = signal(false);
   showCreateModal = false;
   isCreating = false;
 
@@ -31,7 +37,22 @@ export class PaymentSettingsComponent {
   };
 
   constructor() {
+    this.loadAppName();
     this.loadPaymentMethods();
+  }
+
+  loadAppName() {
+    this.settingsService.getSettings().subscribe({
+      next: (settings) => {
+        const currentName = String(settings?.['app_name'] || this.brandingService.appName()).trim();
+        this.appName.set(currentName);
+        this.brandingService.applyAppName(currentName);
+      },
+      error: (err) => {
+        console.error('Error loading app name', err);
+        this.appName.set(this.brandingService.appName());
+      }
+    });
   }
 
   loadPaymentMethods() {
@@ -46,6 +67,35 @@ export class PaymentSettingsComponent {
 
   canCreate(): boolean {
     return this.authService.hasPermission('GESTIONAR_METODOS_PAGO') || this.authService.hasRole('admin');
+  }
+
+  canManageBranding(): boolean {
+    return this.authService.hasPermission('GESTIONAR_CONFIGURACION') || this.authService.hasRole('admin');
+  }
+
+  saveAppName() {
+    const nextName = this.appName().trim();
+
+    if (!nextName) {
+      this.toastService.show('El nombre global es obligatorio', 'error');
+      return;
+    }
+
+    this.isSavingAppName.set(true);
+
+    this.settingsService.updateSettings({ app_name: nextName }).subscribe({
+      next: () => {
+        this.brandingService.applyAppName(nextName);
+        this.brandingService.refresh();
+        this.toastService.show('Nombre global actualizado correctamente', 'success');
+        this.isSavingAppName.set(false);
+      },
+      error: (err) => {
+        console.error('Error saving app name', err);
+        this.toastService.show(err?.error?.message || 'No se pudo actualizar el nombre global', 'error');
+        this.isSavingAppName.set(false);
+      }
+    });
   }
 
   openCreateModal() {

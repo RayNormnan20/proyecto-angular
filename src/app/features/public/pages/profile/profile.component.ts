@@ -6,6 +6,7 @@ import { FavoriteService } from '../../../favorites/services/favorite.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
+import { BrandingService } from '../../../../core/services/branding.service';
 
 @Component({
   selector: 'app-profile',
@@ -99,7 +100,7 @@ import { environment } from '../../../../../environments/environment';
                   </svg>
                 </div>
                 <div>
-                  <p class="text-sm text-gray-500 font-medium">Puntos Nova</p>
+                  <p class="text-sm text-gray-500 font-medium">Puntos {{ brandingService.appName() }}</p>
                   <p class="text-2xl font-bold text-gray-800">{{ stats().points }}</p>
                 </div>
               </div>
@@ -333,6 +334,7 @@ export class ProfileComponent {
   private orderService = inject(OrderService);
   private favoriteService = inject(FavoriteService);
   private toastService = inject(ToastService);
+  brandingService = inject(BrandingService);
   
   currentUser = this.authService.currentUser;
   today = new Date();
@@ -354,6 +356,7 @@ export class ProfileComponent {
   }));
 
   constructor() {
+    this.brandingService.ensureLoaded();
     this.loadOrders();
     this.favoriteService.loadFavoritesCount();
   }

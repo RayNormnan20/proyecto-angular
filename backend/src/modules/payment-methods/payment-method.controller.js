@@ -1,4 +1,15 @@
 const PaymentMethod = require('./payment-method.model');
+const { loadAppBranding, replaceAppNameTokens } = require('../../utils/app-branding.utils');
+
+const mapPaymentMethodWithBranding = (method, appName) => {
+  const json = method.toJSON ? method.toJSON() : { ...method };
+
+  return {
+    ...json,
+    descripcion: replaceAppNameTokens(json.descripcion, appName),
+    instrucciones: replaceAppNameTokens(json.instrucciones, appName)
+  };
+};
 
 exports.getAll = async (req, res) => {
   try {
@@ -11,7 +22,8 @@ exports.getAll = async (req, res) => {
     const methods = await PaymentMethod.findAll({
       where: whereClause
     });
-    res.json(methods);
+    const { appName } = await loadAppBranding();
+    res.json(methods.map(method => mapPaymentMethodWithBranding(method, appName)));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -21,7 +33,8 @@ exports.getById = async (req, res) => {
   try {
     const method = await PaymentMethod.findByPk(req.params.id);
     if (!method) return res.status(404).json({ message: 'Método de pago no encontrado' });
-    res.json(method);
+    const { appName } = await loadAppBranding();
+    res.json(mapPaymentMethodWithBranding(method, appName));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

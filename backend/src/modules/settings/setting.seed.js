@@ -26,6 +26,7 @@ const getDefaultFrontendUrl = () => {
 const seedSettings = async () => {
   try {
     const defaults = {
+      'app_name': 'TEST NOMBRE',
       'frontend_url': getDefaultFrontendUrl(),
       'yape_qr': '',
       'yape_nombre': 'Mi Tienda S.A.C.',

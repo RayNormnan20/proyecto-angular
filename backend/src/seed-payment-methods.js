@@ -14,13 +14,13 @@ async function seed() {
       {
         nombre: 'Transferencia Bancaria',
         descripcion: 'Transferencia directa a nuestra cuenta BCP',
-        instrucciones: 'BCP: 191-12345678-0-01\nCCI: 002-191-12345678001-59\nTitular: Nova Vam 3D SAC',
+        instrucciones: 'BCP: 191-12345678-0-01\nCCI: 002-191-12345678001-59\nTitular: {{app_name}}',
         requiere_comprobante: true
       },
       {
         nombre: 'Yape / Plin',
         descripcion: 'Escanea el QR o usa el número',
-        instrucciones: 'Número: 999 999 999\nTitular: Nova Vam 3D',
+        instrucciones: 'Número: 999 999 999\nTitular: {{app_name}}',
         requiere_comprobante: true
       },
       {

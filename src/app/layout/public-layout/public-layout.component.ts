@@ -10,6 +10,7 @@ import { CategoriesService } from '../../features/products/services/categories.s
 import { ProductsService } from '../../features/products/services/products.service';
 import { Category, Product } from '../../features/products/models/product.model';
 import { environment } from '../../../environments/environment';
+import { BrandingService } from '../../core/services/branding.service';
 
 @Component({
   selector: 'app-public-layout',
@@ -61,8 +62,7 @@ import { environment } from '../../../environments/environment';
         <div class="container mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
           <!-- Logo -->
           <a (click)="goHome()" class="text-decoration-none block lg:w-1/3 text-center lg:text-left no-underline hover:no-underline cursor-pointer">
-            <span class="uppercase text-white bg-gray-900 px-3 py-1 font-bold text-3xl lg:text-4xl border border-gray-900">NOVA</span>
-            <span class="uppercase text-white bg-indigo-600 px-3 py-1 font-bold text-3xl lg:text-4xl ml-[-5px] border border-indigo-600">VAM 3D</span>
+            <span class="uppercase text-white bg-indigo-600 px-4 py-1 font-bold text-3xl lg:text-4xl border border-indigo-600 inline-block">{{ brandingService.appName() }}</span>
           </a>
 
           <!-- Search -->
@@ -265,7 +265,7 @@ import { environment } from '../../../environments/environment';
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="text-center md:text-left mb-4 md:mb-0">
                         <p class="text-gray-400 m-0">
-                            &copy; <a class="text-indigo-600 hover:underline no-underline" href="#">NovaVam3D</a>. Todos los derechos reservados.
+                            &copy; <a class="text-indigo-600 hover:underline no-underline" href="#">{{ brandingService.appName() }}</a>. Todos los derechos reservados.
                         </p>
                     </div>
                     <div class="text-center md:text-right">
@@ -283,6 +283,7 @@ export class PublicLayoutComponent implements OnInit {
   authService = inject(AuthService);
   cartService = inject(CartService);
   favoriteService = inject(FavoriteService);
+  brandingService = inject(BrandingService);
   private categoriesService = inject(CategoriesService);
   private productsService = inject(ProductsService);
   private router = inject(Router);
@@ -297,6 +298,7 @@ export class PublicLayoutComponent implements OnInit {
   private searchTimeout: any;
 
   ngOnInit() {
+    this.brandingService.ensureLoaded();
     this.loadCategories();
   }
   

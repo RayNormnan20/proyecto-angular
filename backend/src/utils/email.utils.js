@@ -3,14 +3,12 @@ const path = require('path');
 const fs = require('fs');
 const Setting = require('../modules/settings/setting.model');
 const EmailLog = require('../modules/email-logs/email-log.model');
+const { buildSettingsMap, replaceAppNameTokens, resolveAppName, resolveFrontendUrl } = require('./app-branding.utils');
 
 const getTransporter = async () => {
   try {
     const settings = await Setting.findAll();
-    const settingsMap = settings.reduce((acc, curr) => {
-      acc[curr.clave] = curr.valor;
-      return acc;
-    }, {});
+    const settingsMap = buildSettingsMap(settings);
 
     const host = settingsMap['email_host'] || process.env.EMAIL_HOST || 'smtp.gmail.com';
     const port = parseInt(settingsMap['email_port']) || parseInt(process.env.EMAIL_PORT) || 587;
@@ -52,12 +50,15 @@ const sendOrderConfirmation = async (order, user, items, pdfBuffer = null) => {
   const { transporter, from, settingsMap } = emailConfig;
 
   // Datos de la empresa (configurables o por defecto)
-  const empresaNombre = settingsMap['app_name'] || 'Nova Vam 3D';
+  const empresaNombre = resolveAppName(settingsMap);
   const empresaLogo = settingsMap['app_logo'] || ''; // URL del logo si existe
 
   // Obtener datos del método de pago directamente de la orden
   const paymentMethodName = order.paymentMethod?.nombre || 'Método de Pago';
-  const paymentInstructionsText = order.paymentMethod?.instrucciones || 'Sigue las instrucciones proporcionadas en el checkout.';
+  const paymentInstructionsText = replaceAppNameTokens(
+    order.paymentMethod?.instrucciones || 'Sigue las instrucciones proporcionadas en el checkout.',
+    empresaNombre
+  );
   const paymentImage = order.paymentMethod?.imagen_url || '';
 
   // Construcción de instrucciones de pago dinámicas
@@ -208,7 +209,7 @@ const sendOrderConfirmation = async (order, user, items, pdfBuffer = null) => {
 
   try {
     await transporter.sendMail({
-      from: `"Nova Vam 3D" <${from}>`,
+      from: `"${empresaNombre}" <${from}>`,
       to: user.email,
       subject: `Hemos recibido tu pedido #${order.id_orden}`,
       html: html,
@@ -252,8 +253,8 @@ const sendWelcomeEmail = async (user) => {
   const { transporter, from, settingsMap } = emailConfig;
 
   // Datos de la empresa (configurables o por defecto)
-  const empresaNombre = settingsMap['app_name'] || 'Nova Vam 3D';
-  const frontendUrl = normalizeFrontendUrl(
+  const empresaNombre = resolveAppName(settingsMap);
+  const frontendUrl = resolveFrontendUrl(
     settingsMap['frontend_url'],
     process.env.FRONTEND_URL,
     process.env.CORS_ORIGIN
@@ -284,7 +285,7 @@ const sendWelcomeEmail = async (user) => {
 
   try {
     await transporter.sendMail({
-      from: `"Nova Vam 3D" <${from}>`,
+      from: `"${empresaNombre}" <${from}>`,
       to: user.email,
       subject: `¡Bienvenido/a a ${empresaNombre}!`,
       html: html
@@ -325,8 +326,8 @@ const sendPasswordResetEmail = async (user, token) => {
   }
 
   const { transporter, from, settingsMap } = emailConfig;
-  const empresaNombre = settingsMap['app_name'] || 'Nova Vam 3D';
-  const frontendUrl = normalizeFrontendUrl(
+  const empresaNombre = resolveAppName(settingsMap);
+  const frontendUrl = resolveFrontendUrl(
     settingsMap['frontend_url'],
     process.env.FRONTEND_URL,
     process.env.CORS_ORIGIN
@@ -354,7 +355,7 @@ const sendPasswordResetEmail = async (user, token) => {
 
   try {
     await transporter.sendMail({
-      from: `"Nova Vam 3D" <${from}>`,
+      from: `"${empresaNombre}" <${from}>`,
       to: user.email,
       subject: `Restablece tu contraseña en ${empresaNombre}`,
       html
@@ -564,8 +565,8 @@ const sendOrderStatusUpdate = async (order, user) => {
   }
 
   const { transporter, from, settingsMap } = emailConfig;
-  const empresaNombre = settingsMap['app_name'] || 'Nova Vam 3D';
-  const frontendUrl = normalizeFrontendUrl(
+  const empresaNombre = resolveAppName(settingsMap);
+  const frontendUrl = resolveFrontendUrl(
     settingsMap['frontend_url'],
     process.env.FRONTEND_URL,
     process.env.CORS_ORIGIN
@@ -611,7 +612,7 @@ const sendOrderStatusUpdate = async (order, user) => {
 
   try {
     await transporter.sendMail({
-      from: `"Nova Vam 3D" <${from}>`,
+      from: `"${empresaNombre}" <${from}>`,
       to: user.email,
       subject: `Actualización de tu pedido #${order.id_orden}: ${statusLabel}`,
       html
@@ -639,24 +640,6 @@ const sendOrderStatusUpdate = async (order, user) => {
   }
 };
 
-const normalizeFrontendUrl = (...candidates) => {
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-
-    const value = String(candidate).trim();
-    if (!value || value === '*') continue;
-
-    const firstValue = value.split(',').map(item => item.trim()).find(Boolean);
-    if (!firstValue || firstValue === '*') continue;
-
-    if (/^https?:\/\//i.test(firstValue)) {
-      return firstValue.replace(/\/$/, '');
-    }
-  }
-
-  return 'http://localhost:4200';
-};
-
 const sendContactEmail = async (contactData) => {
   const emailConfig = await getTransporter();
 
@@ -666,7 +649,7 @@ const sendContactEmail = async (contactData) => {
   }
 
   const { transporter, from, settingsMap } = emailConfig;
-  const empresaNombre = settingsMap['app_name'] || 'Nova Vam 3D';
+  const empresaNombre = resolveAppName(settingsMap);
   // El correo de contacto de la empresa (a donde llegan los mensajes)
   const contactEmail = settingsMap['contact_email'] || process.env.CONTACT_EMAIL || from;
 

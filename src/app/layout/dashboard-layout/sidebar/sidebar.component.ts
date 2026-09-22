@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, inject, signal } from '@angular
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
+import { BrandingService } from '../../../core/services/branding.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -30,7 +31,7 @@ import { AuthService } from '../../../core/services/auth.service';
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                 </svg>
             </div>
-            <h1 class="text-xl font-bold tracking-wide text-white">Nova Vam 3D</h1>
+            <h1 class="text-xl font-bold tracking-wide text-white">{{ brandingService.appName() }}</h1>
         </div>
         <button (click)="close.emit()" class="lg:hidden text-gray-400 hover:text-white focus:outline-none transition-colors">
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -340,8 +341,13 @@ export class SidebarComponent {
   @Input() isOpen = false;
   @Output() close = new EventEmitter<void>();
   authService = inject(AuthService);
+  brandingService = inject(BrandingService);
   
   activeMenu = signal<string | null>(null);
+
+  constructor() {
+    this.brandingService.ensureLoaded();
+  }
 
   toggleMenu(menuName: string) {
     this.activeMenu.update(current => current === menuName ? null : menuName);

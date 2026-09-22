@@ -7,6 +7,36 @@
   </div>
 
   <div class="grid grid-cols-1 gap-6">
+    <div class="bg-white rounded-lg shadow border border-gray-100 overflow-hidden" *ngIf="canManageBranding()">
+      <div class="p-4 bg-gray-50 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-800">Nombre Global de la Marca</h2>
+        <p class="text-sm text-gray-500 mt-1">El nombre que pongas aquí se usará en sidebar, páginas públicas, correos y documentos del sistema.</p>
+      </div>
+
+      <div class="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-end">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre global</label>
+          <input
+            [ngModel]="appName()"
+            (ngModelChange)="appName.set($event)"
+            type="text"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+            placeholder="Ej: Mi Empresa 3D"
+          />
+          <p class="text-xs text-gray-500 mt-2">Puedes usar cualquier nombre comercial y el sistema lo propagará automáticamente.</p>
+        </div>
+
+        <button
+          type="button"
+          (click)="saveAppName()"
+          [disabled]="isSavingAppName()"
+          class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none disabled:opacity-50 transition-colors"
+        >
+          {{ isSavingAppName() ? 'Guardando...' : 'Guardar nombre global' }}
+        </button>
+      </div>
+    </div>
+
     <div *ngFor="let method of paymentMethods()" 
          [class.opacity-60]="!method.activo" 
          [class.grayscale]="!method.activo"

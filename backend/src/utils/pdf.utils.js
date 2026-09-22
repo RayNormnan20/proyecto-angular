@@ -1,4 +1,5 @@
 const pdfmake = require('pdfmake');
+const { loadAppBranding, replaceAppNameTokens } = require('./app-branding.utils');
 
 const fonts = {
   Helvetica: {
@@ -24,7 +25,9 @@ const numeroALetras = (num) => {
     return `${entero} CON ${decimalStr}/100 SOLES`; 
 };
 
-const generateOrderPDF = (order, items) => {
+const generateOrderPDF = async (order, items) => {
+  const { appName, settingsMap, websiteHost } = await loadAppBranding();
+
   return new Promise((resolve, reject) => {
     try {
       const primaryColor = '#000000'; // Negro para formato formal
@@ -33,12 +36,12 @@ const generateOrderPDF = (order, items) => {
 
       // Datos de la empresa (Valores por defecto, idealmente vendrían de configuración)
       const empresa = {
-        nombre: 'NOVA VAM 3D',
+        nombre: appName.toUpperCase(),
         ruc: '20600000001', // RUC referencial
         direccion: 'Lima, Perú',
         telefono: '',
-        email: 'contacto@novavam3d.com',
-        web: 'www.novavam3d.com'
+        email: settingsMap.contact_email || process.env.EMAIL_USER || '',
+        web: websiteHost
       };
 
       // Cálculos
@@ -95,8 +98,8 @@ const generateOrderPDF = (order, items) => {
               {
                 width: '25%',
                 stack: [
-                  { text: 'NOVA VAM 3D', style: 'logo', alignment: 'center' },
-                  { text: 'IMPRESIÓN 3D Y DISEÑO', fontSize: 7, alignment: 'center', margin: [0, 2, 0, 0] }
+                  { text: appName.toUpperCase(), style: 'logo', alignment: 'center' },
+                  { text: 'IMPRESION 3D Y DISENO', fontSize: 7, alignment: 'center', margin: [0, 2, 0, 0] }
                 ]
               },
               // Columna 2: Datos de Empresa
@@ -265,7 +268,10 @@ const generateOrderPDF = (order, items) => {
                         decoration: 'underline'
                       },
                       {
-                        text: order.paymentMethod?.instrucciones || 'Consulte los detalles de pago en su cuenta.',
+                        text: replaceAppNameTokens(
+                          order.paymentMethod?.instrucciones || 'Consulte los detalles de pago en su cuenta.',
+                          appName
+                        ),
                         fontSize: 7,
                         margin: [15, 0, 0, 5]
                       }
@@ -320,7 +326,7 @@ const generateOrderPDF = (order, items) => {
             ]
           },
           {
-            text: 'Representación impresa de la Venta Electrónica. Consulte su documento en www.novavam3d.com',
+            text: `Representacion impresa de la Venta Electronica. Consulte su documento en ${websiteHost}`,
             alignment: 'center',
             fontSize: 7,
             margin: [0, 20, 0, 0],

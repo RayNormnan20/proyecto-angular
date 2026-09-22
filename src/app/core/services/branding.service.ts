@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { SettingsService } from './settings.service';
 
-const DEFAULT_APP_NAME = 'Nova Vam 3D';
+const DEFAULT_APP_NAME = 'TEST NOMBRE';
 
 @Injectable({
   providedIn: 'root'
